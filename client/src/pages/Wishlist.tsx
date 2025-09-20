@@ -226,7 +226,15 @@ const Wishlist: React.FC = () => {
               <p className="text-gray-500 mb-6">
                 Save items you love for later by clicking the heart icon
               </p>
-              <Link to="/products">
+              <Link to="/products" search={{
+                category: '',
+                q: '',
+                sortBy: 'relevance',
+                minPrice: undefined,
+                maxPrice: undefined,
+                inStock: false,
+                featured: false
+              }}>
                 <Button className="btn-primary">
                   <Package className="h-4 w-4 mr-2" />
                   Explore Products

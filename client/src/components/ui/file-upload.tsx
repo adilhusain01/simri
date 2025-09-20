@@ -60,13 +60,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     }
   }, [type]);
 
-  // Batch upload for review images
-  const batchUploadReviewFiles = useCallback(async (files: File[]): Promise<string[]> => {
-    if (type !== 'review') {
-      throw new Error('Batch upload only supported for review images');
-    }
-    return await uploadService.uploadReviewImages(files);
-  }, [type]);
+  // Batch upload for review images (currently not used but kept for future functionality)
+  // const batchUploadReviewFiles = useCallback(async (files: File[]): Promise<string[]> => {
+  //   if (type !== 'review') {
+  //     throw new Error('Batch upload only supported for review images');
+  //   }
+  //   return await uploadService.uploadReviewImages(files);
+  // }, [type]);
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
     if (disabled) return;

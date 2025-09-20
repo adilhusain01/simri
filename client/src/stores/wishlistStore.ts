@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { wishlistService } from '../services/api';
 import { toast } from 'sonner';
-import type { WishlistState, Wishlist } from '../types';
+import type { WishlistState } from '../types';
 
-export const useWishlistStore = create<WishlistState>((set, get) => ({
+export const useWishlistStore = create<WishlistState>((set) => ({
   wishlist: null,
   isLoading: false,
 

@@ -2,10 +2,10 @@ import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
 const PixelatedHeart = () => {
-  const mountRef = useRef(null);
-  const rendererRef = useRef(null);
-  const sceneRef = useRef(null);
-  const animationFrameRef = useRef(null);
+  const mountRef = useRef<HTMLDivElement>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
 
   // Heart shape pattern (16x16 grid)
   const heartPattern = [
@@ -84,7 +84,7 @@ const PixelatedHeart = () => {
     scene.add(groundMesh);
 
     // Heart squares
-    const squares = [];
+    const squares: THREE.Mesh[] = [];
     const squareGeometry = new THREE.PlaneGeometry(0.8, 0.8);
 
     heartPattern.forEach((row, rowIndex) => {
@@ -133,7 +133,7 @@ const PixelatedHeart = () => {
           square.userData.originalX +
           Math.cos(time * square.userData.pulseSpeed * 0.5 + square.userData.animationOffset) * 0.05;
 
-        square.material.opacity = 0.85 + Math.sin(time + square.userData.animationOffset) * 0.15;
+        (square.material as THREE.MeshStandardMaterial).opacity = 0.85 + Math.sin(time + square.userData.animationOffset) * 0.15;
       });
 
       renderer.render(scene, camera);
@@ -147,7 +147,7 @@ const PixelatedHeart = () => {
       if (rendererRef.current) rendererRef.current.dispose();
       squares.forEach((square) => {
         if (square.geometry) square.geometry.dispose();
-        if (square.material) square.material.dispose();
+        if (square.material) (square.material as THREE.MeshStandardMaterial).dispose();
       });
       if (sceneRef.current) {
         while (sceneRef.current.children.length > 0) {

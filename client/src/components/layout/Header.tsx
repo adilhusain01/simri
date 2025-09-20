@@ -43,7 +43,15 @@ const Header: React.FC = () => {
     if (searchQuery.trim()) {
       navigate({
         to: '/search',
-        search: { q: searchQuery },
+        search: { 
+          q: searchQuery,
+          category: '',
+          sortBy: 'relevance',
+          minPrice: undefined,
+          maxPrice: undefined,
+          inStock: false,
+          featured: false
+        },
       });
       setIsSearchOpen(false);
       setSearchQuery('');

@@ -49,7 +49,7 @@ const Home: React.FC = () => {
 
 
   // Function to get fallback icon and color for category
-  const getCategoryDisplay = (category: Category, index: number) => {
+  const getCategoryDisplay = (_category: Category, index: number) => {
     const colors = [
       "from-pink-400 to-rose-500",
       "from-red-400 to-pink-500", 
@@ -70,7 +70,7 @@ const Home: React.FC = () => {
   const fadeInUp = {
     initial: { opacity: 0, y: 60 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }
+    transition: { duration: 0.6, ease: "easeOut" as const }
   };
 
   const stagger = {
@@ -184,7 +184,15 @@ const Home: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 {isAuthenticated ? (
                   <>
-                    <Link to="/products">
+                    <Link to="/products" search={{
+                      category: '',
+                      q: '',
+                      sortBy: 'relevance',
+                      minPrice: undefined,
+                      maxPrice: undefined,
+                      inStock: false,
+                      featured: false
+                    }}>
                       <Button size="lg" className="btn-primary text-lg px-8 py-4 group">
                         <ShoppingBag className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
                         Shop Gifts
@@ -209,7 +217,15 @@ const Home: React.FC = () => {
                       </Button>
                     </Link>
                     
-                    <Link to="/products">
+                    <Link to="/products" search={{
+                      category: '',
+                      q: '',
+                      sortBy: 'relevance',
+                      minPrice: undefined,
+                      maxPrice: undefined,
+                      inStock: false,
+                      featured: false
+                    }}>
                       <Button variant="outline" size="lg" className="text-lg px-8 py-4 border-2 border-purple-200 hover:border-purple-500 hover:bg-purple-50">
                         <ShoppingBag className="mr-2 h-5 w-5" />
                         Browse Gifts
@@ -344,7 +360,15 @@ const Home: React.FC = () => {
                 const { color, icon } = getCategoryDisplay(category, index);
                 return (
                   <motion.div key={category.id} variants={fadeInUp}>
-                    <Link to="/products" search={{ category: category.name }}>
+                    <Link to="/products" search={{
+                      category: category.name,
+                      q: '',
+                      sortBy: 'relevance',
+                      minPrice: undefined,
+                      maxPrice: undefined,
+                      inStock: false,
+                      featured: false
+                    }}>
                       <Card className="card-elegant text-center p-6 hover:scale-105 transition-transform duration-300 cursor-pointer">
                         <CardContent className="pt-6">
                           <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden">
@@ -442,7 +466,15 @@ const Home: React.FC = () => {
             <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
               Browse our collection and find the perfect gift that speaks from your heart to theirs.
             </p>
-            <Link to="/products">
+            <Link to="/products" search={{
+              category: '',
+              q: '',
+              sortBy: 'relevance',
+              minPrice: undefined,
+              maxPrice: undefined,
+              inStock: false,
+              featured: false
+            }}>
               <Button size="lg" variant="secondary" className="btn-secondary text-lg px-8 py-4">
                 <Gift className="mr-2 h-5 w-5" />
                 Start Shopping

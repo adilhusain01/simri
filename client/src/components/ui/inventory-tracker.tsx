@@ -21,7 +21,7 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
 }) => {
   const [stock, setStock] = useState<number>(initialStock ?? 0);
   const [isLoading, setIsLoading] = useState(!initialStock);
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [, setLastUpdated] = useState<Date>(new Date());
 
   const fetchStock = useCallback(async () => {
     try {
@@ -233,7 +233,7 @@ export const BulkStockDisplay: React.FC<BulkStockDisplayProps> = ({
 
         {/* Item List */}
         <div className="space-y-2 max-h-64 overflow-y-auto">
-          {items.map((item, index) => (
+          {items.map((item) => (
             <div
               key={item.productId}
               className="flex items-center justify-between p-2 bg-gray-50 rounded-md"

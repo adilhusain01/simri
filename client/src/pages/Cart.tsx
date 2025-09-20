@@ -3,7 +3,6 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import {
   ShoppingBag,
-  ArrowLeft,
   Plus,
   Minus,
   Trash2,
@@ -28,7 +27,7 @@ import { useCartStore } from '../stores/cartStore';
 import { useWishlistStore } from '../stores/wishlistStore';
 import { useAuthStore } from '../stores/authStore';
 import type { Coupon } from '../types';
-import { toast } from 'sonner';
+// import { toast } from 'sonner';
 
 // Helper function to extract image URL from Cloudinary object or use string directly
 const getImageUrl = (imageData: any, size: 'thumb' | 'medium' | 'large' | 'original' = 'thumb') => {
@@ -80,7 +79,7 @@ const Cart: React.FC = () => {
     }
   };
 
-  const handleMoveToWishlist = async (itemId: string, productId: string, productName: string) => {
+  const handleMoveToWishlist = async (itemId: string, productId: string, _productName: string) => {
     try {
       await addToWishlist(productId);
       await removeItem(itemId);
@@ -167,7 +166,15 @@ const Cart: React.FC = () => {
               <p className="text-gray-500 mb-6">
                 Start shopping to add items to your cart
               </p>
-              <Link to="/products">
+              <Link to="/products" search={{
+                category: '',
+                q: '',
+                sortBy: 'relevance',
+                minPrice: undefined,
+                maxPrice: undefined,
+                inStock: false,
+                featured: false
+              }}>
                 <Button className="btn-primary">
                   <ShoppingBag className="h-4 w-4 mr-2" />
                   Start Shopping

@@ -12,8 +12,6 @@ import {
   Truck,
   Shield,
   RotateCcw,
-  ChevronLeft,
-  ChevronRight,
   ThumbsUp,
   MessageCircle,
 } from 'lucide-react';
@@ -34,9 +32,9 @@ import { InventoryTracker } from '../components/ui/inventory-tracker';
 import type { Product, Review, Recommendation } from '../types';
 import { toast } from 'sonner';
 
-interface ProductDetailsProps {
-  productId: string;
-}
+// interface ProductDetailsProps {
+//   productId: string;
+// }
 
 const ProductDetails: React.FC = () => {
   const navigate = useNavigate();
@@ -93,7 +91,18 @@ const ProductDetails: React.FC = () => {
         setProduct(productData);
       } catch (error) {
         console.error('Failed to load product:', error);
-        navigate({ to: '/products' });
+        navigate({ 
+          to: '/products',
+          search: {
+            category: '',
+            q: '',
+            sortBy: 'relevance',
+            minPrice: undefined,
+            maxPrice: undefined,
+            inStock: false,
+            featured: false
+          }
+        });
       } finally {
         setLoading(false);
       }
@@ -214,7 +223,7 @@ const ProductDetails: React.FC = () => {
         try {
           // Create FormData for file upload
           const formData = new FormData();
-          reviewImageFiles.forEach((file, index) => {
+          reviewImageFiles.forEach((file) => {
             formData.append(`images`, file);
           });
 

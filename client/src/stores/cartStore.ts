@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { cartService } from '../services/api';
 import { toast } from 'sonner';
-import type { CartState, Cart } from '../types';
+import type { CartState } from '../types';
 
-export const useCartStore = create<CartState>((set, get) => ({
+export const useCartStore = create<CartState>((set) => ({
   cart: null,
   isLoading: false,
   appliedCoupon: null,

@@ -19,7 +19,7 @@ const ForgotPassword: React.FC = () => {
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6, ease: "easeInOut" }
+    transition: { duration: 0.6, ease: "easeInOut" as const }
   } as const;
 
   const validateEmail = (email: string) => {
@@ -28,7 +28,7 @@ const ForgotPassword: React.FC = () => {
 
   // Timer effect for resend button
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: NodeJS.Timeout | undefined;
     if (resendTimer > 0) {
       interval = setInterval(() => {
         setResendTimer((prev) => {
@@ -40,7 +40,9 @@ const ForgotPassword: React.FC = () => {
         });
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval as any);
+    };
   }, [resendTimer]);
 
   const startResendTimer = () => {

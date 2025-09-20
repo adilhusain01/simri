@@ -31,7 +31,7 @@ const Login: React.FC = () => {
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6, ease: "easeOut" }
+    transition: { duration: 0.6, ease: "easeOut" as const }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -221,6 +221,7 @@ const Login: React.FC = () => {
                   Don't have an account?{' '}
                   <Link
                     to="/auth/signup"
+                    search={{ redirect: '/' }}
                     className="text-purple-600 hover:text-purple-800 font-medium transition-colors"
                   >
                     Create one now

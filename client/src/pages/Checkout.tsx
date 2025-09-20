@@ -8,8 +8,6 @@ import {
   Shield,
   CheckCircle,
   Plus,
-  Edit,
-  Trash2,
   ArrowRight,
   Lock,
 } from 'lucide-react';
@@ -46,7 +44,7 @@ const getImageUrl = (imageData: any, size: 'thumb' | 'medium' | 'large' | 'origi
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const { cart, clearCart, appliedCoupon, applyCoupon, removeCoupon } = useCartStore();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
   // State
   const [loading, setLoading] = useState(false);
@@ -54,7 +52,7 @@ const Checkout: React.FC = () => {
   const [addressesLoading, setAddressesLoading] = useState(false);
   const [selectedShippingAddress, setSelectedShippingAddress] = useState<string>('');
   const [selectedBillingAddress, setSelectedBillingAddress] = useState<string>('');
-  const [useSameAddress, setUseSameAddress] = useState(true);
+  const [useSameAddress] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState('razorpay');
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import { Gift, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 
 const Callback: React.FC = () => {
   const navigate = useNavigate();
-  const searchParams = useSearch({ from: '/auth/callback' });
   const { handleOAuthCallback, isLoading } = useAuthStore();
   const [status, setStatus] = React.useState<'loading' | 'success' | 'error'>('loading');
 
@@ -59,7 +58,7 @@ const Callback: React.FC = () => {
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6, ease: "easeOut" }
+    transition: { duration: 0.6, ease: "easeOut" as const }
   };
 
   return (

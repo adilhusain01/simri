@@ -3,7 +3,6 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import {
   Package,
-  ArrowLeft,
   Calendar,
   MapPin,
   CreditCard,
@@ -356,7 +355,15 @@ const OrderHistory: React.FC = () => {
                 }
               </p>
               {!searchQuery && statusFilter === 'all' && (
-                <Link to="/products">
+                <Link to="/products" search={{
+                  category: '',
+                  q: '',
+                  sortBy: 'relevance',
+                  minPrice: undefined,
+                  maxPrice: undefined,
+                  inStock: false,
+                  featured: false
+                }}>
                   <Button className="btn-primary">
                     <Package className="h-4 w-4 mr-2" />
                     Start Shopping

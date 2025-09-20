@@ -40,11 +40,11 @@ const SearchResults: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.q || '');
-  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.q || '');
+  const [, setDebouncedSearch] = useState(searchParams.q || '');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState<SearchFilters>({
     category: searchParams.category || '',
-    sortBy: searchParams.sortBy || 'relevance',
+    sortBy: (searchParams.sortBy as "relevance" | "price_low" | "price_high" | "rating" | "newest") || 'relevance',
     minPrice: searchParams.minPrice,
     maxPrice: searchParams.maxPrice,
     inStock: searchParams.inStock,
@@ -120,7 +120,7 @@ const SearchResults: React.FC = () => {
     setDebouncedSearch(searchParams.q || '');
     setFilters({
       category: searchParams.category || '',
-      sortBy: searchParams.sortBy || 'relevance',
+      sortBy: (searchParams.sortBy as "relevance" | "price_low" | "price_high" | "rating" | "newest") || 'relevance',
       minPrice: searchParams.minPrice,
       maxPrice: searchParams.maxPrice,
       inStock: searchParams.inStock,
@@ -391,7 +391,18 @@ const SearchResults: React.FC = () => {
                 <Button onClick={() => {
                   setSearchQuery('');
                   setFilters({ sortBy: 'relevance' });
-                  navigate({ to: '/products' });
+                  navigate({ 
+                    to: '/products',
+                    search: {
+                      category: '',
+                      q: '',
+                      sortBy: 'relevance',
+                      minPrice: undefined,
+                      maxPrice: undefined,
+                      inStock: false,
+                      featured: false
+                    }
+                  });
                 }}>
                   Browse All Products
                 </Button>

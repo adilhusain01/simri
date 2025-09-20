@@ -3,12 +3,9 @@ import { Link, useSearch, useNavigate } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import {
   Search,
-  Grid,
-  List,
   Star,
   Heart,
   ShoppingBag,
-  ArrowLeft,
   ChevronDown,
   SlidersHorizontal,
   Package,
@@ -42,10 +39,10 @@ const Products: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.q || '');
   const [debouncedSearch, setDebouncedSearch] = useState(searchParams.q || '');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState<SearchFilters>({
     category: searchParams.category || '',
-    sortBy: searchParams.sortBy || 'relevance',
+    sortBy: (searchParams.sortBy as "relevance" | "price_low" | "price_high" | "rating" | "newest") || 'relevance',
     minPrice: searchParams.minPrice,
     maxPrice: searchParams.maxPrice,
     inStock: searchParams.inStock,
@@ -127,7 +124,7 @@ const Products: React.FC = () => {
     setDebouncedSearch(searchParams.q || '');
     setFilters({
       category: searchParams.category || '',
-      sortBy: searchParams.sortBy || 'relevance',
+      sortBy: (searchParams.sortBy as "relevance" | "price_low" | "price_high" | "rating" | "newest") || 'relevance',
       minPrice: searchParams.minPrice,
       maxPrice: searchParams.maxPrice,
       inStock: searchParams.inStock,

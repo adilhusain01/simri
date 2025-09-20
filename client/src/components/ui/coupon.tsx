@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Tag, Check, X, AlertCircle, Gift, Percent, DollarSign, Zap } from 'lucide-react';
+import { Tag, Check, X, AlertCircle, Gift, Percent, DollarSign } from 'lucide-react';
 import { Button } from './button';
 import { Input } from './input';
 import { Badge } from './badge';

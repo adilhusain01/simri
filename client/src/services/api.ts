@@ -261,7 +261,11 @@ export const orderService = {
   // Cancel order
   cancelOrder: async (orderId: string, cancellationReason: string): Promise<{ success: boolean; message: string; data: any }> => {
     const response = await api.post<ApiResponse<any>>(`/api/orders/${orderId}/cancel`, { cancellation_reason: cancellationReason });
-    return response.data;
+    return {
+      success: response.data.success,
+      message: response.data.message || 'Order cancelled successfully',
+      data: response.data.data
+    };
   },
 
   // Get order tracking information
