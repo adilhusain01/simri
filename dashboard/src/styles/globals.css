@@ -1,0 +1,183 @@
+/* Import Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+/* CSS Custom Properties */
+:root {
+  --radius: 0.5rem;
+  
+  /* Dashboard colors */
+  --admin-blue: #3B82F6;
+  --admin-blue-dark: #1E40AF;
+  --admin-gray: #6B7280;
+  --admin-gray-light: #F9FAFB;
+  --admin-gray-dark: #374151;
+  --admin-green: #10B981;
+  --admin-red: #EF4444;
+  --admin-yellow: #F59E0B;
+  --admin-purple: #8B5CF6;
+  --ivory-white: #FDFDF6;
+}
+
+/* Base styles */
+* {
+  border-color: hsl(214.3 31.8% 91.4%);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: hsl(0 0% 100%);
+  color: hsl(222.2 84% 4.9%);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+.bg-ivory-white {
+  background-color: var(--ivory-white);
+}
+
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(210 40% 96%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(215.4 16.3% 46.9%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(215.4 16.3% 35%);
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Dashboard specific styles */
+.dashboard-card {
+  background: white;
+  border: 1px solid hsl(214.3 31.8% 91.4%);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Status indicators */
+.status-success {
+  background-color: #DEF7EC;
+  color: #03543F;
+}
+
+.status-warning {
+  background-color: #FEF3C7;
+  color: #92400E;
+}
+
+.status-error {
+  background-color: #FEE2E2;
+  color: #991B1B;
+}
+
+.status-info {
+  background-color: #DBEAFE;
+  color: #1E40AF;
+}
+
+/* Loading states */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Focus styles */
+.focus-ring {
+  outline: 2px solid var(--admin-blue);
+  outline-offset: 2px;
+}
