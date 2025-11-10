@@ -59,6 +59,18 @@ export interface CategoryDeletionResponse {
   };
 }
 
+export interface OrderItem {
+  id: string;
+  product_id: string;
+  product_name: string;
+  product_sku: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  product_image?: string;
+  product_snapshot?: any;
+}
+
 export interface Order {
   id: string;
   user_id: string;
@@ -78,6 +90,9 @@ export interface Order {
   shipping_address: any;
   billing_address?: any;
   payment_method?: string;
+  payment_id?: string;
+  razorpay_order_id?: string;
+  razorpay_payment_id?: string;
   tracking_number?: string;
   awb_number?: string;
   courier_name?: string;
@@ -87,7 +102,9 @@ export interface Order {
   cancelled_at?: string;
   refund_amount?: number;
   refund_status?: string;
+  notes?: string;
   items_count?: number;
+  items?: OrderItem[];
   created_at: string;
   updated_at: string;
 }
@@ -139,6 +156,8 @@ export interface RevenueAnalytics {
 
 export interface CustomerAnalytics {
   total_customers: number;
+  previous_period_customers: number;
+  customer_growth: number;
   new_customers: number;
   returning_customers: number;
   new_customer_percentage: number;

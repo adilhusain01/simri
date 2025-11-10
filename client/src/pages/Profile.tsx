@@ -386,13 +386,13 @@ const Profile: React.FC = () => {
                             className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
                           />
                         ) : (
-                          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xl border-2 border-gray-200">
+                          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-royal-gold to-royal-black flex items-center justify-center text-white font-semibold text-xl border-2 border-gray-200">
                             {user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                           </div>
                         )}
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-heading text-xl font-semibold text-charcoal">
+                        <h3 className="font-heading text-xl font-semibold text-royal-black">
                           {user.name}
                         </h3>
                         <p className="text-gray-600">{user.email}</p>
@@ -495,7 +495,7 @@ const Profile: React.FC = () => {
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {addresses.map((address) => (
-                          <Card key={address.id} className="border-2 hover:border-purple-200">
+                          <Card key={address.id} className="border-2 hover:border-royal-gold">
                             <CardContent className="p-4">
                               <div className="flex justify-between items-start mb-3">
                                 <div className="flex items-center gap-2">
@@ -580,7 +580,7 @@ const Profile: React.FC = () => {
                     ) : (
                       <div className="space-y-4">
                         {reviews?.map((review) => (
-                          <Card key={review.id} className="border-2 hover:border-purple-200">
+                          <Card key={review.id} className="border-2 hover:border-royal-gold">
                             <CardContent className="p-4">
                               <div className="flex justify-between items-start mb-3">
                                 <div className="flex-1">
@@ -914,7 +914,7 @@ const Profile: React.FC = () => {
                     id="isDefault"
                     checked={addressForm.is_default}
                     onChange={(e) => setAddressForm(prev => ({ ...prev, is_default: e.target.checked }))}
-                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                    className="w-4 h-4 text-royal-gold border-gray-300 rounded focus:ring-royal-gold"
                   />
                   <label htmlFor="isDefault" className="text-sm font-medium">
                     Set as default address

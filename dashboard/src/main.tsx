@@ -1,4 +1,4 @@
-import { StrictMode, useEffect } from 'react'
+import { useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
   Outlet,

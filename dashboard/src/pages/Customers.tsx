@@ -235,7 +235,7 @@ const Customers: React.FC = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
-                <Shield className="h-5 w-5 text-purple-600" />
+                <Shield className="h-5 w-5 text-royal-black" />
                 <div>
                   <p className="text-2xl font-bold">{customerStats.admins}</p>
                   <p className="text-sm text-muted-foreground">Admins</p>
@@ -298,14 +298,14 @@ const Customers: React.FC = () => {
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-royal-gold rounded-full flex items-center justify-center text-white font-semibold">
                         {customer.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
                           <p className="font-medium">{customer.name}</p>
                           {customer.role === 'admin' && (
-                            <Shield className="h-4 w-4 text-purple-600" />
+                            <Shield className="h-4 w-4 text-royal-black" />
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground flex items-center">
@@ -381,7 +381,7 @@ const Customers: React.FC = () => {
             
             <div className="space-y-4">
               <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xl font-bold mx-auto mb-2">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-royal-gold rounded-full flex items-center justify-center text-white text-xl font-bold mx-auto mb-2">
                   {selectedCustomer.name.charAt(0).toUpperCase()}
                 </div>
                 <h4 className="font-semibold">{selectedCustomer.name}</h4>

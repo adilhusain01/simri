@@ -123,7 +123,7 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-100 to-pink-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <motion.div {...fadeInUp}>
           {/* Header */}
@@ -131,7 +131,7 @@ const Signup: React.FC = () => {
           {/* Signup Card */}
           <Card className="card-elegant">
             <CardHeader className="text-center pb-4">
-              <CardTitle className="font-heading text-xl text-charcoal">Create Account</CardTitle>
+              <CardTitle className="font-heading text-xl text-royal-black">Create Account</CardTitle>
             </CardHeader>
             
             <CardContent>
@@ -139,7 +139,7 @@ const Signup: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full mb-6 h-12 border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50"
+                className="w-full mb-6 h-12 border-2 border-gray-200 hover:border-royal-gold hover:bg-gray-50"
                 onClick={handleGoogleSignup}
                 disabled={isLoading}
               >
@@ -179,7 +179,7 @@ const Signup: React.FC = () => {
                 {/* Name Fields */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-charcoal mb-2">
+                    <label htmlFor="firstName" className="block text-sm font-medium text-royal-black mb-2">
                       First Name
                     </label>
                     <div className="relative">
@@ -201,7 +201,7 @@ const Signup: React.FC = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-charcoal mb-2">
+                    <label htmlFor="lastName" className="block text-sm font-medium text-royal-black mb-2">
                       Last Name
                     </label>
                     <div className="relative">
@@ -225,7 +225,7 @@ const Signup: React.FC = () => {
 
                 {/* Email */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-charcoal mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-royal-black mb-2">
                     Email Address
                   </label>
                   <div className="relative">
@@ -248,7 +248,7 @@ const Signup: React.FC = () => {
 
                 {/* Phone (Optional) */}
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-charcoal mb-2">
+                  <label htmlFor="phone" className="block text-sm font-medium text-royal-black mb-2">
                     Phone Number <span className="text-gray-400">(Optional)</span>
                   </label>
                   <div className="relative">
@@ -271,7 +271,7 @@ const Signup: React.FC = () => {
 
                 {/* Password */}
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-charcoal mb-2">
+                  <label htmlFor="password" className="block text-sm font-medium text-royal-black mb-2">
                     Password
                   </label>
                   <div className="relative">
@@ -301,7 +301,7 @@ const Signup: React.FC = () => {
 
                 {/* Confirm Password */}
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-charcoal mb-2">
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-royal-black mb-2">
                     Confirm Password
                   </label>
                   <div className="relative">
@@ -351,11 +351,11 @@ const Signup: React.FC = () => {
                 {/* Terms */}
                 <p className="text-xs text-gray-500 text-center mt-4">
                   By creating an account, you agree to our{' '}
-                  <a href="#" className="text-purple-600 hover:text-purple-800">
+                  <a href="#" className="text-royal-gold hover:text-royal-black">
                     Terms of Service
                   </a>{' '}
                   and{' '}
-                  <a href="#" className="text-purple-600 hover:text-purple-800">
+                  <a href="#" className="text-royal-gold hover:text-royal-black">
                     Privacy Policy
                   </a>
                 </p>
@@ -368,7 +368,7 @@ const Signup: React.FC = () => {
                   <Link
                     to="/auth/login"
                     search={{ redirect: '/' }}
-                    className="text-purple-600 hover:text-purple-800 font-medium transition-colors"
+                    className="text-royal-gold hover:text-royal-black font-medium transition-colors"
                   >
                     Sign in here
                   </Link>

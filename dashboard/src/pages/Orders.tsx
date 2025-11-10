@@ -73,7 +73,7 @@ const getStatusColor = (status: string): string => {
   const colors: Record<string, string> = {
     pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     confirmed: 'bg-blue-100 text-blue-800 border-blue-200',
-    processing: 'bg-purple-100 text-purple-800 border-purple-200',
+    processing: 'bg-royal-gold/20 text-royal-black border-royal-gold',
     shipped: 'bg-indigo-100 text-indigo-800 border-indigo-200',
     delivered: 'bg-green-100 text-green-800 border-green-200',
     cancelled: 'bg-red-100 text-red-800 border-red-200',
@@ -147,21 +147,7 @@ export default function Orders() {
   // Order status update mutation
   const updateOrderMutation = useMutation({
     mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
-      // This would be implemented in adminService
-      const response = await fetch(`/api/admin/orders/${orderId}/status`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update order status');
-      }
-      
-      return response.json();
+      return await adminService.updateOrderStatus(orderId, status);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
@@ -169,6 +155,38 @@ export default function Orders() {
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to update order status');
+    },
+  });
+
+  // Order cancellation mutation
+  const cancelOrderMutation = useMutation({
+    mutationFn: async ({ orderId, reason }: { orderId: string; reason: string }) => {
+      return await adminService.cancelOrder(orderId, reason);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      toast.success('Order cancelled successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to cancel order');
+    },
+  });
+
+  // Bulk update mutation
+  const bulkUpdateMutation = useMutation({
+    mutationFn: async ({ orderIds, action, options }: { 
+      orderIds: string[]; 
+      action: string; 
+      options: { status?: string; shipping_status?: string; payment_status?: string } 
+    }) => {
+      return await adminService.bulkUpdateOrders(orderIds, action, options);
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      toast.success(`Bulk update completed. Updated: ${data.updated.length}, Errors: ${data.errors.length}`);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to perform bulk update');
     },
   });
 
@@ -196,13 +214,63 @@ export default function Orders() {
       return;
     }
 
-    // Implement bulk actions here
-    toast.info(`Bulk ${action} for ${selectedOrders.length} orders`);
+    // Map action to appropriate options
+    let mutationAction: string;
+    let mutationOptions: { status?: string; shipping_status?: string; payment_status?: string };
+    
+    switch (action) {
+      case 'confirm':
+        mutationAction = 'update_status';
+        mutationOptions = { status: 'confirmed' };
+        break;
+      case 'ship':
+        mutationAction = 'update_shipping';
+        mutationOptions = { shipping_status: 'shipped' };
+        break;
+      case 'mark_paid':
+        mutationAction = 'update_payment';
+        mutationOptions = { payment_status: 'paid' };
+        break;
+      default:
+        toast.error('Invalid bulk action');
+        return;
+    }
+
+    bulkUpdateMutation.mutate({
+      orderIds: selectedOrders,
+      action: mutationAction,
+      options: mutationOptions
+    });
+    
+    // Clear selection after bulk action
+    setSelectedOrders([]);
   };
 
-  const handleExport = () => {
-    // Implement CSV export
-    toast.info('Exporting orders to CSV...');
+  const handleExport = async () => {
+    try {
+      toast.info('Exporting orders to CSV...');
+      
+      const blob = await adminService.exportOrders({
+        format: 'csv',
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        payment_status: paymentFilter === 'all' ? undefined : paymentFilter
+      });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `orders_export_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success('Orders exported successfully');
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export orders');
+    }
   };
 
   const handleSelectAll = (checked: boolean) => {
@@ -360,6 +428,13 @@ export default function Orders() {
                     onClick={() => handleBulkAction('ship')}
                   >
                     Mark as Shipped
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleBulkAction('mark_paid')}
+                  >
+                    Mark as Paid
                   </Button>
                   <Button
                     variant="outline"
@@ -532,7 +607,18 @@ export default function Orders() {
                             </DropdownMenuItem>
                           ))}
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => {
+                              const reason = prompt('Please enter cancellation reason:');
+                              if (reason) {
+                                cancelOrderMutation.mutate({ 
+                                  orderId: order.id, 
+                                  reason 
+                                });
+                              }
+                            }}
+                          >
                             <XCircle className="mr-2 h-4 w-4" />
                             Cancel Order
                           </DropdownMenuItem>

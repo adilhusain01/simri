@@ -62,7 +62,7 @@ const Callback: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-100 to-pink-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <motion.div {...fadeInUp}>
           <Card className="card-elegant text-center p-8">
@@ -77,7 +77,7 @@ const Callback: React.FC = () => {
               {status === 'loading' && (
                 <>
                   <div className="spinner w-8 h-8 mx-auto mb-4"></div>
-                  <h2 className="font-heading text-2xl font-bold text-charcoal mb-2">
+                  <h2 className="font-heading text-2xl font-bold text-royal-black mb-2">
                     Completing Sign In
                   </h2>
                   <p className="text-gray-600">
@@ -89,7 +89,7 @@ const Callback: React.FC = () => {
               {status === 'success' && (
                 <>
                   <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                  <h2 className="font-heading text-2xl font-bold text-charcoal mb-2">
+                  <h2 className="font-heading text-2xl font-bold text-royal-black mb-2">
                     Welcome to Simri!
                   </h2>
                   <p className="text-gray-600">
@@ -101,7 +101,7 @@ const Callback: React.FC = () => {
               {status === 'error' && (
                 <>
                   <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-                  <h2 className="font-heading text-2xl font-bold text-charcoal mb-2">
+                  <h2 className="font-heading text-2xl font-bold text-royal-black mb-2">
                     Authentication Failed
                   </h2>
                   <p className="text-gray-600">
@@ -114,9 +114,9 @@ const Callback: React.FC = () => {
               {(status === 'loading' || isLoading) && (
                 <div className="mt-8">
                   <div className="flex items-center justify-center space-x-2">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                    <div className="w-2 h-2 bg-royal-gold rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-royal-gold rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-royal-gold rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                   </div>
                 </div>
               )}

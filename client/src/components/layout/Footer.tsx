@@ -9,23 +9,16 @@ const Footer: React.FC = () => {
   const footerLinks = {
     company: [
       { name: 'About Us', href: '/about' },
-      { name: 'Our Story', href: '/story' },
-      { name: 'Careers', href: '/careers' },
-      { name: 'Press', href: '/press' },
       { name: 'Blog', href: '/blog' },
     ],
     support: [
-      { name: 'Help Center', href: '/help' },
       { name: 'Contact Us', href: '/contact' },
       { name: 'Track Order', href: '/track' },
       { name: 'Returns', href: '/returns' },
-      { name: 'Size Guide', href: '/size-guide' },
     ],
     legal: [
       { name: 'Privacy Policy', href: '/privacy' },
       { name: 'Terms of Service', href: '/terms' },
-      { name: 'Cookie Policy', href: '/cookies' },
-      { name: 'Shipping Policy', href: '/shipping' },
       { name: 'Refund Policy', href: '/refunds' },
     ],
   };
@@ -38,7 +31,7 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-gradient-to-b from-gray-50 to-white border-t">
+    <footer className="bg-gradient-to-b from-gray-50 to-white border-t border-gray-200">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Newsletter Section */}
@@ -59,14 +52,14 @@ const Footer: React.FC = () => {
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center space-x-2 mb-4">
-              <div className="p-2 rounded-lg bg-gradient-primary">
-                <Gift className="h-6 w-6 text-white" />
+              <div className="p-2 rounded-lg bg-royal-gold">
+                <Gift className="h-6 w-6 text-royal-black" />
               </div>
-              <span className="font-heading text-2xl font-bold text-gradient-primary">
+              <span className="font-heading text-2xl font-bold text-royal-black">
                 Simri
               </span>
             </Link>
-            <p className="text-gray-600 mb-6 max-w-sm">
+            <p className="text-gray-800 mb-6 max-w-sm">
               Discover the joy of giving with our curated collection of premium gifts. 
               From heartfelt gestures to grand celebrations, we help you make every moment special.
             </p>
@@ -74,15 +67,15 @@ const Footer: React.FC = () => {
             {/* Contact Info */}
             <div className="space-y-3">
               <div className="flex items-center space-x-3 text-gray-600">
-                <Mail className="h-4 w-4 text-purple-600" />
+                <Mail className="h-4 w-4 text-royal-gold" />
                 <span>hello@simri.com</span>
               </div>
               <div className="flex items-center space-x-3 text-gray-600">
-                <Phone className="h-4 w-4 text-purple-600" />
+                <Phone className="h-4 w-4 text-royal-gold" />
                 <span>+91 98765 43210</span>
               </div>
               <div className="flex items-center space-x-3 text-gray-600">
-                <MapPin className="h-4 w-4 text-purple-600" />
+                <MapPin className="h-4 w-4 text-royal-gold" />
                 <span>Mumbai, Maharashtra, India</span>
               </div>
             </div>
@@ -95,7 +88,7 @@ const Footer: React.FC = () => {
                   <a
                     key={social.name}
                     href={social.href}
-                    className="p-2 rounded-lg bg-gray-100 hover:bg-gradient-primary hover:text-white transition-all duration-300 group"
+                    className="p-2 rounded-lg bg-gray-100 hover:bg-royal-black hover:text-white transition-all duration-300 group"
                     aria-label={social.name}
                   >
                     <Icon className="h-4 w-4" />
@@ -113,7 +106,7 @@ const Footer: React.FC = () => {
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-gray-600 hover:text-purple-600 transition-colors duration-200"
+                    className="text-gray-600 hover:text-royal-black transition-colors duration-200"
                   >
                     {link.name}
                   </Link>
@@ -130,7 +123,7 @@ const Footer: React.FC = () => {
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-gray-600 hover:text-purple-600 transition-colors duration-200"
+                    className="text-gray-600 hover:text-royal-black transition-colors duration-200"
                   >
                     {link.name}
                   </Link>
@@ -147,7 +140,7 @@ const Footer: React.FC = () => {
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-gray-600 hover:text-purple-600 transition-colors duration-200"
+                    className="text-gray-600 hover:text-royal-black transition-colors duration-200"
                   >
                     {link.name}
                   </Link>

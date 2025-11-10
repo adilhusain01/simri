@@ -9,8 +9,6 @@ import {
   TrendingUp,
   Download,
   Search,
-  Filter,
-  Calendar,
   MoreHorizontal
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -33,7 +31,7 @@ import {
 import { LoadingSpinner } from '../components/ui/loading';
 import Pagination from '../components/ui/pagination';
 import { newsletterService } from '../services/api';
-import type { NewsletterSubscriber, NewsletterStats, NewsletterGrowthData } from '../types';
+import type { NewsletterSubscriber } from '../types';
 import { toast } from 'sonner';
 
 const Newsletter: React.FC = () => {
@@ -62,7 +60,7 @@ const Newsletter: React.FC = () => {
   });
 
   // Fetch subscribers with pagination and filters
-  const { data: subscribersData, isLoading: subscribersLoading, refetch } = useQuery({
+  const { data: subscribersData, isLoading: subscribersLoading } = useQuery({
     queryKey: ['newsletter-subscribers', currentPage, pageLimit, statusFilter, debouncedSearch],
     queryFn: () => newsletterService.getSubscribers({
       page: currentPage,
@@ -73,9 +71,8 @@ const Newsletter: React.FC = () => {
   });
 
   const stats = statsData?.overview;
-  const growthData = statsData?.growth || [];
   const subscribers = subscribersData?.data?.subscribers || [];
-  const pagination = subscribersData?.data?.pagination;
+  const pagination = subscribersData?.pagination;
 
   // Handle export
   const handleExport = async (format: 'csv' | 'json') => {
@@ -226,7 +223,7 @@ const Newsletter: React.FC = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
-                <TrendingUp className="h-5 w-5 text-purple-600" />
+                <TrendingUp className="h-5 w-5 text-royal-black" />
                 <div>
                   <p className="text-2xl font-bold">{stats?.new_subscribers_30d || 0}</p>
                   <p className="text-sm text-muted-foreground">New (30 days)</p>
@@ -252,7 +249,7 @@ const Newsletter: React.FC = () => {
       </motion.div>
 
       {/* Growth Chart Placeholder */}
-      {growthData.length > 0 && (
+      {/* {growthData.length > 0 && (
         <motion.div {...fadeInUp}>
           <Card>
             <CardHeader>
@@ -274,7 +271,7 @@ const Newsletter: React.FC = () => {
             </CardContent>
           </Card>
         </motion.div>
-      )}
+      )} */}
 
       {/* Subscribers Management */}
       <motion.div {...fadeInUp}>
@@ -328,7 +325,7 @@ const Newsletter: React.FC = () => {
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-10 bg-gradient-to-br from-royal-gold to-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
                         {subscriber.name?.charAt(0).toUpperCase() || subscriber.email.charAt(0).toUpperCase()}
                       </div>
                       <div>

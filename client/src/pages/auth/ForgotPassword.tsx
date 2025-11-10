@@ -97,7 +97,7 @@ const ForgotPassword: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-100 to-pink-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <motion.div {...fadeInUp}>
             {/* Header */}
@@ -106,14 +106,14 @@ const ForgotPassword: React.FC = () => {
               <CardContent className="pt-8 pb-8">
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
                 
-                <h1 className="font-heading text-2xl font-bold text-charcoal mb-4">
+                <h1 className="font-heading text-2xl font-bold text-royal-black mb-4">
                   Check Your Email
                 </h1>
                 
                 <p className="text-gray-600 mb-2">
                   We've sent password reset instructions to:
                 </p>
-                <p className="font-medium text-charcoal mb-6">
+                <p className="font-medium text-royal-black mb-6">
                   {email}
                 </p>
                 
@@ -125,7 +125,7 @@ const ForgotPassword: React.FC = () => {
                   <Button
                     onClick={handleResend}
                     variant="outline"
-                    className="w-full border-purple-200 hover:border-purple-500 hover:bg-purple-50 disabled:opacity-50"
+                    className="w-full border-gray-200 hover:border-royal-gold hover:bg-gray-50 disabled:opacity-50"
                     disabled={isLoading || !canResend}
                   >
                     {isLoading ? (
@@ -141,7 +141,7 @@ const ForgotPassword: React.FC = () => {
                   </Button>
 
                   <Link to="/auth/login" search={{ redirect: '/' }}>
-                    <Button variant="ghost" className="w-full text-purple-600 hover:text-purple-800">
+                    <Button variant="ghost" className="w-full text-royal-gold hover:text-royal-black">
                       <ArrowLeft className="mr-2 h-4 w-4" />
                       Back to Login
                     </Button>
@@ -156,7 +156,7 @@ const ForgotPassword: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-100 to-pink-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <motion.div {...fadeInUp}>
           {/* Header */}
@@ -164,13 +164,13 @@ const ForgotPassword: React.FC = () => {
           {/* Forgot Password Card */}
           <Card className="card-elegant">
             <CardHeader className="text-center pb-4">
-              <CardTitle className="font-heading text-xl text-charcoal">Reset Password</CardTitle>
+              <CardTitle className="font-heading text-xl text-royal-black">Reset Password</CardTitle>
             </CardHeader>
             
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-charcoal mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-royal-black mb-2">
                     Email Address
                   </label>
                   <div className="relative">
@@ -217,7 +217,7 @@ const ForgotPassword: React.FC = () => {
                 <Link
                   to="/auth/login"
                   search={{ redirect: '/' }}
-                  className="inline-flex items-center text-purple-600 hover:text-purple-800 font-medium transition-colors"
+                  className="inline-flex items-center text-royal-gold hover:text-royal-black font-medium transition-colors"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Login
@@ -230,7 +230,7 @@ const ForgotPassword: React.FC = () => {
           <div className="text-center mt-8">
             <p className="text-sm text-gray-500">
               Remember your password?{' '}
-              <Link to="/auth/login" search={{ redirect: '/' }} className="text-purple-600 hover:text-purple-800 transition-colors">
+              <Link to="/auth/login" search={{ redirect: '/' }} className="text-royal-gold hover:text-royal-black transition-colors">
                 Sign in here
               </Link>
             </p>

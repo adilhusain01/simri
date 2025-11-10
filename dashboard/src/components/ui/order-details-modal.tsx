@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { 
   X, 
   Package, 
@@ -39,7 +40,8 @@ import {
 } from './select';
 import { Textarea } from './textarea';
 import { formatCurrency, formatDate } from '@/lib/utils';
-import type { Order } from '@/types';
+import { adminService } from '@/services/api';
+import type { Order, OrderItem } from '@/types';
 
 interface OrderDetailsModalProps {
   order: Order | null;
@@ -49,21 +51,10 @@ interface OrderDetailsModalProps {
   onRefund?: (orderId: string, amount: number) => void;
 }
 
-interface OrderItem {
-  id: string;
-  product_id: string;
-  product_name: string;
-  product_sku: string;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
-  product_image?: string;
-}
-
 const ORDER_STATUSES = [
   { value: 'pending', label: 'Pending', color: 'bg-yellow-100 text-yellow-800' },
   { value: 'confirmed', label: 'Confirmed', color: 'bg-blue-100 text-blue-800' },
-  { value: 'processing', label: 'Processing', color: 'bg-purple-100 text-purple-800' },
+  { value: 'processing', label: 'Processing', color: 'bg-royal-gold/20 text-royal-black' },
   { value: 'shipped', label: 'Shipped', color: 'bg-indigo-100 text-indigo-800' },
   { value: 'delivered', label: 'Delivered', color: 'bg-green-100 text-green-800' },
   { value: 'cancelled', label: 'Cancelled', color: 'bg-red-100 text-red-800' },
@@ -90,29 +81,16 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const [statusNotes, setStatusNotes] = useState('');
   const [showStatusUpdate, setShowStatusUpdate] = useState(false);
 
-  // Mock order items - in real app, this would come from the order data
-  const orderItems: OrderItem[] = order ? [
-    {
-      id: '1',
-      product_id: 'prod1',
-      product_name: 'Personalized Photo Frame',
-      product_sku: 'PGF-001',
-      quantity: 2,
-      unit_price: 750,
-      total_price: 1500,
-      product_image: 'https://images.unsplash.com/photo-1757651885829-3ecc09b21382?w=150',
-    },
-    {
-      id: '2',
-      product_id: 'prod2',
-      product_name: 'Luxury Chocolate Box',
-      product_sku: 'LCB-001',
-      quantity: 1,
-      unit_price: 1299,
-      total_price: 1299,
-      product_image: 'https://images.unsplash.com/photo-1757366224288-076dfeb5ef8e?w=150',
-    },
-  ] : [];
+  // Fetch detailed order data when modal opens
+  const { data: detailedOrder, isLoading: isLoadingDetails } = useQuery({
+    queryKey: ['order-details', order?.id],
+    queryFn: () => order ? adminService.getOrderDetails(order.id) : null,
+    enabled: !!order && isOpen,
+  });
+
+  // Use detailed order data if available, fall back to basic order data
+  const currentOrder = detailedOrder || order;
+  const orderItems: OrderItem[] = currentOrder?.items || [];
 
   if (!order) return null;
 
@@ -242,32 +220,54 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {orderItems.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4 p-4 border rounded-lg">
-                      <div className="flex-shrink-0">
-                        <img
-                          src={item.product_image || '/placeholder-product.jpg'}
-                          alt={item.product_name}
-                          className="w-16 h-16 object-cover rounded-lg border"
-                          onError={(e) => {
-                            e.currentTarget.src = '/placeholder-product.jpg';
-                          }}
-                        />
+                {isLoadingDetails ? (
+                  <div className="space-y-4">
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="animate-pulse">
+                        <div className="flex items-center space-x-4 p-4 border rounded-lg">
+                          <div className="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                          <div className="flex-grow space-y-2">
+                            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                            <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                          </div>
+                          <div className="w-20 h-4 bg-gray-200 rounded"></div>
+                        </div>
                       </div>
-                      <div className="flex-grow">
-                        <h4 className="font-medium text-gray-900">{item.product_name}</h4>
-                        <p className="text-sm text-gray-500">SKU: {item.product_sku}</p>
-                        <p className="text-sm text-gray-500">
-                          {item.quantity} × {formatCurrency(item.unit_price)}
-                        </p>
+                    ))}
+                  </div>
+                ) : orderItems.length > 0 ? (
+                  <div className="space-y-4">
+                    {orderItems.map((item) => (
+                      <div key={item.id} className="flex items-center space-x-4 p-4 border rounded-lg">
+                        <div className="flex-shrink-0">
+                          <img
+                            src={item.product_image || '/placeholder-product.jpg'}
+                            alt={item.product_name}
+                            className="w-16 h-16 object-cover rounded-lg border"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder-product.jpg';
+                            }}
+                          />
+                        </div>
+                        <div className="flex-grow">
+                          <h4 className="font-medium text-gray-900">{item.product_name}</h4>
+                          <p className="text-sm text-gray-500">SKU: {item.product_sku}</p>
+                          <p className="text-sm text-gray-500">
+                            {item.quantity} × {formatCurrency(item.unit_price)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">{formatCurrency(item.total_price)}</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium">{formatCurrency(item.total_price)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    No items found for this order
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -452,17 +452,17 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     {order.payment_status}
                   </Badge>
                 </div>
-                {order.payment_id && (
+                {currentOrder?.payment_id && (
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Payment ID:</span>
                     <div className="flex items-center">
                       <code className="text-xs bg-gray-100 px-2 py-1 rounded">
-                        {order.payment_id.substring(0, 12)}...
+                        {currentOrder.payment_id.substring(0, 12)}...
                       </code>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => copyToClipboard(order.payment_id || '', 'Payment ID')}
+                        onClick={() => copyToClipboard(currentOrder.payment_id || '', 'Payment ID')}
                       >
                         <Copy className="h-3 w-3" />
                       </Button>

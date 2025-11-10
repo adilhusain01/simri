@@ -217,8 +217,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           disabled 
             ? 'border-gray-200 bg-gray-50' 
             : isDragging 
-              ? 'border-purple-500 bg-purple-50' 
-              : 'border-gray-300 hover:border-purple-400 hover:bg-gray-50'
+              ? 'border-royal-gold bg-gray-50'
+              : 'border-gray-300 hover:border-royal-gold hover:bg-gray-50'
         }`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -226,14 +226,14 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       >
         <CardContent className="p-6 text-center">
           <div className={`mx-auto p-3 rounded-full w-fit mb-4 ${
-            disabled ? 'bg-gray-100' : 'bg-purple-100'
+            disabled ? 'bg-gray-100' : 'bg-royal-gold'
           }`}>
             <Upload className={`h-6 w-6 ${
-              disabled ? 'text-gray-400' : 'text-purple-600'
+              disabled ? 'text-gray-400' : 'text-royal-black'
             }`} />
           </div>
           <h3 className={`text-lg font-medium mb-2 ${
-            disabled ? 'text-gray-400' : 'text-gray-900'
+            disabled ? 'text-gray-400' : 'text-royal-black'
           }`}>
             {type === 'avatar' ? 'Upload Avatar' : 'Upload Images'}
           </h3>
@@ -281,7 +281,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       {/* Uploaded Files */}
       {uploadedFiles.length > 0 && (
         <div className="space-y-3">
-          <h4 className="font-medium text-gray-900">
+          <h4 className="font-medium text-royal-black">
             {type === 'avatar' ? 'Avatar' : 'Uploaded Images'} ({uploadedFiles.length})
           </h4>
           <div className="grid grid-cols-1 gap-3">
@@ -302,7 +302,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
                   {/* File Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-royal-black truncate">
                       {uploadFile.file.name}
                     </p>
                     <p className="text-sm text-gray-500">
@@ -316,7 +316,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                   {/* Status Icon */}
                   <div className="flex-shrink-0">
                     {uploadFile.status === 'uploading' && (
-                      <div className="animate-spin h-5 w-5 border-2 border-purple-600 border-t-transparent rounded-full"></div>
+                      <div className="animate-spin h-5 w-5 border-2 border-royal-gold border-t-transparent rounded-full"></div>
                     )}
                     {uploadFile.status === 'success' && (
                       <Check className="h-5 w-5 text-green-600" />

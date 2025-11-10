@@ -39,7 +39,7 @@ const Layout: React.FC = () => {
       <Toaster
         position="top-right"
         toastOptions={{
-          className: 'bg-white border-l-4 border-l-purple-500 shadow-lg',
+          className: 'bg-white border-l-4 border-l-royal-gold shadow-lg',
           duration: 4000,
         }}
       />

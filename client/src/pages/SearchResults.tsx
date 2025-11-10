@@ -218,7 +218,7 @@ const SearchResults: React.FC = () => {
           {/* Search Header */}
           <motion.div className="mb-8" {...fadeInUp}>
             <div className="text-center mb-6">
-              <h1 className="font-heading text-3xl font-bold text-charcoal mb-2">
+              <h1 className="font-heading text-3xl font-bold text-royal-black mb-2">
                 {searchParams.q ? `Search Results for "${searchParams.q}"` : 'Search Products'}
               </h1>
               {products.length > 0 && (
@@ -492,21 +492,23 @@ const ProductCard: React.FC<{
     return (
       <Card className="card-elegant overflow-hidden">
         <div className="flex">
-          <div className="flex-shrink-0 w-48 h-32">
-            <img
-              src={product.imageUrl || product.images?.[0] || '/placeholder-product.jpg'}
-              alt={product.name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = '/placeholder-product.jpg';
-              }}
-            />
+          <div className="flex-shrink-0 w-48">
+            <div className="aspect-[3/4] overflow-hidden rounded-md">
+              <img
+                src={product.imageUrl || product.images?.[0] || '/placeholder-product.jpg'}
+                alt={product.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = '/placeholder-product.jpg';
+                }}
+              />
+            </div>
           </div>
           <CardContent className="flex-1 p-6">
             <div className="flex justify-between">
               <div className="flex-1">
-                <h3 className="font-heading text-lg font-semibold text-charcoal mb-2">
-                  <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-purple-600 transition-colors">
+                <h3 className="font-heading text-lg font-semibold text-royal-black mb-2">
+                  <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-royal-gold transition-colors">
                     <span dangerouslySetInnerHTML={{ __html: highlightText(product.name, searchQuery) }} />
                   </Link>
                 </h3>
@@ -526,7 +528,7 @@ const ProductCard: React.FC<{
                   <div className="flex items-center gap-2">
                     {product.discount_price ? (
                       <>
-                        <span className="text-lg font-bold text-charcoal">
+                        <span className="text-lg font-bold text-royal-black">
                           ₹{parseFloat(product.discount_price).toLocaleString()}
                         </span>
                         <span className="text-sm text-gray-500 line-through">
@@ -534,7 +536,7 @@ const ProductCard: React.FC<{
                         </span>
                       </>
                     ) : (
-                      <span className="text-lg font-bold text-charcoal">
+                      <span className="text-lg font-bold text-royal-black">
                         ₹{parseFloat(product.price).toLocaleString()}
                       </span>
                     )}
@@ -568,9 +570,9 @@ const ProductCard: React.FC<{
   }
 
   return (
-    <Card className="card-elegant group hover-lift overflow-hidden">
+    <Card className="card-elegant group hover-lift overflow-hidden p-0">
       <div className="relative">
-        <div className="aspect-square overflow-hidden">
+        <div className="aspect-[3/4] overflow-hidden">
           <img
             src={product.imageUrl || product.images?.[0] || '/placeholder-product.jpg'}
             alt={product.name}
@@ -600,8 +602,8 @@ const ProductCard: React.FC<{
         <Badge variant="secondary" className="text-xs mb-2">
           {product.category || product.category_name}
         </Badge>
-        <h3 className="font-heading text-base font-semibold text-charcoal mb-2 line-clamp-2">
-          <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-purple-600 transition-colors">
+        <h3 className="font-heading text-base font-semibold text-royal-black mb-2 line-clamp-2">
+          <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-royal-gold transition-colors">
             <span dangerouslySetInnerHTML={{ __html: highlightText(product.name, searchQuery) }} />
           </Link>
         </h3>
@@ -616,7 +618,7 @@ const ProductCard: React.FC<{
         <div className="flex items-center justify-between mb-3">
           {product.discount_price ? (
             <div className="flex items-center gap-2">
-              <span className="text-lg font-bold text-charcoal">
+              <span className="text-lg font-bold text-royal-black">
                 ₹{parseFloat(product.discount_price).toLocaleString()}
               </span>
               <span className="text-sm text-gray-500 line-through">
@@ -624,7 +626,7 @@ const ProductCard: React.FC<{
               </span>
             </div>
           ) : (
-            <span className="text-lg font-bold text-charcoal">
+            <span className="text-lg font-bold text-royal-black">
               ₹{parseFloat(product.price).toLocaleString()}
             </span>
           )}

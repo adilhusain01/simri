@@ -143,7 +143,7 @@ const Cart: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="flex-1">
-              <h1 className="font-heading text-3xl font-bold text-charcoal">
+              <h1 className="font-heading text-3xl font-bold text-royal-black">
                 Shopping Cart
               </h1>
               <p className="text-gray-600 mt-1">
@@ -233,24 +233,26 @@ const Cart: React.FC = () => {
                       <CardContent className="p-4">
                         <div className="flex gap-4">
                           {/* Product Image */}
-                          <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24">
-                            <img
+                          <div className="flex-shrink-0 w-20 sm:w-24">
+                            <div className="aspect-[3/4] overflow-hidden rounded-md">
+                              <img
                               src={(item.images && item.images.length > 0) 
                                 ? getImageUrl(item.images[0], 'thumb')
                                 : '/placeholder-product.jpg'}
                               alt={item.name || 'Product'}
-                              className="w-full h-full object-cover rounded-md"
-                              onError={(e) => {
-                                e.currentTarget.src = '/placeholder-product.jpg';
-                              }}
-                            />
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = '/placeholder-product.jpg';
+                                }}
+                              />
+                            </div>
                           </div>
 
                           {/* Product Details */}
                           <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start mb-2">
                               <div>
-                                <h3 className="font-heading text-base font-semibold text-charcoal truncate">
+                                <h3 className="font-heading text-base font-semibold text-royal-black truncate">
                                   {item.name || 'Unknown Product'}
                                 </h3>
                               </div>
@@ -291,7 +293,7 @@ const Cart: React.FC = () => {
                               </div>
 
                               <div className="text-right">
-                                <div className="font-bold text-charcoal">
+                                <div className="font-bold text-royal-black">
                                   ₹{(item.price_at_time * item.quantity).toLocaleString()}
                                 </div>
                                 <div className="text-sm text-gray-500">
@@ -392,7 +394,7 @@ const Cart: React.FC = () => {
                       
                       <div className="flex justify-between font-bold text-lg">
                         <span>Total</span>
-                        <span className="text-charcoal">₹{total.toLocaleString()}</span>
+                        <span className="text-royal-black">₹{total.toLocaleString()}</span>
                       </div>
                     </CardContent>
                   </Card>

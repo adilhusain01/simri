@@ -147,6 +147,12 @@ class ShiprocketService {
     });
   }
 
+  async cancelOrder(orderId: string) {
+    return this.makeRequest('/orders/cancel', 'POST', {
+      ids: [orderId]
+    });
+  }
+
   async generateLabel(shipmentIds: string[]) {
     return this.makeRequest('/orders/print', 'POST', {
       ids: shipmentIds

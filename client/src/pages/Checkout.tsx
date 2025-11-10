@@ -350,7 +350,7 @@ const Checkout: React.FC = () => {
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
                       step >= stepNumber
-                        ? 'bg-purple-600 border-purple-600 text-white'
+                        ? 'bg-royal-gold border-royal-gold text-royal-black'
                         : 'bg-white border-gray-300 text-gray-400'
                     }`}
                   >
@@ -363,7 +363,7 @@ const Checkout: React.FC = () => {
                   {stepNumber < 3 && (
                     <div
                       className={`w-16 h-0.5 mx-2 ${
-                        step > stepNumber ? 'bg-purple-600' : 'bg-gray-300'
+                        step > stepNumber ? 'bg-royal-gold' : 'bg-gray-300'
                       }`}
                     />
                   )}
@@ -372,13 +372,13 @@ const Checkout: React.FC = () => {
             </div>
             <div className="flex justify-center mt-2">
               <div className="grid grid-cols-3 gap-8 text-sm text-center">
-                <span className={step >= 1 ? 'text-purple-600 font-medium' : 'text-gray-500'}>
+                <span className={step >= 1 ? 'text-royal-gold font-medium' : 'text-gray-500'}>
                   Address
                 </span>
-                <span className={step >= 2 ? 'text-purple-600 font-medium' : 'text-gray-500'}>
+                <span className={step >= 2 ? 'text-royal-gold font-medium' : 'text-gray-500'}>
                   Payment
                 </span>
-                <span className={step >= 3 ? 'text-purple-600 font-medium' : 'text-gray-500'}>
+                <span className={step >= 3 ? 'text-royal-gold font-medium' : 'text-gray-500'}>
                   Review
                 </span>
               </div>
@@ -420,9 +420,9 @@ const Checkout: React.FC = () => {
                             {addresses.filter(addr => addr.type === 'shipping').map((address) => (
                               <Label
                                 key={address.id}
-                                className={`flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-purple-300 ${
+                                className={`flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-royal-gold ${
                                   selectedShippingAddress === address.id
-                                    ? 'border-purple-500 bg-purple-50'
+                                    ? 'border-royal-gold bg-gray-50'
                                     : 'border-gray-200'
                                 }`}
                               >
@@ -491,7 +491,7 @@ const Checkout: React.FC = () => {
                     <CardContent className="space-y-4">
                       <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                         <div className="space-y-3">
-                          <Label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-purple-300">
+                          <Label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-royal-gold">
                             <RadioGroupItem value="razorpay" id="razorpay" />
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
@@ -505,7 +505,7 @@ const Checkout: React.FC = () => {
                             </div>
                           </Label>
                           
-                          <Label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-purple-300">
+                          <Label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-royal-gold">
                             <RadioGroupItem value="cod" id="cod" />
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
@@ -727,7 +727,7 @@ const Checkout: React.FC = () => {
                     
                     <div className="flex justify-between font-bold text-lg">
                       <span>Total</span>
-                      <span className="text-charcoal">₹{total.toLocaleString()}</span>
+                      <span className="text-royal-black">₹{total.toLocaleString()}</span>
                     </div>
                   </CardContent>
                 </Card>

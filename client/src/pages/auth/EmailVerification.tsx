@@ -55,12 +55,12 @@ const EmailVerification: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-100 to-pink-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <motion.div {...fadeInUp}>
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="font-heading text-3xl font-bold text-charcoal mb-2">
+            <h1 className="font-heading text-3xl font-bold text-royal-black mb-2">
               Email Verification
             </h1>
             <p className="text-gray-600">
@@ -71,7 +71,7 @@ const EmailVerification: React.FC = () => {
           {/* Verification Card */}
           <Card className="card-elegant">
             <CardHeader className="text-center pb-4">
-              <CardTitle className="font-heading text-xl text-charcoal">
+              <CardTitle className="font-heading text-xl text-royal-black">
                 {verificationStatus === 'verifying' && 'Verifying...'}
                 {verificationStatus === 'success' && 'Verification Complete'}
                 {verificationStatus === 'error' && 'Verification Failed'}
@@ -82,7 +82,7 @@ const EmailVerification: React.FC = () => {
               {/* Status Icon */}
               <div className="mb-6">
                 {verificationStatus === 'verifying' && (
-                  <RefreshCw className="h-16 w-16 mx-auto text-purple-600 animate-spin" />
+                  <RefreshCw className="h-16 w-16 mx-auto text-royal-gold animate-spin" />
                 )}
                 {verificationStatus === 'success' && (
                   <CheckCircle className="h-16 w-16 mx-auto text-green-600" />

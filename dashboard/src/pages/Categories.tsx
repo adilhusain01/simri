@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -519,7 +519,7 @@ export default function Categories() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center space-x-2">
-              <Tag className="h-5 w-5 text-purple-600" />
+              <Tag className="h-5 w-5 text-royal-black" />
               <div>
                 <p className="text-2xl font-bold">{categories.filter(cat => cat.is_active).length}</p>
                 <p className="text-sm text-muted-foreground">Active Categories</p>

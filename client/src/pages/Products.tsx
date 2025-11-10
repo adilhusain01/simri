@@ -450,8 +450,8 @@ const ProductCard: React.FC<{
           <CardContent className="flex-1 p-6">
             <div className="flex justify-between">
               <div className="flex-1">
-                <h3 className="font-heading text-lg font-semibold text-charcoal mb-2">
-                  <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-purple-600 transition-colors">
+                <h3 className="font-heading text-lg font-semibold text-royal-black mb-2">
+                  <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-royal-gold transition-colors">
                     {product.name}
                   </Link>
                 </h3>
@@ -471,7 +471,7 @@ const ProductCard: React.FC<{
                   <div className="flex items-center gap-2">
                     {product.discount_price ? (
                       <>
-                        <span className="text-lg font-bold text-charcoal">
+                        <span className="text-lg font-bold text-royal-black">
                           ₹{product.discount_price}
                         </span>
                         <span className="text-sm text-gray-500 line-through">
@@ -479,7 +479,7 @@ const ProductCard: React.FC<{
                         </span>
                       </>
                     ) : (
-                      <span className="text-lg font-bold text-charcoal">
+                      <span className="text-lg font-bold text-royal-black">
                         ₹{product.price}
                       </span>
                     )}
@@ -513,9 +513,9 @@ const ProductCard: React.FC<{
   }
 
   return (
-    <Card className="card-elegant group hover-lift overflow-hidden">
-      <div className="relative">
-        <div className="aspect-square overflow-hidden">
+    <Card className="card-elegant group hover-lift overflow-hidden p-0">
+      <div className="relative overflow-hidden">
+        <div className="aspect-[3/4]">
           <img
             src={product.images?.[0] ? getImageUrl(product.images[0], 'medium') : '/placeholder-product.jpg'}
             alt={product.name}
@@ -545,8 +545,8 @@ const ProductCard: React.FC<{
         <Badge variant="secondary" className="text-xs mb-2">
           {product.category_name}
         </Badge>
-        <h3 className="font-heading text-base font-semibold text-charcoal mb-2 line-clamp-2">
-          <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-purple-600 transition-colors">
+        <h3 className="font-heading text-base font-semibold text-royal-black mb-2 line-clamp-2">
+          <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-royal-gold transition-colors">
             {product.name}
           </Link>
         </h3>
@@ -563,7 +563,7 @@ const ProductCard: React.FC<{
         <div className="flex items-center justify-between mb-3">
           {product.discount_price ? (
             <div className="flex items-center gap-2">
-              <span className="text-lg font-bold text-charcoal">
+              <span className="text-lg font-bold text-royal-black">
                 ₹{product.discount_price}
               </span>
               <span className="text-sm text-gray-500 line-through">
@@ -571,7 +571,7 @@ const ProductCard: React.FC<{
               </span>
             </div>
           ) : (
-            <span className="text-lg font-bold text-charcoal">
+            <span className="text-lg font-bold text-royal-black">
               ₹{product.price}
             </span>
           )}

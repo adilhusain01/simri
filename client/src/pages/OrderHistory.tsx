@@ -130,7 +130,7 @@ const OrderHistory: React.FC = () => {
       case 'processing':
         return { color: 'bg-blue-100 text-blue-800', icon: Package };
       case 'shipped':
-        return { color: 'bg-purple-100 text-purple-800', icon: Truck };
+        return { color: 'bg-royal-gold text-royal-black', icon: Truck };
       case 'delivered':
         return { color: 'bg-green-100 text-green-800', icon: CheckCircle };
       case 'cancelled':
@@ -148,7 +148,7 @@ const OrderHistory: React.FC = () => {
       case 'processing':
         return { color: 'bg-blue-100 text-blue-800', text: 'Processing' };
       case 'shipped':
-        return { color: 'bg-purple-100 text-purple-800', text: 'Shipped' };
+        return { color: 'bg-royal-gold text-royal-black', text: 'Shipped' };
       case 'in_transit':
         return { color: 'bg-orange-100 text-orange-800', text: 'In Transit' };
       case 'delivered':
@@ -239,7 +239,7 @@ const OrderHistory: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="flex-1">
-              <h1 className="font-heading text-3xl font-bold text-charcoal">
+              <h1 className="font-heading text-3xl font-bold text-royal-black">
                 Order History
               </h1>
               <p className="text-gray-600 mt-1">
@@ -396,7 +396,7 @@ const OrderHistory: React.FC = () => {
                             <div className="flex-1">
                               <div className="flex items-center justify-between mb-4">
                                 <div>
-                                  <h3 className="font-heading text-lg font-semibold text-charcoal">
+                                  <h3 className="font-heading text-lg font-semibold text-royal-black">
                                     Order #{order.orderNumber}
                                   </h3>
                                   <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
@@ -658,9 +658,9 @@ const OrderHistory: React.FC = () => {
                                             {/* Timeline */}
                                             <div className="space-y-2">
                                               {trackingInfo.shipped_at && (
-                                                <div className="bg-purple-50 p-3 rounded border border-purple-200">
-                                                  <p className="text-sm font-medium text-purple-800">🚚 Shipped</p>
-                                                  <p className="text-xs text-purple-600">{formatDate(trackingInfo.shipped_at)}</p>
+                                                <div className="bg-gray-50 p-3 rounded border border-gray-200">
+                                                  <p className="text-sm font-medium text-royal-black">🚚 Shipped</p>
+                                                  <p className="text-xs text-gray-600">{formatDate(trackingInfo.shipped_at)}</p>
                                                 </div>
                                               )}
                                               {trackingInfo.delivered_at && (

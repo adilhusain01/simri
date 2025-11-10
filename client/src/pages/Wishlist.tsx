@@ -185,7 +185,7 @@ const Wishlist: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="flex-1">
-              <h1 className="font-heading text-3xl font-bold text-charcoal">
+              <h1 className="font-heading text-3xl font-bold text-royal-black">
                 My Wishlist
               </h1>
               <p className="text-gray-600 mt-1">
@@ -257,7 +257,7 @@ const Wishlist: React.FC = () => {
                       type="checkbox"
                       checked={selectedItems.size === wishlist.items.length}
                       onChange={handleSelectAll}
-                      className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                      className="w-4 h-4 text-royal-gold border-gray-300 rounded focus:ring-royal-gold"
                     />
                     <span className="text-sm text-gray-600">
                       Select All ({wishlist.items.length} items)
@@ -362,25 +362,27 @@ const WishlistItemCard: React.FC<{
               type="checkbox"
               checked={isSelected}
               onChange={onSelect}
-              className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+              className="w-4 h-4 text-royal-gold border-gray-300 rounded focus:ring-royal-gold"
             />
           </div>
-          <div className="flex-shrink-0 w-48 h-32 ml-4">
-            <img
-              src={(product.images && product.images.length > 0) 
-                ? getImageUrl(product.images[0], 'medium')
-                : product.imageUrl || '/placeholder-product.jpg'}
-              alt={product.name}
-              className="w-full h-full object-cover rounded-md"
-              onError={(e) => {
-                e.currentTarget.src = '/placeholder-product.jpg';
-              }}
-            />
+          <div className="flex-shrink-0 w-48 ml-4">
+            <div className="aspect-[3/4] overflow-hidden rounded-md">
+              <img
+                src={(product.images && product.images.length > 0)
+                  ? getImageUrl(product.images[0], 'medium')
+                  : product.imageUrl || '/placeholder-product.jpg'}
+                alt={product.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = '/placeholder-product.jpg';
+                }}
+              />
+            </div>
           </div>
           <CardContent className="flex-1 p-6">
             <div className="flex justify-between h-full">
               <div className="flex-1">
-                <h3 className="font-heading text-lg font-semibold text-charcoal mb-2">
+                <h3 className="font-heading text-lg font-semibold text-royal-black mb-2">
                   {product.name}
                 </h3>
                 <p className="text-gray-600 text-sm mb-2 line-clamp-2">
@@ -398,7 +400,7 @@ const WishlistItemCard: React.FC<{
                 <div className="flex items-center gap-2 mb-4">
                   {product.discount_price ? (
                     <>
-                      <span className="text-lg font-bold text-charcoal">
+                      <span className="text-lg font-bold text-royal-black">
                         ₹{parseFloat(product.discount_price).toLocaleString()}
                       </span>
                       <span className="text-sm text-gray-500 line-through">
@@ -406,7 +408,7 @@ const WishlistItemCard: React.FC<{
                       </span>
                     </>
                   ) : (
-                    <span className="text-lg font-bold text-charcoal">
+                    <span className="text-lg font-bold text-royal-black">
                       ₹{parseFloat(product.price).toLocaleString()}
                     </span>
                   )}
@@ -447,18 +449,18 @@ const WishlistItemCard: React.FC<{
   }
 
   return (
-    <Card className="card-elegant group hover-lift overflow-hidden relative">
+    <Card className="card-elegant group hover-lift overflow-hidden relative p-0">
       <div className="absolute top-2 left-2 z-10">
         <input
           type="checkbox"
           checked={isSelected}
           onChange={onSelect}
-          className="w-4 h-4 text-purple-600 border-white bg-white/80 rounded focus:ring-purple-500 shadow-sm"
+          className="w-4 h-4 text-royal-gold border-white bg-white/80 rounded focus:ring-royal-gold shadow-sm"
         />
       </div>
       
       <div className="relative">
-        <div className="aspect-square overflow-hidden">
+        <div className="aspect-[3/4] overflow-hidden">
           <img
             src={product.images?.[0] ? getImageUrl(product.images[0], 'medium') : '/placeholder-product.jpg'}
             alt={product.name}
@@ -487,7 +489,7 @@ const WishlistItemCard: React.FC<{
         <Badge variant="secondary" className="text-xs mb-2">
           {product.category_name}
         </Badge>
-        <h3 className="font-heading text-base font-semibold text-charcoal mb-2 line-clamp-2">
+        <h3 className="font-heading text-base font-semibold text-royal-black mb-2 line-clamp-2">
           {product.name}
         </h3>
         
@@ -503,7 +505,7 @@ const WishlistItemCard: React.FC<{
         <div className="flex items-center justify-between mb-3">
           {product.discount_price ? (
             <div className="flex items-center gap-2">
-              <span className="text-lg font-bold text-charcoal">
+              <span className="text-lg font-bold text-royal-black">
                 ₹{parseFloat(product.discount_price).toLocaleString()}
               </span>
               <span className="text-sm text-gray-500 line-through">
@@ -511,7 +513,7 @@ const WishlistItemCard: React.FC<{
               </span>
             </div>
           ) : (
-            <span className="text-lg font-bold text-charcoal">
+            <span className="text-lg font-bold text-royal-black">
               ₹{parseFloat(product.price).toLocaleString()}
             </span>
           )}

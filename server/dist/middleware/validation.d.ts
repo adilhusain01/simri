@@ -1,0 +1,10 @@
+import { Request, Response, NextFunction } from 'express';
+export declare const handleValidation: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
+export declare const validateProduct: (((req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined) | import("express-validator").ValidationChain)[];
+export declare const validateAddToCart: (((req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined) | import("express-validator").ValidationChain)[];
+export declare const validateUpdateCartItem: (((req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined) | import("express-validator").ValidationChain)[];
+export declare const validateCreateOrder: (((req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined) | import("express-validator").ValidationChain)[];
+export declare const validatePaymentVerification: (((req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined) | import("express-validator").ValidationChain)[];
+export declare const validateUUID: (paramName: string) => (((req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined) | import("express-validator").ValidationChain)[];
+export declare const validatePagination: (((req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined) | import("express-validator").ValidationChain)[];
+export declare const validateSearch: (import("express-validator").ValidationChain | (((req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined) | import("express-validator").ValidationChain)[])[];

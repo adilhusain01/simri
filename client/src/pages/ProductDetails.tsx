@@ -348,7 +348,7 @@ const ProductDetails: React.FC = () => {
             {/* Product Images */}
             <motion.div className="space-y-4" {...fadeInUp}>
               {/* Main Image */}
-              <div className="aspect-square bg-white rounded-lg overflow-hidden border">
+              <div className="aspect-[3/4] bg-white rounded-lg overflow-hidden border">
                 <img
                   src={getImageUrl(images[selectedImage], 'large')}
                   alt={product.name}
@@ -367,7 +367,7 @@ const ProductDetails: React.FC = () => {
                       key={index}
                       onClick={() => setSelectedImage(index)}
                       className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                        selectedImage === index ? 'border-purple-500' : 'border-gray-200'
+                        selectedImage === index ? 'border-royal-gold' : 'border-gray-200'
                       }`}
                     >
                       <img
@@ -390,7 +390,7 @@ const ProductDetails: React.FC = () => {
                 <Badge variant="secondary" className="mb-2">
                   {product.category}
                 </Badge>
-                <h1 className="font-heading text-3xl font-bold text-charcoal mb-2">
+                <h1 className="font-heading text-3xl font-bold text-royal-black mb-2">
                   {product.name}
                 </h1>
                 {product.short_description && (
@@ -419,7 +419,7 @@ const ProductDetails: React.FC = () => {
 
               {/* Price */}
               <div className="flex items-center gap-4">
-                <span className="text-3xl font-bold text-charcoal">
+                <span className="text-3xl font-bold text-royal-black">
                   ₹{parseFloat(currentPrice?.toString() || '0').toLocaleString()}
                 </span>
                 {product.discount_price && (
@@ -510,7 +510,7 @@ const ProductDetails: React.FC = () => {
               {/* Product Specifications */}
               {(product.sku || product.weight || product.dimensions) && (
                 <div className="space-y-3 pt-6 border-t">
-                  <h3 className="text-lg font-semibold text-charcoal">Product Specifications</h3>
+                  <h3 className="text-lg font-semibold text-royal-black">Product Specifications</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                     {product.sku && (
                       <div className="flex justify-between">
@@ -561,14 +561,14 @@ const ProductDetails: React.FC = () => {
           {/* Description Section */}
           <motion.div {...fadeInUp} className="mb-12">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-charcoal mb-4">Description</h2>
+              <h2 className="text-2xl font-bold text-royal-black mb-4">Description</h2>
             </div>
             <Card>
               <CardContent className="p-6">
                 <div className="prose max-w-none space-y-4">
                   {product.short_description && product.short_description !== product.description && (
                     <div>
-                      <h3 className="text-lg font-semibold text-charcoal mb-2">Overview</h3>
+                      <h3 className="text-lg font-semibold text-royal-black mb-2">Overview</h3>
                       <p className="text-gray-700 leading-relaxed">
                         {product.short_description}
                       </p>
@@ -576,7 +576,7 @@ const ProductDetails: React.FC = () => {
                   )}
                   <div>
                     {product.short_description && product.short_description !== product.description && (
-                      <h3 className="text-lg font-semibold text-charcoal mb-2">Detailed Description</h3>
+                      <h3 className="text-lg font-semibold text-royal-black mb-2">Detailed Description</h3>
                     )}
                     <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                       {product.description}
@@ -590,7 +590,7 @@ const ProductDetails: React.FC = () => {
           {/* Related Products Section */}
           <motion.div {...fadeInUp} className="mb-12">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-charcoal mb-4">Related Products</h2>
+              <h2 className="text-2xl font-bold text-royal-black mb-4">Related Products</h2>
             </div>
             {relatedLoading ? (
               <div className="flex justify-center py-8">
@@ -607,8 +607,8 @@ const ProductDetails: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {relatedProducts.map((relatedProduct) => (
-                  <Card key={relatedProduct.id} className="card-elegant group hover-lift">
-                    <div className="aspect-square overflow-hidden">
+                  <Card key={relatedProduct.id} className="card-elegant group hover-lift overflow-hidden p-0">
+                    <div className="aspect-[3/4] overflow-hidden">
                       <img
                         src={relatedProduct.images?.[0] 
                           ? getImageUrl(relatedProduct.images[0], 'medium')
@@ -625,7 +625,7 @@ const ProductDetails: React.FC = () => {
                       <Badge variant="secondary" className="text-xs mb-2">
                         {relatedProduct.category}
                       </Badge>
-                      <h3 className="font-heading text-sm font-semibold text-charcoal mb-2 line-clamp-2">
+                      <h3 className="font-heading text-sm font-semibold text-royal-black mb-2 line-clamp-2">
                         {relatedProduct.name}
                       </h3>
                       <div className="flex items-center gap-1 mb-2">
@@ -635,7 +635,7 @@ const ProductDetails: React.FC = () => {
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-charcoal">
+                        <span className="font-bold text-royal-black">
                           ₹{parseFloat(relatedProduct.price?.toString() || '0').toLocaleString()}
                         </span>
                         <Button
@@ -658,7 +658,7 @@ const ProductDetails: React.FC = () => {
           {/* Reviews Section */}
           <motion.div {...fadeInUp} className="mb-12">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-charcoal mb-4">
+              <h2 className="text-2xl font-bold text-royal-black mb-4">
                 Reviews ({product.totalReviews || 0})
               </h2>
               </div>

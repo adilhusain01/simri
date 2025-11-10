@@ -112,6 +112,22 @@ export const adminService = {
     return response.data.data;
   },
 
+  // Export analytics data
+  exportAnalytics: async (filters: Partial<AnalyticsFilters> & { format?: 'csv' | 'json' | 'excel' | 'pdf' }): Promise<Blob> => {
+    const params = new URLSearchParams();
+    
+    if (filters.startDate) params.append('startDate', filters.startDate);
+    if (filters.endDate) params.append('endDate', filters.endDate);
+    if (filters.comparisonStartDate) params.append('comparisonStartDate', filters.comparisonStartDate);
+    if (filters.comparisonEndDate) params.append('comparisonEndDate', filters.comparisonEndDate);
+    if (filters.format) params.append('format', filters.format);
+    
+    const response = await api.get(`/api/admin/analytics/export?${params.toString()}`, {
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
   // Get all orders
   getOrders: async (filters?: SearchFilters & { limit?: number; offset?: number }): Promise<PaginatedResponse<Order[]>> => {
     const params = new URLSearchParams();
@@ -124,6 +140,72 @@ export const adminService = {
     }
     
     const response = await api.get<PaginatedResponse<Order[]>>(`/api/admin/orders?${params.toString()}`);
+    return response.data;
+  },
+
+  // Get single order with items
+  getOrderDetails: async (orderId: string): Promise<Order> => {
+    const response = await api.get<ApiResponse<Order>>(`/api/admin/orders/${orderId}`);
+    return response.data.data;
+  },
+
+  // Update order status
+  updateOrderStatus: async (orderId: string, status: string): Promise<Order> => {
+    const response = await api.patch<ApiResponse<Order>>(`/api/admin/orders/${orderId}/status`, { status });
+    return response.data.data;
+  },
+
+  // Update order payment status
+  updateOrderPaymentStatus: async (orderId: string, payment_status: string, payment_id?: string): Promise<Order> => {
+    const response = await api.patch<ApiResponse<Order>>(`/api/admin/orders/${orderId}/payment-status`, { 
+      payment_status, 
+      payment_id 
+    });
+    return response.data.data;
+  },
+
+  // Update order shipping status
+  updateOrderShippingStatus: async (orderId: string, shipping_status: string, tracking_number?: string): Promise<Order> => {
+    const response = await api.patch<ApiResponse<Order>>(`/api/admin/orders/${orderId}/shipping-status`, { 
+      shipping_status, 
+      tracking_number 
+    });
+    return response.data.data;
+  },
+
+  // Cancel order
+  cancelOrder: async (orderId: string, cancellation_reason: string, refund_amount?: number): Promise<Order> => {
+    const response = await api.patch<ApiResponse<Order>>(`/api/admin/orders/${orderId}/cancel`, { 
+      cancellation_reason, 
+      refund_amount 
+    });
+    return response.data.data;
+  },
+
+  // Bulk update orders
+  bulkUpdateOrders: async (orderIds: string[], action: string, options: { status?: string; shipping_status?: string; payment_status?: string }): Promise<{ updated: Order[]; errors: any[]; total_processed: number }> => {
+    const response = await api.patch<ApiResponse<{ updated: Order[]; errors: any[]; total_processed: number }>>('/api/admin/orders/bulk-update', {
+      order_ids: orderIds,
+      action,
+      ...options
+    });
+    return response.data.data;
+  },
+
+  // Export orders
+  exportOrders: async (filters?: { format?: string; status?: string; payment_status?: string; start_date?: string; end_date?: string }): Promise<Blob> => {
+    const params = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== '') {
+          params.append(key, String(value));
+        }
+      });
+    }
+    
+    const response = await api.get(`/api/admin/orders/export?${params.toString()}`, {
+      responseType: 'blob'
+    });
     return response.data;
   },
 

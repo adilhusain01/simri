@@ -27,14 +27,14 @@ const PixelatedHeart = () => {
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
   ];
 
-  // Purple shades instead of red
-  const purpleShades = [
-    '#e1bee7', // light lavender
-    '#ba68c8', // medium purple
-    '#9c27b0', // standard purple
-    '#8e24aa', // darker purple
-    '#6a1b9a', // deep purple
-    '#4a148c'  // darkest purple
+  // Royal gold to black gradient shades
+  const royalShades = [
+    '#EDBC5A', // royal gold
+    '#D4A347', // darker gold
+    '#BB8A34', // bronze-gold
+    '#A27121', // dark bronze
+    '#89580E', // very dark bronze
+    '#020202'  // royal black
   ];
 
   useEffect(() => {
@@ -90,9 +90,9 @@ const PixelatedHeart = () => {
     heartPattern.forEach((row, rowIndex) => {
       row.forEach((cell, colIndex) => {
         if (cell === 1) {
-          const shadeIndex = Math.floor(Math.random() * purpleShades.length);
+          const shadeIndex = Math.floor(Math.random() * royalShades.length);
           const material = new THREE.MeshStandardMaterial({
-            color: purpleShades[shadeIndex],
+            color: royalShades[shadeIndex],
             roughness: 0.4,
             metalness: 0.2,
           });

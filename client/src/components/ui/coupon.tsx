@@ -130,13 +130,13 @@ export const CouponValidation: React.FC<CouponValidationProps> = ({
 
       {/* Best Coupon Suggestion */}
       {!appliedCoupon && bestCoupon && bestCoupon.code && !isFetchingBest && (
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-purple-900">
+              <p className="text-sm font-medium text-royal-black">
                 Best Available Coupon
               </p>
-              <p className="text-sm text-purple-700">
+              <p className="text-sm text-gray-600">
                 {bestCoupon.savings_message || `Use "${bestCoupon.code}" to save ₹${bestCoupon.discount_amount?.toFixed(2) || '0.00'}`}
               </p>
             </div>
@@ -144,7 +144,7 @@ export const CouponValidation: React.FC<CouponValidationProps> = ({
               variant="outline"
               size="sm"
               onClick={applyBestCoupon}
-              className="border-purple-300 text-purple-600 hover:bg-purple-100"
+              className="border-royal-gold text-royal-gold hover:bg-gray-50"
             >
               Apply
             </Button>
@@ -237,7 +237,7 @@ export const ActiveCoupons: React.FC<ActiveCouponsProps> = ({
       case 'fixed':
         return 'bg-green-100 text-green-800 border-green-200';
       default:
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-royal-gold text-royal-black border-royal-gold';
     }
   };
 
@@ -245,7 +245,7 @@ export const ActiveCoupons: React.FC<ActiveCouponsProps> = ({
     return (
       <Card className={className}>
         <CardContent className="p-6 text-center">
-          <div className="animate-spin mx-auto h-8 w-8 border-2 border-purple-600 border-t-transparent rounded-full mb-4"></div>
+          <div className="animate-spin mx-auto h-8 w-8 border-2 border-royal-gold border-t-transparent rounded-full mb-4"></div>
           <p className="text-gray-600">Loading available coupons...</p>
         </CardContent>
       </Card>
@@ -288,7 +288,7 @@ export const ActiveCoupons: React.FC<ActiveCouponsProps> = ({
                 key={coupon.code}
                 className={`border rounded-lg p-4 transition-colors ${
                   isApplicable 
-                    ? 'border-purple-200 bg-white hover:bg-purple-50 cursor-pointer' 
+                    ? 'border-royal-gold bg-white hover:bg-gray-50 cursor-pointer'
                     : 'border-gray-200 bg-gray-50'
                 }`}
                 onClick={() => isApplicable && onCouponSelect?.(coupon)}
@@ -299,7 +299,7 @@ export const ActiveCoupons: React.FC<ActiveCouponsProps> = ({
                       <Icon className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">
+                      <p className="font-semibold text-royal-black">
                         {coupon.code}
                       </p>
                       <p className="text-sm text-gray-600">
@@ -317,7 +317,7 @@ export const ActiveCoupons: React.FC<ActiveCouponsProps> = ({
                   </div>
                   
                   <div className="text-right">
-                    <div className="text-lg font-bold text-purple-600">
+                    <div className="text-lg font-bold text-royal-gold">
                       {coupon.type === 'percentage' 
                         ? `₹{coupon.value}% OFF`
                         : `₹${coupon.value} OFF`
@@ -330,7 +330,7 @@ export const ActiveCoupons: React.FC<ActiveCouponsProps> = ({
                       </Badge>
                     )}
                     {isApplicable && onCouponSelect && (
-                      <Badge className="mt-1 bg-purple-100 text-purple-800 hover:bg-purple-200">
+                      <Badge className="mt-1 bg-royal-gold text-royal-black hover:bg-yellow-500">
                         Click to apply
                       </Badge>
                     )}
@@ -373,7 +373,7 @@ export const CouponDisplay: React.FC<CouponDisplayProps> = ({
   const isApplicable = orderAmount >= (coupon.minimum_order_amount || 0);
 
   return (
-    <Card className={`${className} ${isApplicable ? 'border-purple-200' : 'border-gray-200'}`}>
+    <Card className={`${className} ${isApplicable ? 'border-royal-gold' : 'border-gray-200'}`}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -389,7 +389,7 @@ export const CouponDisplay: React.FC<CouponDisplayProps> = ({
               }`} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900">
+              <h3 className="text-lg font-bold text-royal-black">
                 {coupon.code}
               </h3>
               <p className="text-gray-600">
@@ -410,7 +410,7 @@ export const CouponDisplay: React.FC<CouponDisplayProps> = ({
           </div>
           
           <div className="text-right">
-            <div className="text-2xl font-bold text-purple-600">
+            <div className="text-2xl font-bold text-royal-gold">
               {coupon.type === 'percentage' 
                 ? `${coupon.value}%`
                 : `₹${coupon.value}`

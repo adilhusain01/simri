@@ -48,7 +48,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
 
   if (isSubscribed) {
     return (
-      <Card className={`bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 ${className}`}>
+      <Card className={`bg-gradient-to-br from-gray-50 to-white border-gray-200 ${className}`}>
         <CardContent className="p-6 text-center">
           <div className="flex justify-center mb-4">
             <div className="bg-green-100 p-3 rounded-full">
@@ -66,7 +66,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
 
   if (variant === 'compact') {
     return (
-      <div className={`bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-4 ${className}`}>
+      <div className={`bg-gradient-to-r from-royal-black to-gray-800 rounded-lg p-4 ${className}`}>
         <div className="flex items-center justify-between text-white">
           <div className="flex items-center space-x-3">
             <Mail className="h-5 w-5" />
@@ -86,7 +86,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
               disabled={isLoading}
               variant="secondary"
               size="sm"
-              className="bg-white text-purple-600 hover:bg-gray-50"
+              className="bg-white text-royal-black hover:bg-gray-50"
             >
               {isLoading ? 'Subscribing...' : 'Subscribe'}
             </Button>
@@ -97,13 +97,13 @@ export const Newsletter: React.FC<NewsletterProps> = ({
   }
 
   return (
-    <Card className={`bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 ${className}`}>
+    <Card className={`${className}`}>
       <CardHeader className="text-center">
-        <div className="mx-auto bg-purple-100 p-3 rounded-full w-fit mb-4">
-          <Mail className="h-6 w-6 text-purple-600" />
+        <div className="mx-auto bg-royal-gold p-3 rounded-full w-fit mb-4">
+          <Mail className="h-6 w-6 text-royal-black" />
         </div>
-        <CardTitle className="text-xl font-heading text-gray-900">{title}</CardTitle>
-        <p className="text-gray-600 text-sm mt-2">{description}</p>
+        <CardTitle className="text-xl font-heading text-royal-black">{title}</CardTitle>
+        <p className="text-gray-800 text-sm mt-2">{description}</p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -113,7 +113,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
               placeholder="Your email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="border-purple-200 focus:border-purple-500"
+              className="border-gray-200 focus:border-royal-gold"
               required
             />
             <Input
@@ -121,7 +121,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
               placeholder="Your name (optional)"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="border-purple-200 focus:border-purple-500"
+              className="border-gray-200 focus:border-royal-gold"
             />
           </div>
           
@@ -133,7 +133,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
                   type="checkbox"
                   checked={preferences.product_updates}
                   onChange={(e) => setPreferences(prev => ({ ...prev, product_updates: e.target.checked }))}
-                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  className="rounded border-gray-300 text-royal-gold focus:ring-royal-gold"
                 />
                 <span className="text-sm text-gray-600">New product updates and gift ideas</span>
               </label>
@@ -142,7 +142,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
                   type="checkbox"
                   checked={preferences.promotions}
                   onChange={(e) => setPreferences(prev => ({ ...prev, promotions: e.target.checked }))}
-                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  className="rounded border-gray-300 text-royal-gold focus:ring-royal-gold"
                 />
                 <span className="text-sm text-gray-600">Exclusive promotions and discounts</span>
               </label>

@@ -110,7 +110,7 @@ const ResetPassword: React.FC = () => {
   // Show invalid token message
   if (isValidToken === false) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-100 to-pink-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <motion.div {...fadeInUp}>
 
@@ -118,7 +118,7 @@ const ResetPassword: React.FC = () => {
               <CardContent className="pt-8 pb-8">
                 <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-6" />
                 
-                <h1 className="font-heading text-2xl font-bold text-charcoal mb-4">
+                <h1 className="font-heading text-2xl font-bold text-royal-black mb-4">
                   Invalid Reset Link
                 </h1>
                 
@@ -127,7 +127,7 @@ const ResetPassword: React.FC = () => {
                 </p>
 
                   <Link to="/auth/login" search={{ redirect: '/' }}>
-                    <Button variant="ghost" className="w-full text-purple-600 hover:text-purple-800">
+                    <Button variant="ghost" className="w-full text-royal-gold hover:text-royal-black">
                       Back to Login
                     </Button>
                   </Link>
@@ -142,7 +142,7 @@ const ResetPassword: React.FC = () => {
   // Show success message
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-100 to-pink-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <motion.div {...fadeInUp}>
 
@@ -150,7 +150,7 @@ const ResetPassword: React.FC = () => {
               <CardContent className="pt-8 pb-8">
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
                 
-                <h1 className="font-heading text-2xl font-bold text-charcoal mb-4">
+                <h1 className="font-heading text-2xl font-bold text-royal-black mb-4">
                   Password Reset Complete
                 </h1>
                 
@@ -174,7 +174,7 @@ const ResetPassword: React.FC = () => {
   // Show loading while validating token
   if (isValidToken === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-100 to-pink-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card className="card-elegant text-center">
             <CardContent className="pt-8 pb-8">
@@ -188,7 +188,7 @@ const ResetPassword: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-100 to-pink-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <motion.div {...fadeInUp}>
           {/* Header */}
@@ -196,14 +196,14 @@ const ResetPassword: React.FC = () => {
           {/* Reset Password Card */}
           <Card className="card-elegant">
             <CardHeader className="text-center pb-4">
-              <CardTitle className="font-heading text-xl text-charcoal">Set New Password</CardTitle>
+              <CardTitle className="font-heading text-xl text-royal-black">Set New Password</CardTitle>
             </CardHeader>
             
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Password */}
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-charcoal mb-2">
+                  <label htmlFor="password" className="block text-sm font-medium text-royal-black mb-2">
                     New Password
                   </label>
                   <div className="relative">
@@ -236,7 +236,7 @@ const ResetPassword: React.FC = () => {
 
                 {/* Confirm Password */}
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-charcoal mb-2">
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-royal-black mb-2">
                     Confirm New Password
                   </label>
                   <div className="relative">
@@ -288,7 +288,7 @@ const ResetPassword: React.FC = () => {
                 <Link
                   to="/auth/login"
                   search={{ redirect: '/' }}
-                  className="text-purple-600 hover:text-purple-800 font-medium transition-colors"
+                  className="text-royal-gold hover:text-royal-black font-medium transition-colors"
                 >
                   Back to Login
                 </Link>

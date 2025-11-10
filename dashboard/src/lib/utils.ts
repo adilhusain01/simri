@@ -75,7 +75,7 @@ export function truncateText(text: string, length: number): string {
 // Generate random color for charts
 export function generateColor(index: number): string {
   const colors = [
-    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EDBC5A',
     '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1'
   ]
   return colors[index % colors.length]
@@ -86,7 +86,7 @@ export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout
+  let timeout: ReturnType<typeof setTimeout>
   return (...args: Parameters<T>) => {
     clearTimeout(timeout)
     timeout = setTimeout(() => func(...args), wait)
@@ -108,7 +108,7 @@ export function getStatusColor(status: string): string {
     completed: 'text-green-600 bg-green-100',
     cancelled: 'text-red-600 bg-red-100',
     processing: 'text-blue-600 bg-blue-100',
-    shipped: 'text-purple-600 bg-purple-100',
+    shipped: 'text-royal-black bg-royal-gold/20',
     delivered: 'text-green-600 bg-green-100',
     paid: 'text-green-600 bg-green-100',
     failed: 'text-red-600 bg-red-100',

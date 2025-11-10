@@ -124,7 +124,7 @@ client/
 ### 🎨 **UI/UX Features**
 
 #### **Design System**
-- **Consistent Theming** - Simri brand colors (purple gradients), Playfair Display typography
+- **Consistent Theming** - Simri brand colors (Royal gold gradients), Playfair Display typography
 - **Responsive Design** - Mobile-first approach with all screen size support
 - **Smooth Animations** - Framer Motion transitions and micro-interactions
 - **Loading States** - Comprehensive loading indicators and skeleton screens
@@ -291,7 +291,7 @@ interface WishlistState {
 ## 🎨 Design System
 
 ### **Brand Consistency**
-- **Colors** - Purple gradients (`bg-gradient-primary`), consistent color palette
+- **Colors** - Royal Gold gradients (`bg-gradient-primary`), consistent color palette
 - **Typography** - Playfair Display for headings (`font-heading`), system fonts for body
 - **Components** - Consistent button styles (`btn-primary`), card elevation (`card-elegant`)
 - **Animations** - Smooth transitions, hover effects (`hover-lift`), and loading states

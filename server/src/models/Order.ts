@@ -1,6 +1,9 @@
 import pool from '../config/database';
 import { Order, OrderItem } from '../types';
 import { inventoryService } from '../services/inventoryService';
+import { shiprocketService } from '../services/shiprocketService';
+import { razorpayService } from '../services/razorpayService';
+import { emailService } from '../services/emailService';
 
 export class OrderModel {
   static async findByUserId(userId: string, limit: number = 10, offset: number = 0, sortBy: string = 'created_at', sortOrder: string = 'DESC'): Promise<Order[]> {
@@ -93,10 +96,91 @@ export class OrderModel {
 
       // Handle inventory changes based on status changes
       if (currentStatus !== status) {
-        if (status === 'cancelled' && ['pending', 'confirmed', 'processing'].includes(currentStatus)) {
+        if (status === 'cancelled' && ['pending', 'confirmed', 'processing', 'shipped'].includes(currentStatus)) {
           // Order was cancelled - restore inventory
           console.log(`Order ${id} cancelled, restoring inventory`);
           await inventoryService.handleOrderCancellation(id);
+          
+          // Update shipping status to cancelled
+          await client.query(`
+            UPDATE orders 
+            SET shipping_status = 'cancelled', cancelled_at = NOW()
+            WHERE id = $1
+          `, [id]);
+          
+          // Cancel with Shiprocket if order was shipped
+          const currentOrderData = result.rows[0];
+          if (currentOrderData.shiprocket_order_id) {
+            try {
+              console.log(`Cancelling Shiprocket order: ${currentOrderData.shiprocket_order_id}`);
+              await shiprocketService.cancelOrder(currentOrderData.shiprocket_order_id);
+              console.log(`Shiprocket order cancelled successfully`);
+            } catch (shiprocketError) {
+              console.error('Shiprocket cancellation failed:', shiprocketError);
+              // Don't fail the entire transaction - log and continue
+            }
+          }
+          
+          // Process automatic refund if payment was completed
+          if (currentOrderData.payment_status === 'paid' && currentOrderData.razorpay_payment_id) {
+            try {
+              console.log(`Processing refund for payment: ${currentOrderData.razorpay_payment_id}`);
+              const refundResult = await razorpayService.processOrderCancellationRefund(
+                currentOrderData.razorpay_payment_id,
+                id,
+                'Order cancelled by customer'
+              );
+              
+              if (refundResult.success) {
+                // Update order with refund information
+                const refundAmountInRupees = refundResult.amount ? refundResult.amount / 100 : currentOrderData.total_amount;
+                await client.query(`
+                  UPDATE orders 
+                  SET refund_status = 'processed', refund_amount = $1, razorpay_refund_id = $2, refunded_at = NOW()
+                  WHERE id = $3
+                `, [refundAmountInRupees, refundResult.refundId, id]); // Convert paisa to rupees
+                
+                console.log(`Refund processed successfully: ${refundResult.refundId}`);
+              } else {
+                console.error('Refund processing failed:', refundResult.error);
+                // Update order to indicate refund failed
+                await client.query(`
+                  UPDATE orders 
+                  SET refund_status = 'failed'
+                  WHERE id = $1
+                `, [id]);
+              }
+            } catch (refundError) {
+              console.error('Refund processing error:', refundError);
+              // Update order to indicate refund failed
+              await client.query(`
+                UPDATE orders 
+                SET refund_status = 'failed'
+                WHERE id = $1
+              `, [id]);
+            }
+          }
+          
+          // Send cancellation email notification
+          try {
+            // Get user information for email
+            const userResult = await client.query(
+              'SELECT email, first_name, last_name FROM users WHERE id = $1',
+              [currentOrderData.user_id]
+            );
+            
+            if (userResult.rows.length > 0) {
+              const user = userResult.rows[0];
+              console.log(`Sending cancellation email to: ${user.email}`);
+              await emailService.sendOrderCancellationEmail(currentOrderData, user);
+              console.log('Cancellation email sent successfully');
+            }
+          } catch (emailError) {
+            console.error('Failed to send cancellation email:', emailError);
+            // Don't fail the transaction - log and continue
+          }
+          
+          console.log(`Order ${id} cancellation workflow completed`);
         }
       }
 
@@ -189,14 +273,117 @@ export class OrderModel {
     refundAmount?: number, 
     refundStatus: Order['refund_status'] = 'pending'
   ): Promise<Order | null> {
-    const result = await pool.query(`
-      UPDATE orders 
-      SET status = 'cancelled', cancellation_reason = $1, cancelled_at = NOW(), 
-          refund_amount = $2, refund_status = $3, updated_at = NOW()
-      WHERE id = $4 
-      RETURNING *
-    `, [cancellationReason, refundAmount, refundStatus, id]);
-    return result.rows[0] || null;
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+
+      // Get current order details
+      const currentOrderResult = await client.query(
+        'SELECT * FROM orders WHERE id = $1',
+        [id]
+      );
+
+      if (currentOrderResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return null;
+      }
+
+      const currentOrder = currentOrderResult.rows[0];
+
+      // Update order status to cancelled
+      const result = await client.query(`
+        UPDATE orders 
+        SET status = 'cancelled', shipping_status = 'cancelled', cancellation_reason = $1, 
+            cancelled_at = NOW(), refund_amount = $2, refund_status = $3, updated_at = NOW()
+        WHERE id = $4 
+        RETURNING *
+      `, [cancellationReason, refundAmount, refundStatus, id]);
+
+      // Restore inventory
+      console.log(`Order ${id} cancelled, restoring inventory`);
+      await inventoryService.handleOrderCancellation(id);
+
+      // Cancel with Shiprocket if order was shipped
+      if (currentOrder.shiprocket_order_id) {
+        try {
+          console.log(`Cancelling Shiprocket order: ${currentOrder.shiprocket_order_id}`);
+          await shiprocketService.cancelOrder(currentOrder.shiprocket_order_id);
+          console.log(`Shiprocket order cancelled successfully`);
+        } catch (shiprocketError) {
+          console.error('Shiprocket cancellation failed:', shiprocketError);
+          // Don't fail the transaction - log and continue
+        }
+      }
+
+      // Process automatic refund if payment was completed
+      if (currentOrder.payment_status === 'paid' && currentOrder.razorpay_payment_id) {
+        try {
+          console.log(`Processing refund for payment: ${currentOrder.razorpay_payment_id}`);
+          const refundResult = await razorpayService.processOrderCancellationRefund(
+            currentOrder.razorpay_payment_id,
+            id,
+            cancellationReason
+          );
+          
+          if (refundResult.success) {
+            // Update order with refund information
+            const refundAmountInRupees = refundResult.amount ? refundResult.amount / 100 : currentOrder.total_amount;
+            await client.query(`
+              UPDATE orders 
+              SET refund_status = 'processed', refund_amount = $1, razorpay_refund_id = $2, refunded_at = NOW()
+              WHERE id = $3
+            `, [refundAmountInRupees, refundResult.refundId, id]); // Convert paisa to rupees
+            
+            console.log(`Refund processed successfully: ${refundResult.refundId}`);
+          } else {
+            console.error('Refund processing failed:', refundResult.error);
+            // Update order to indicate refund failed
+            await client.query(`
+              UPDATE orders 
+              SET refund_status = 'failed'
+              WHERE id = $1
+            `, [id]);
+          }
+        } catch (refundError) {
+          console.error('Refund processing error:', refundError);
+          // Update order to indicate refund failed
+          await client.query(`
+            UPDATE orders 
+            SET refund_status = 'failed'
+            WHERE id = $1
+          `, [id]);
+        }
+      }
+      
+      // Send cancellation email notification
+      try {
+        // Get user information for email
+        const userResult = await client.query(
+          'SELECT email, first_name, last_name FROM users WHERE id = $1',
+          [currentOrder.user_id]
+        );
+        
+        if (userResult.rows.length > 0) {
+          const user = userResult.rows[0];
+          console.log(`Sending cancellation email to: ${user.email}`);
+          await emailService.sendOrderCancellationEmail(result.rows[0], user);
+          console.log('Cancellation email sent successfully');
+        }
+      } catch (emailError) {
+        console.error('Failed to send cancellation email:', emailError);
+        // Don't fail the transaction - log and continue
+      }
+
+      await client.query('COMMIT');
+      return result.rows[0] || null;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      console.error('Order cancellation error:', error);
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   static async updateRefundStatus(id: string, refundStatus: Order['refund_status']): Promise<Order | null> {

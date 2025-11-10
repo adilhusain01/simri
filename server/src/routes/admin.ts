@@ -1,4 +1,6 @@
 import express from 'express';
+import * as XLSX from 'xlsx';
+import puppeteer from 'puppeteer';
 import { ProductModel } from '../models/Product';
 import { OrderModel } from '../models/Order';
 import { UserModel } from '../models/User';
@@ -315,39 +317,488 @@ router.get('/orders', async (req, res) => {
   }
 });
 
+// Get single order with items
+router.get('/orders/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Get order details
+    const orderResult = await pool.query(`
+      SELECT o.*, u.email as user_email, u.name as user_name
+      FROM orders o 
+      LEFT JOIN users u ON o.user_id = u.id
+      WHERE o.id = $1
+    `, [id]);
+    
+    if (orderResult.rows.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Order not found' 
+      });
+    }
+    
+    const order = orderResult.rows[0];
+    
+    // Get order items
+    const itemsResult = await pool.query(`
+      SELECT oi.*, p.name as product_name, p.images, p.sku as product_sku
+      FROM order_items oi
+      LEFT JOIN products p ON oi.product_id = p.id
+      WHERE oi.order_id = $1
+      ORDER BY oi.created_at ASC
+    `, [id]);
+    
+    // Format the response
+    const formattedOrder = {
+      id: order.id,
+      order_number: order.order_number,
+      user_id: order.user_id,
+      user_name: order.user_name,
+      user_email: order.user_email,
+      status: order.status,
+      payment_status: order.payment_status,
+      shipping_status: order.shipping_status,
+      total_amount: parseFloat(order.total_amount || 0),
+      tax_amount: parseFloat(order.tax_amount || 0),
+      shipping_amount: parseFloat(order.shipping_amount || 0),
+      discount_amount: parseFloat(order.discount_amount || 0),
+      coupon_code: order.coupon_code,
+      coupon_discount_amount: parseFloat(order.coupon_discount_amount || 0),
+      currency: order.currency,
+      shipping_address: order.shipping_address,
+      billing_address: order.billing_address,
+      payment_method: order.payment_method,
+      payment_id: order.payment_id,
+      razorpay_order_id: order.razorpay_order_id,
+      razorpay_payment_id: order.razorpay_payment_id,
+      tracking_number: order.tracking_number,
+      shipped_at: order.shipped_at,
+      delivered_at: order.delivered_at,
+      cancellation_reason: order.cancellation_reason,
+      cancelled_at: order.cancelled_at,
+      refund_amount: parseFloat(order.refund_amount || 0),
+      refund_status: order.refund_status,
+      notes: order.notes,
+      created_at: order.created_at,
+      updated_at: order.updated_at,
+      items: itemsResult.rows.map(item => ({
+        id: item.id,
+        product_id: item.product_id,
+        product_name: item.product_name || item.product_name,
+        product_sku: item.product_sku || item.product_sku,
+        quantity: parseInt(item.quantity || 0),
+        unit_price: parseFloat(item.unit_price || 0),
+        total_price: parseFloat(item.total_price || 0),
+        product_image: item.images && Array.isArray(item.images) && item.images.length > 0 
+          ? item.images[0] 
+          : null,
+        product_snapshot: item.product_snapshot
+      }))
+    };
+    
+    res.json({ 
+      success: true, 
+      data: formattedOrder 
+    });
+  } catch (error) {
+    console.error('Get order details error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching order details' 
+    });
+  }
+});
+
+// Update order status
+router.patch('/orders/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    // Validate status
+    const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid order status' 
+      });
+    }
+    
+    const updatedOrder = await OrderModel.updateStatus(id, status);
+    
+    if (!updatedOrder) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Order not found' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `Order status updated to ${status}`,
+      data: updatedOrder 
+    });
+  } catch (error) {
+    console.error('Update order status error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error updating order status' 
+    });
+  }
+});
+
+// Update order payment status
+router.patch('/orders/:id/payment-status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { payment_status, payment_id } = req.body;
+    
+    // Validate payment status
+    const validPaymentStatuses = ['pending', 'paid', 'failed', 'refunded'];
+    if (!validPaymentStatuses.includes(payment_status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid payment status' 
+      });
+    }
+    
+    const updatedOrder = await OrderModel.updatePaymentStatus(id, payment_status, payment_id);
+    
+    if (!updatedOrder) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Order not found' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `Payment status updated to ${payment_status}`,
+      data: updatedOrder 
+    });
+  } catch (error) {
+    console.error('Update payment status error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error updating payment status' 
+    });
+  }
+});
+
+// Update order shipping status
+router.patch('/orders/:id/shipping-status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { shipping_status, tracking_number } = req.body;
+    
+    // Validate shipping status
+    const validShippingStatuses = ['not_shipped', 'processing', 'shipped', 'in_transit', 'delivered'];
+    if (!validShippingStatuses.includes(shipping_status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid shipping status' 
+      });
+    }
+    
+    const updatedOrder = await OrderModel.updateShippingStatus(id, shipping_status, tracking_number);
+    
+    if (!updatedOrder) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Order not found' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `Shipping status updated to ${shipping_status}`,
+      data: updatedOrder 
+    });
+  } catch (error) {
+    console.error('Update shipping status error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error updating shipping status' 
+    });
+  }
+});
+
+// Cancel order
+router.patch('/orders/:id/cancel', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { cancellation_reason, refund_amount } = req.body;
+    
+    if (!cancellation_reason) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Cancellation reason is required' 
+      });
+    }
+    
+    const updatedOrder = await OrderModel.updateCancellation(id, cancellation_reason, refund_amount);
+    
+    if (!updatedOrder) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Order not found' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Order cancelled successfully',
+      data: updatedOrder 
+    });
+  } catch (error) {
+    console.error('Cancel order error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error cancelling order' 
+    });
+  }
+});
+
+// Bulk update orders
+router.patch('/orders/bulk-update', async (req, res) => {
+  try {
+    const { order_ids, action, status, shipping_status, payment_status } = req.body;
+    
+    if (!order_ids || !Array.isArray(order_ids) || order_ids.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Order IDs are required' 
+      });
+    }
+    
+    if (!action) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Action is required' 
+      });
+    }
+    
+    const results = [];
+    const errors = [];
+    
+    for (const orderId of order_ids) {
+      try {
+        let updatedOrder = null;
+        
+        switch (action) {
+          case 'update_status':
+            if (status) {
+              updatedOrder = await OrderModel.updateStatus(orderId, status);
+            }
+            break;
+          case 'update_shipping':
+            if (shipping_status) {
+              updatedOrder = await OrderModel.updateShippingStatus(orderId, shipping_status);
+            }
+            break;
+          case 'update_payment':
+            if (payment_status) {
+              updatedOrder = await OrderModel.updatePaymentStatus(orderId, payment_status);
+            }
+            break;
+          default:
+            errors.push({ orderId, error: 'Invalid action' });
+            continue;
+        }
+        
+        if (updatedOrder) {
+          results.push(updatedOrder);
+        } else {
+          errors.push({ orderId, error: 'Order not found or update failed' });
+        }
+      } catch (error) {
+        errors.push({ orderId, error: error.message });
+      }
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `Bulk update completed. Updated: ${results.length}, Errors: ${errors.length}`,
+      data: {
+        updated: results,
+        errors: errors,
+        total_processed: order_ids.length
+      }
+    });
+  } catch (error) {
+    console.error('Bulk update error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error performing bulk update' 
+    });
+  }
+});
+
+// Export orders
+router.get('/orders/export', async (req, res) => {
+  try {
+    const { 
+      format = 'csv',
+      status,
+      payment_status,
+      start_date,
+      end_date
+    } = req.query;
+    
+    // Build query conditions
+    let query = `
+      SELECT o.*, u.email as user_email, u.name as user_name,
+        (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id) as items_count
+      FROM orders o 
+      LEFT JOIN users u ON o.user_id = u.id
+    `;
+    const params: any[] = [];
+    const conditions: string[] = [];
+    
+    if (status && status !== 'all') {
+      conditions.push(`o.status = $${params.length + 1}`);
+      params.push(status);
+    }
+    
+    if (payment_status && payment_status !== 'all') {
+      conditions.push(`o.payment_status = $${params.length + 1}`);
+      params.push(payment_status);
+    }
+    
+    if (start_date) {
+      conditions.push(`o.created_at >= $${params.length + 1}`);
+      params.push(start_date);
+    }
+    
+    if (end_date) {
+      conditions.push(`o.created_at <= $${params.length + 1}`);
+      params.push(end_date);
+    }
+    
+    if (conditions.length > 0) {
+      query += ` WHERE ${conditions.join(' AND ')}`;
+    }
+    
+    query += ` ORDER BY o.created_at DESC`;
+    
+    const result = await pool.query(query, params);
+    const orders = result.rows;
+    
+    if (format === 'csv') {
+      // Generate CSV
+      const headers = [
+        'Order Number', 'Customer Name', 'Customer Email', 'Status', 
+        'Payment Status', 'Total Amount', 'Items Count', 'Created Date'
+      ];
+      
+      let csv = headers.join(',') + '\n';
+      
+      orders.forEach(order => {
+        const row = [
+          order.order_number,
+          `"${order.user_name || 'Guest'}"`,
+          order.user_email || '',
+          order.status,
+          order.payment_status,
+          order.total_amount,
+          order.items_count || 0,
+          new Date(order.created_at).toLocaleDateString()
+        ];
+        csv += row.join(',') + '\n';
+      });
+      
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="orders_export_${new Date().toISOString().split('T')[0]}.csv"`);
+      res.send(csv);
+    } else {
+      // JSON export
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="orders_export_${new Date().toISOString().split('T')[0]}.json"`);
+      res.json({
+        success: true,
+        data: orders,
+        exported_at: new Date().toISOString(),
+        total_orders: orders.length
+      });
+    }
+  } catch (error) {
+    console.error('Export orders error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error exporting orders' 
+    });
+  }
+});
+
 // Get comprehensive analytics for gift e-commerce
 router.get('/analytics', async (req, res) => {
   try {
+    console.log('Analytics request params:', req.query);
     const { 
       period = '30',
+      startDate,
+      endDate,
+      comparisonStartDate,
+      comparisonEndDate,
+      includeComparison = 'false',
+      category_id,
+      // Legacy support
       start_date,
       end_date,
-      category_id,
       compare_period = 'false'
     } = req.query;
     
-    // Build date conditions
+    // Build date conditions - use new parameter names, fallback to legacy
     let dateCondition = '';
     let compareDateCondition = '';
     const params: any[] = [];
     
-    if (start_date && end_date) {
-      dateCondition = `created_at >= $1 AND created_at <= $2`;
-      params.push(start_date, end_date);
+    // Ensure dates are in proper format
+    const formatDate = (dateStr: string) => {
+      if (!dateStr) return null;
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return null;
+      return date.toISOString();
+    };
+    
+    const actualStartDate = formatDate(startDate || start_date);
+    const actualEndDate = formatDate(endDate || end_date);
+    const actualComparisonStartDate = formatDate(comparisonStartDate);
+    const actualComparisonEndDate = formatDate(comparisonEndDate);
+    const shouldCompare = includeComparison === 'true' || compare_period === 'true';
+    
+    console.log('Formatted dates:', { actualStartDate, actualEndDate, actualComparisonStartDate, actualComparisonEndDate, shouldCompare });
+    
+    // If dates are invalid, fall back to period-based queries
+    const useDateRange = actualStartDate && actualEndDate;
+    console.log('Using date range:', useDateRange);
+    
+    if (actualStartDate && actualEndDate) {
+      dateCondition = `created_at >= $1::timestamp AND created_at <= $2::timestamp`;
+      params.push(actualStartDate, actualEndDate);
       
-      if (compare_period === 'true') {
-        const daysDiff = Math.ceil((new Date(end_date as string).getTime() - new Date(start_date as string).getTime()) / (1000 * 60 * 60 * 24));
-        const compareStartDate = new Date(new Date(start_date as string).getTime() - (daysDiff * 24 * 60 * 60 * 1000));
-        const compareEndDate = new Date(start_date as string);
-        compareDateCondition = `created_at >= $3 AND created_at <= $4`;
+      if (shouldCompare && actualComparisonStartDate && actualComparisonEndDate) {
+        compareDateCondition = `created_at >= $3::timestamp AND created_at <= $4::timestamp`;
+        params.push(actualComparisonStartDate, actualComparisonEndDate);
+      } else if (shouldCompare) {
+        // Auto-calculate comparison period if not provided
+        const daysDiff = Math.ceil((new Date(actualEndDate as string).getTime() - new Date(actualStartDate as string).getTime()) / (1000 * 60 * 60 * 24));
+        const compareStartDate = new Date(new Date(actualStartDate as string).getTime() - (daysDiff * 24 * 60 * 60 * 1000));
+        const compareEndDate = new Date(actualStartDate as string);
+        compareDateCondition = `created_at >= $3::timestamp AND created_at <= $4::timestamp`;
         params.push(compareStartDate.toISOString(), compareEndDate.toISOString());
       }
     } else {
-      dateCondition = `created_at >= NOW() - INTERVAL '${period} days'`;
-      if (compare_period === 'true') {
-        compareDateCondition = `created_at >= NOW() - INTERVAL '${parseInt(period as string) * 2} days' AND created_at < NOW() - INTERVAL '${period} days'`;
+      // Validate period parameter
+      const periodDays = parseInt(period as string) || 30;
+      dateCondition = `created_at >= NOW() - INTERVAL '${periodDays} days'`;
+      if (shouldCompare) {
+        compareDateCondition = `created_at >= NOW() - INTERVAL '${periodDays * 2} days' AND created_at < NOW() - INTERVAL '${periodDays} days'`;
       }
     }
+
+    // Create table-qualified date conditions for queries with joins
+    const ordersDateCondition = dateCondition.replace(/created_at/g, 'o.created_at');
 
     // 1. REVENUE & SALES INTELLIGENCE
     const revenueQuery = `
@@ -367,16 +818,36 @@ router.get('/analytics', async (req, res) => {
       WHERE ${dateCondition}
     `;
     
-    const revenueResult = await pool.query(revenueQuery, params.slice(0, start_date && end_date ? 2 : 0));
+    console.log('Executing revenue query with params:', params.slice(0, useDateRange ? 2 : 0));
+    const revenueResult = await pool.query(revenueQuery, params.slice(0, useDateRange ? 2 : 0));
     const currentRevenue = revenueResult.rows[0];
+    console.log('Revenue query completed');
 
     // Comparison period data
     let comparisonRevenue = null;
-    if (compare_period === 'true' && compareDateCondition) {
-      const compareQuery = revenueQuery.replace(dateCondition, compareDateCondition);
-      const compareParams = start_date && end_date ? params.slice(2, 4) : [];
+    if (shouldCompare && compareDateCondition) {
+      // Build a separate comparison query with proper parameter numbering
+      const compareQuery = `
+        SELECT 
+          COUNT(*) as total_orders,
+          COUNT(CASE WHEN payment_status = 'paid' THEN 1 END) as paid_orders,
+          COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END), 0) as total_revenue,
+          COALESCE(AVG(CASE WHEN payment_status = 'paid' THEN total_amount ELSE NULL END), 0) as average_order_value,
+          COUNT(DISTINCT CASE WHEN payment_status = 'paid' THEN user_id END) as unique_customers,
+          COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN discount_amount ELSE 0 END), 0) as total_discounts_given,
+          COUNT(CASE WHEN coupon_id IS NOT NULL AND payment_status = 'paid' THEN 1 END) as orders_with_coupons,
+          COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_orders,
+          COALESCE(SUM(CASE WHEN status = 'cancelled' THEN total_amount ELSE 0 END), 0) as lost_revenue,
+          COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN tax_amount ELSE 0 END), 0) as total_tax_collected,
+          COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN shipping_amount ELSE 0 END), 0) as total_shipping_revenue
+        FROM orders 
+        WHERE created_at >= $1::timestamp AND created_at <= $2::timestamp
+      `;
+      const compareParams = [actualComparisonStartDate, actualComparisonEndDate];
+      console.log('Executing comparison query with params:', compareParams);
       const compareResult = await pool.query(compareQuery, compareParams);
       comparisonRevenue = compareResult.rows[0];
+      console.log('Comparison query completed');
     }
 
     // 2. CUSTOMER BEHAVIOR ANALYTICS
@@ -399,11 +870,46 @@ router.get('/analytics', async (req, res) => {
         COUNT(CASE WHEN order_count > 1 THEN 1 END) as returning_customers,
         COALESCE(AVG(customer_value), 0) as avg_customer_lifetime_value,
         COALESCE(AVG(CASE WHEN order_count > 1 THEN customer_value END), 0) as avg_returning_clv,
-        ROUND(AVG(order_count), 2) as avg_orders_per_customer,
+        ROUND(AVG(order_count)::NUMERIC, 2) as avg_orders_per_customer,
         COALESCE(MAX(customer_value), 0) as highest_customer_value
       FROM customer_stats
     `;
-    const customerResult = await pool.query(customerQuery, params.slice(0, start_date && end_date ? 2 : 0));
+    console.log('Executing customer query');
+    const customerResult = await pool.query(customerQuery, params.slice(0, useDateRange ? 2 : 0));
+    console.log('Customer query completed');
+
+    // Comparison period customer data
+    let comparisonCustomer = null;
+    if (shouldCompare && compareDateCondition) {
+      const compareCustomerQuery = `
+        WITH customer_stats AS (
+          SELECT 
+            user_id,
+            COUNT(*) as order_count,
+            MIN(created_at) as first_order,
+            MAX(created_at) as last_order,
+            SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END) as customer_value,
+            AVG(CASE WHEN payment_status = 'paid' THEN total_amount ELSE NULL END) as avg_order_value
+          FROM orders
+          WHERE created_at >= $1::timestamp AND created_at <= $2::timestamp AND user_id IS NOT NULL
+          GROUP BY user_id
+        )
+        SELECT 
+          COUNT(*) as total_customers,
+          COUNT(CASE WHEN order_count = 1 THEN 1 END) as new_customers,
+          COUNT(CASE WHEN order_count > 1 THEN 1 END) as returning_customers,
+          COALESCE(AVG(customer_value), 0) as avg_customer_lifetime_value,
+          COALESCE(AVG(CASE WHEN order_count > 1 THEN customer_value END), 0) as avg_returning_clv,
+          ROUND(AVG(order_count)::NUMERIC, 2) as avg_orders_per_customer,
+          COALESCE(MAX(customer_value), 0) as highest_customer_value
+        FROM customer_stats
+      `;
+      const compareCustomerParams = [actualComparisonStartDate, actualComparisonEndDate];
+      console.log('Executing comparison customer query with params:', compareCustomerParams);
+      const compareCustomerResult = await pool.query(compareCustomerQuery, compareCustomerParams);
+      comparisonCustomer = compareCustomerResult.rows[0];
+      console.log('Comparison customer query completed');
+    }
 
     // 3. PRODUCT PERFORMANCE (GIFT-FOCUSED)
     let productQuery = `
@@ -415,16 +921,16 @@ router.get('/analytics', async (req, res) => {
         SUM(oi.quantity) as total_sold,
         COALESCE(SUM(oi.total_price), 0) as revenue,
         COUNT(DISTINCT o.id) as order_count,
-        ROUND(AVG(oi.unit_price), 2) as avg_selling_price,
+        ROUND(AVG(oi.unit_price)::NUMERIC, 2) as avg_selling_price,
         COALESCE(SUM(oi.total_price) / NULLIF(SUM(oi.quantity), 0), 0) as revenue_per_unit
       FROM order_items oi
       JOIN orders o ON oi.order_id = o.id
       LEFT JOIN products p ON oi.product_id = p.id
       LEFT JOIN categories c ON p.category_id = c.id
-      WHERE o.${dateCondition} AND o.payment_status = 'paid'
+      WHERE ${ordersDateCondition} AND o.payment_status = 'paid'
     `;
     
-    const productParams = [...params.slice(0, start_date && end_date ? 2 : 0)];
+    const productParams = [...params.slice(0, useDateRange ? 2 : 0)];
     if (category_id && category_id !== 'all') {
       productQuery += ` AND p.category_id = $${productParams.length + 1}`;
       productParams.push(category_id);
@@ -447,17 +953,17 @@ router.get('/analytics', async (req, res) => {
         COALESCE(SUM(oi.total_price), 0) as revenue,
         COUNT(DISTINCT o.id) as order_count,
         COUNT(DISTINCT o.user_id) as unique_customers,
-        ROUND(AVG(oi.unit_price), 2) as avg_product_price
+        ROUND(AVG(oi.unit_price)::NUMERIC, 2) as avg_product_price
       FROM order_items oi
       JOIN orders o ON oi.order_id = o.id
       JOIN products p ON oi.product_id = p.id
       LEFT JOIN categories c ON p.category_id = c.id
-      WHERE o.${dateCondition} AND o.payment_status = 'paid'
+      WHERE ${ordersDateCondition} AND o.payment_status = 'paid'
       GROUP BY c.name, c.id
       ORDER BY revenue DESC
       LIMIT 10
     `;
-    const categoryResult = await pool.query(categoryQuery, params.slice(0, start_date && end_date ? 2 : 0));
+    const categoryResult = await pool.query(categoryQuery, params.slice(0, useDateRange ? 2 : 0));
 
     // 5. MARKETING & ACQUISITION INTELLIGENCE
     const marketingQuery = `
@@ -468,14 +974,14 @@ router.get('/analytics', async (req, res) => {
         COALESCE(AVG(CASE WHEN coupon_id IS NOT NULL THEN discount_amount END), 0) as avg_discount_per_coupon,
         ROUND(
           (COUNT(CASE WHEN coupon_id IS NOT NULL THEN 1 END)::FLOAT / 
-           NULLIF(COUNT(*), 0) * 100), 2
+           NULLIF(COUNT(*), 0) * 100)::NUMERIC, 2
         ) as coupon_usage_rate,
         COALESCE(SUM(CASE WHEN coupon_id IS NOT NULL THEN total_amount ELSE 0 END), 0) as revenue_with_coupons,
         COUNT(DISTINCT CASE WHEN coupon_id IS NOT NULL THEN coupon_code END) as unique_coupons_used
       FROM orders
       WHERE ${dateCondition} AND payment_status = 'paid'
     `;
-    const marketingResult = await pool.query(marketingQuery, params.slice(0, start_date && end_date ? 2 : 0));
+    const marketingResult = await pool.query(marketingQuery, params.slice(0, useDateRange ? 2 : 0));
 
     // 6. CONVERSION FUNNEL ANALYSIS
     const funnelQuery = `
@@ -486,16 +992,16 @@ router.get('/analytics', async (req, res) => {
         COUNT(CASE WHEN status = 'delivered' THEN 1 END) as delivered_orders,
         ROUND(
           (COUNT(CASE WHEN payment_status = 'paid' THEN 1 END)::FLOAT / 
-           NULLIF(COUNT(*), 0) * 100), 2
+           NULLIF(COUNT(*), 0) * 100)::NUMERIC, 2
         ) as payment_conversion_rate,
         ROUND(
           (COUNT(CASE WHEN status = 'delivered' THEN 1 END)::FLOAT / 
-           NULLIF(COUNT(CASE WHEN payment_status = 'paid' THEN 1 END), 0) * 100), 2
+           NULLIF(COUNT(CASE WHEN payment_status = 'paid' THEN 1 END), 0) * 100)::NUMERIC, 2
         ) as fulfillment_rate
       FROM orders
       WHERE ${dateCondition}
     `;
-    const funnelResult = await pool.query(funnelQuery, params.slice(0, start_date && end_date ? 2 : 0));
+    const funnelResult = await pool.query(funnelQuery, params.slice(0, useDateRange ? 2 : 0));
 
     // 7. DAILY TRENDS FOR CHARTS
     const trendsQuery = `
@@ -512,56 +1018,208 @@ router.get('/analytics', async (req, res) => {
       GROUP BY DATE(created_at)
       ORDER BY date ASC
     `;
-    const trendsResult = await pool.query(trendsQuery, params.slice(0, start_date && end_date ? 2 : 0));
+    const trendsResult = await pool.query(trendsQuery, params.slice(0, useDateRange ? 2 : 0));
 
     // 8. ORDER STATUS BREAKDOWN
-    const statusQuery = `
-      SELECT 
-        status, 
-        COUNT(*) as count,
-        COALESCE(SUM(total_amount), 0) as total_value,
-        ROUND((COUNT(*)::FLOAT / (
-          SELECT COUNT(*) FROM orders WHERE ${dateCondition}
-        ) * 100), 2) as percentage
-      FROM orders 
-      WHERE ${dateCondition}
-      GROUP BY status
-      ORDER BY count DESC
-    `;
-    const statusResult = await pool.query(statusQuery, params.slice(0, start_date && end_date ? 2 : 0));
+    let statusQuery = '';
+    let statusParams: any[] = [];
+    
+    if (useDateRange) {
+      statusQuery = `
+        SELECT 
+          status, 
+          COUNT(*) as count,
+          COALESCE(SUM(total_amount), 0) as total_value,
+          ROUND((COUNT(*)::FLOAT / (
+            SELECT COUNT(*) FROM orders WHERE created_at >= $1::timestamp AND created_at <= $2::timestamp
+          ) * 100)::NUMERIC, 2) as percentage
+        FROM orders 
+        WHERE created_at >= $1::timestamp AND created_at <= $2::timestamp
+        GROUP BY status
+        ORDER BY count DESC
+      `;
+      statusParams = [actualStartDate, actualEndDate];
+    } else {
+      const periodDays = parseInt(period as string) || 30;
+      statusQuery = `
+        SELECT 
+          status, 
+          COUNT(*) as count,
+          COALESCE(SUM(total_amount), 0) as total_value,
+          ROUND((COUNT(*)::FLOAT / (
+            SELECT COUNT(*) FROM orders WHERE created_at >= NOW() - INTERVAL '${periodDays} days'
+          ) * 100)::NUMERIC, 2) as percentage
+        FROM orders 
+        WHERE created_at >= NOW() - INTERVAL '${periodDays} days'
+        GROUP BY status
+        ORDER BY count DESC
+      `;
+      statusParams = [];
+    }
+    
+    const statusResult = await pool.query(statusQuery, statusParams);
 
     // 9. CART ABANDONMENT INSIGHTS
-    const abandonmentQuery = `
-      SELECT 
-        COUNT(*) as total_abandoned_carts,
-        COUNT(CASE WHEN is_recovered = true THEN 1 END) as recovered_carts,
-        ROUND(
-          (COUNT(CASE WHEN is_recovered = true THEN 1 END)::FLOAT / 
-           NULLIF(COUNT(*), 0) * 100), 2
-        ) as recovery_rate,
-        AVG(EXTRACT(EPOCH FROM (COALESCE(recovered_at, NOW()) - abandoned_at))/3600) as avg_abandonment_hours
-      FROM cart_abandonment_tracking
-      WHERE abandoned_at >= COALESCE($1, NOW() - INTERVAL '${period} days')
-        ${start_date ? 'AND abandoned_at <= $2' : ''}
-    `;
-    const abandonmentResult = await pool.query(abandonmentQuery, start_date && end_date ? [start_date, end_date] : []);
+    let abandonmentQuery = '';
+    let abandonmentParams: any[] = [];
+    
+    if (useDateRange) {
+      abandonmentQuery = `
+        SELECT 
+          COUNT(*) as total_abandoned_carts,
+          COUNT(CASE WHEN is_recovered = true THEN 1 END) as recovered_carts,
+          ROUND(
+            (COUNT(CASE WHEN is_recovered = true THEN 1 END)::FLOAT / 
+             NULLIF(COUNT(*), 0) * 100)::NUMERIC, 2
+          ) as recovery_rate,
+          AVG(EXTRACT(EPOCH FROM (COALESCE(recovered_at, NOW()) - abandoned_at))/3600) as avg_abandonment_hours
+        FROM cart_abandonment_tracking
+        WHERE abandoned_at >= $1::timestamp AND abandoned_at <= $2::timestamp
+      `;
+      abandonmentParams = [actualStartDate, actualEndDate];
+    } else {
+      const periodDays = parseInt(period as string) || 30;
+      abandonmentQuery = `
+        SELECT 
+          COUNT(*) as total_abandoned_carts,
+          COUNT(CASE WHEN is_recovered = true THEN 1 END) as recovered_carts,
+          ROUND(
+            (COUNT(CASE WHEN is_recovered = true THEN 1 END)::FLOAT / 
+             NULLIF(COUNT(*), 0) * 100)::NUMERIC, 2
+          ) as recovery_rate,
+          AVG(EXTRACT(EPOCH FROM (COALESCE(recovered_at, NOW()) - abandoned_at))/3600) as avg_abandonment_hours
+        FROM cart_abandonment_tracking
+        WHERE abandoned_at >= NOW() - INTERVAL '${periodDays} days'
+      `;
+      abandonmentParams = [];
+    }
+    
+    const abandonmentResult = await pool.query(abandonmentQuery, abandonmentParams);
+
+    // Transform data to match frontend ComprehensiveAnalytics interface
+    const current = currentRevenue;
+    const comparison = comparisonRevenue || {};
+    const customer = customerResult.rows[0] || {};
+    const customerComparison = comparisonCustomer || {};
+    const marketing = marketingResult.rows[0] || {};
+    const funnel = funnelResult.rows[0] || {};
+    const abandonment = abandonmentResult.rows[0] || {};
+
+    // Calculate growth percentages
+    const calculateGrowth = (current: number, previous: number) => {
+      if (!previous || previous === 0) return 0;
+      return ((current - previous) / previous) * 100;
+    };
 
     res.json({
       success: true,
       data: {
-        period: { start_date, end_date, period, compare_period },
-        revenue_intelligence: {
-          current: currentRevenue,
-          comparison: comparisonRevenue
+        revenue: {
+          total_revenue: parseFloat(current.total_revenue || 0),
+          previous_period_revenue: parseFloat(comparison.total_revenue || 0),
+          revenue_growth: calculateGrowth(
+            parseFloat(current.total_revenue || 0), 
+            parseFloat(comparison.total_revenue || 0)
+          ),
+          total_orders: parseInt(current.total_orders || 0),
+          previous_period_orders: parseInt(comparison.total_orders || 0),
+          orders_growth: calculateGrowth(
+            parseInt(current.total_orders || 0), 
+            parseInt(comparison.total_orders || 0)
+          ),
+          avg_order_value: parseFloat(current.average_order_value || 0),
+          previous_period_aov: parseFloat(comparison.average_order_value || 0),
+          aov_growth: calculateGrowth(
+            parseFloat(current.average_order_value || 0), 
+            parseFloat(comparison.average_order_value || 0)
+          ),
+          total_discount_given: parseFloat(current.total_discounts_given || 0),
+          total_tax_collected: parseFloat(current.total_tax_collected || 0),
+          total_shipping_collected: parseFloat(current.total_shipping_revenue || 0),
+          gross_revenue: parseFloat(current.total_revenue || 0) + parseFloat(current.total_discounts_given || 0)
         },
-        customer_analytics: customerResult.rows[0],
-        product_performance: productResult.rows,
-        category_performance: categoryResult.rows,
-        marketing_analytics: marketingResult.rows[0],
-        conversion_funnel: funnelResult.rows[0],
-        daily_trends: trendsResult.rows,
-        order_status: statusResult.rows,
-        cart_abandonment: abandonmentResult.rows[0]
+        customers: {
+          total_customers: parseInt(customer.total_customers || 0),
+          previous_period_customers: parseInt(customerComparison.total_customers || 0),
+          customer_growth: calculateGrowth(
+            parseInt(customer.total_customers || 0),
+            parseInt(customerComparison.total_customers || 0)
+          ),
+          new_customers: parseInt(customer.new_customers || 0),
+          returning_customers: parseInt(customer.returning_customers || 0),
+          new_customer_percentage: customer.total_customers > 0 
+            ? (parseInt(customer.new_customers || 0) / parseInt(customer.total_customers || 0)) * 100 
+            : 0,
+          avg_customer_lifetime_value: parseFloat(customer.avg_customer_lifetime_value || 0),
+          avg_orders_per_customer: parseFloat(customer.avg_orders_per_customer || 0),
+          repeat_purchase_rate: customer.total_customers > 0 
+            ? (parseInt(customer.returning_customers || 0) / parseInt(customer.total_customers || 0)) * 100 
+            : 0
+        },
+        topProducts: productResult.rows.map(product => ({
+          product_id: product.product_id,
+          name: product.product_name,
+          total_sold: parseInt(product.total_sold || 0),
+          revenue: parseFloat(product.revenue || 0),
+          avg_rating: 0, // Would need reviews table integration
+          total_reviews: 0, // Would need reviews table integration
+          is_gift_suitable: true, // Default for gift store
+          category_name: product.category_name || 'Uncategorized'
+        })),
+        categories: categoryResult.rows.map(category => ({
+          category_id: category.category_id,
+          category_name: category.category_name,
+          total_revenue: parseFloat(category.revenue || 0),
+          total_orders: parseInt(category.order_count || 0),
+          avg_order_value: parseFloat(category.revenue || 0) / Math.max(parseInt(category.order_count || 0), 1),
+          product_count: parseInt(category.unique_products_sold || 0)
+        })),
+        marketing: [{
+          coupon_code: 'Overall Performance',
+          usage_count: parseInt(marketing.orders_with_coupons || 0),
+          total_discount_given: parseFloat(marketing.total_discounts_given || 0),
+          avg_discount_per_use: parseFloat(marketing.avg_discount_per_coupon || 0),
+          revenue_from_coupon_orders: parseFloat(marketing.revenue_with_coupons || 0),
+          is_active: true
+        }],
+        conversion: {
+          total_orders: parseInt(funnel.total_orders || 0),
+          paid_orders: parseInt(funnel.paid_orders || 0),
+          payment_success_rate: parseFloat(funnel.payment_conversion_rate || 0),
+          shipped_orders: parseInt(funnel.shipped_orders || 0),
+          delivery_rate: parseFloat(funnel.fulfillment_rate || 0),
+          cancelled_orders: parseInt(current.cancelled_orders || 0),
+          cancellation_rate: parseInt(current.total_orders || 0) > 0 
+            ? (parseInt(current.cancelled_orders || 0) / parseInt(current.total_orders || 0)) * 100 
+            : 0
+        },
+        dailyTrends: trendsResult.rows.map(trend => ({
+          date: trend.date,
+          revenue: parseFloat(trend.revenue || 0),
+          orders: parseInt(trend.orders || 0),
+          customers: parseInt(trend.unique_customers || 0)
+        })),
+        orderStatus: statusResult.rows.map(status => ({
+          status: status.status,
+          count: parseInt(status.count || 0),
+          percentage: parseFloat(status.percentage || 0),
+          total_value: parseFloat(status.total_value || 0)
+        })),
+        cartAbandonment: {
+          total_tracked_carts: parseInt(abandonment.total_abandoned_carts || 0),
+          abandoned_carts: parseInt(abandonment.total_abandoned_carts || 0),
+          abandonment_rate: 100, // Would need cart creation tracking
+          recovered_carts: parseInt(abandonment.recovered_carts || 0),
+          recovery_rate: parseFloat(abandonment.recovery_rate || 0),
+          avg_cart_value: 0, // Would need cart value tracking
+          potential_lost_revenue: 0 // Would need cart value tracking
+        },
+        dateRange: {
+          startDate: actualStartDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          endDate: actualEndDate || new Date().toISOString().split('T')[0],
+          comparisonStartDate: actualComparisonStartDate,
+          comparisonEndDate: actualComparisonEndDate
+        }
       }
     });
   } catch (error) {
@@ -845,6 +1503,465 @@ router.get('/users', async (req, res) => {
   } catch (error) {
     console.error('Get users error:', error);
     res.status(500).json({ success: false, message: 'Error fetching users' });
+  }
+});
+
+// Export analytics data
+router.get('/analytics/export', async (req, res) => {
+  try {
+    const { 
+      startDate,
+      endDate,
+      comparisonStartDate,
+      comparisonEndDate,
+      includeComparison = 'false',
+      format = 'csv'
+    } = req.query;
+
+    // Get analytics data using the same logic as the analytics endpoint
+    const formatDate = (dateStr: string) => {
+      if (!dateStr) return null;
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return null;
+      return date.toISOString();
+    };
+    
+    const actualStartDate = formatDate(startDate as string);
+    const actualEndDate = formatDate(endDate as string);
+    const useDateRange = actualStartDate && actualEndDate;
+    
+    if (!useDateRange) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid start and end dates are required for export'
+      });
+    }
+
+    // Build date condition
+    const dateCondition = `created_at >= $1::timestamp AND created_at <= $2::timestamp`;
+    const params = [actualStartDate, actualEndDate];
+
+    // Get export data - simplified for export
+    const [revenueResult, ordersResult, productsResult] = await Promise.all([
+      // Revenue summary
+      pool.query(`
+        SELECT 
+          COUNT(*) as total_orders,
+          COUNT(CASE WHEN payment_status = 'paid' THEN 1 END) as paid_orders,
+          COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END), 0) as total_revenue,
+          COALESCE(AVG(CASE WHEN payment_status = 'paid' THEN total_amount ELSE NULL END), 0) as average_order_value,
+          COUNT(DISTINCT CASE WHEN payment_status = 'paid' THEN user_id END) as unique_customers
+        FROM orders 
+        WHERE ${dateCondition}
+      `, params),
+
+      // Daily order breakdown
+      pool.query(`
+        SELECT 
+          DATE(created_at) as date,
+          COUNT(*) as orders,
+          COUNT(CASE WHEN payment_status = 'paid' THEN 1 END) as paid_orders,
+          COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END), 0) as revenue,
+          COUNT(DISTINCT CASE WHEN payment_status = 'paid' THEN user_id END) as unique_customers
+        FROM orders
+        WHERE ${dateCondition}
+        GROUP BY DATE(created_at)
+        ORDER BY date ASC
+      `, params),
+
+      // Top products
+      pool.query(`
+        SELECT 
+          oi.product_name,
+          SUM(oi.quantity) as total_sold,
+          COALESCE(SUM(oi.total_price), 0) as revenue,
+          COUNT(DISTINCT o.id) as order_count
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.id
+        WHERE o.created_at >= $1::timestamp AND o.created_at <= $2::timestamp AND o.payment_status = 'paid'
+        GROUP BY oi.product_name
+        ORDER BY revenue DESC
+        LIMIT 20
+      `, params)
+    ]);
+
+    const data = {
+      summary: revenueResult.rows[0],
+      daily_breakdown: ordersResult.rows,
+      top_products: productsResult.rows,
+      export_info: {
+        date_range: `${actualStartDate.split('T')[0]} to ${actualEndDate.split('T')[0]}`,
+        exported_at: new Date().toISOString(),
+        total_records: ordersResult.rows.length
+      }
+    };
+
+    if (format === 'csv') {
+      // Generate well-formatted CSV with proper headers and formatting
+      const formatCurrency = (amount: number) => `₹${parseFloat(amount || 0).toFixed(2)}`;
+      const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('en-IN');
+      
+      let csv = '';
+      
+      // Export metadata header
+      csv += `"Analytics Export Report"\n`;
+      csv += `"Date Range: ${formatDate(actualStartDate)} - ${formatDate(actualEndDate)}"\n`;
+      csv += `"Generated: ${new Date().toLocaleString('en-US')}"\n`;
+      csv += `"Total Days: ${data.daily_breakdown.length}"\n\n`;
+      
+      // Summary section with better formatting
+      csv += `"EXECUTIVE SUMMARY"\n`;
+      csv += `"Metric","Value","Performance"\n`;
+      const paymentRate = ((data.summary.paid_orders / data.summary.total_orders) * 100).toFixed(1);
+      csv += `"Total Orders","${data.summary.total_orders}","${data.summary.total_orders > 0 ? 'Active' : 'No Activity'}"\n`;
+      csv += `"Paid Orders","${data.summary.paid_orders}","${paymentRate}% Payment Success Rate"\n`;
+      csv += `"Total Revenue","${formatCurrency(data.summary.total_revenue)}","Primary Revenue"\n`;
+      csv += `"Average Order Value","${formatCurrency(data.summary.average_order_value)}","Per Order Performance"\n`;
+      csv += `"Unique Customers","${data.summary.unique_customers}","Customer Reach"\n`;
+      csv += `"Revenue per Customer","${formatCurrency(data.summary.total_revenue / (data.summary.unique_customers || 1))}","Customer Value"\n\n`;
+      
+      // Daily performance breakdown with trends
+      csv += `"DAILY PERFORMANCE BREAKDOWN"\n`;
+      csv += `"Date","Day of Week","Total Orders","Paid Orders","Revenue","Unique Customers","Payment Rate","Revenue per Customer"\n`;
+      data.daily_breakdown.forEach(row => {
+        const date = new Date(row.date);
+        const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+        const paymentRate = row.orders > 0 ? ((row.paid_orders / row.orders) * 100).toFixed(1) + '%' : '0%';
+        const revenuePerCustomer = row.unique_customers > 0 ? formatCurrency(row.revenue / row.unique_customers) : formatCurrency(0);
+        
+        csv += `"${formatDate(row.date)}","${dayOfWeek}","${row.orders}","${row.paid_orders}","${formatCurrency(row.revenue)}","${row.unique_customers}","${paymentRate}","${revenuePerCustomer}"\n`;
+      });
+      csv += '\n';
+      
+      // Top products with detailed metrics
+      csv += `"TOP PERFORMING PRODUCTS"\n`;
+      csv += `"Rank","Product Name","Units Sold","Total Revenue","Number of Orders","Avg Revenue per Order","Market Share"\n`;
+      const totalProductRevenue = data.top_products.reduce((sum, p) => sum + parseFloat(p.revenue || 0), 0);
+      data.top_products.forEach((row, index) => {
+        const avgRevenuePerOrder = row.order_count > 0 ? formatCurrency(row.revenue / row.order_count) : formatCurrency(0);
+        const marketShare = totalProductRevenue > 0 ? ((row.revenue / totalProductRevenue) * 100).toFixed(1) + '%' : '0%';
+        csv += `"${index + 1}","${row.product_name.replace(/"/g, '""')}","${row.total_sold}","${formatCurrency(row.revenue)}","${row.order_count}","${avgRevenuePerOrder}","${marketShare}"\n`;
+      });
+      
+      // Add analytics insights
+      csv += '\n"KEY INSIGHTS"\n';
+      csv += `"Peak Day","${data.daily_breakdown.reduce((max, day) => day.revenue > max.revenue ? day : max, {revenue: 0, date: 'N/A'}).date}","Highest revenue day"\n`;
+      csv += `"Best Product","${data.top_products[0]?.product_name || 'N/A'}","Top revenue generator"\n`;
+      csv += `"Average Daily Revenue","${formatCurrency(data.summary.total_revenue / data.daily_breakdown.length)}","Revenue consistency"\n`;
+
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="Analytics_Report_${actualStartDate.split('T')[0]}_to_${actualEndDate.split('T')[0]}.csv"`);
+      return res.send('\uFEFF' + csv); // Add BOM for proper UTF-8 handling in Excel
+    }
+
+    if (format === 'excel') {
+      // Create Excel workbook with enhanced data matching CSV richness
+      const workbook = XLSX.utils.book_new();
+      
+      // Metadata sheet
+      const metadataData = [
+        ['Analytics Export Report'],
+        [`Date Range: ${new Date(actualStartDate).toLocaleDateString('en-IN')} - ${new Date(actualEndDate).toLocaleDateString('en-IN')}`],
+        [`Generated: ${new Date().toLocaleString('en-IN')}`],
+        [`Total Days: ${data.daily_breakdown.length}`],
+        [''],
+        ['EXECUTIVE SUMMARY'],
+        ['Metric', 'Value', 'Performance'],
+        ['Total Orders', data.summary.total_orders, data.summary.total_orders > 0 ? 'Active' : 'No Activity'],
+        ['Paid Orders', data.summary.paid_orders, `${((data.summary.paid_orders / data.summary.total_orders) * 100).toFixed(1)}% Payment Success Rate`],
+        ['Total Revenue', `₹${parseFloat(data.summary.total_revenue || 0).toFixed(2)}`, 'Primary Revenue'],
+        ['Average Order Value', `₹${parseFloat(data.summary.average_order_value || 0).toFixed(2)}`, 'Per Order Performance'],
+        ['Unique Customers', data.summary.unique_customers, 'Customer Reach'],
+        ['Revenue per Customer', `₹${(data.summary.total_revenue / (data.summary.unique_customers || 1)).toFixed(2)}`, 'Customer Value'],
+        [''],
+        ['KEY INSIGHTS'],
+        ['Peak Day', data.daily_breakdown.reduce((max, day) => day.revenue > max.revenue ? day : max, {revenue: 0, date: 'N/A'}).date, 'Highest revenue day'],
+        ['Best Product', data.top_products[0]?.product_name || 'N/A', 'Top revenue generator'],
+        ['Average Daily Revenue', `₹${(data.summary.total_revenue / data.daily_breakdown.length).toFixed(2)}`, 'Revenue consistency']
+      ];
+      const metadataSheet = XLSX.utils.aoa_to_sheet(metadataData);
+      XLSX.utils.book_append_sheet(workbook, metadataSheet, 'Executive Summary');
+      
+      // Enhanced daily breakdown sheet
+      const dailyData = [
+        ['DAILY PERFORMANCE BREAKDOWN'],
+        [''],
+        ['Date', 'Day of Week', 'Total Orders', 'Paid Orders', 'Revenue', 'Unique Customers', 'Payment Rate', 'Revenue per Customer']
+      ];
+      data.daily_breakdown.forEach(row => {
+        const date = new Date(row.date);
+        const dayOfWeek = date.toLocaleDateString('en-IN', { weekday: 'long' });
+        const paymentRate = row.orders > 0 ? `${((row.paid_orders / row.orders) * 100).toFixed(1)}%` : '0%';
+        const revenuePerCustomer = row.unique_customers > 0 ? `₹${(row.revenue / row.unique_customers).toFixed(2)}` : '₹0.00';
+        
+        dailyData.push([
+          new Date(row.date).toLocaleDateString('en-IN'),
+          dayOfWeek,
+          row.orders,
+          row.paid_orders,
+          `₹${parseFloat(row.revenue || 0).toFixed(2)}`,
+          row.unique_customers,
+          paymentRate,
+          revenuePerCustomer
+        ]);
+      });
+      const dailySheet = XLSX.utils.aoa_to_sheet(dailyData);
+      XLSX.utils.book_append_sheet(workbook, dailySheet, 'Daily Performance');
+      
+      // Enhanced top products sheet
+      const productsData = [
+        ['TOP PERFORMING PRODUCTS'],
+        [''],
+        ['Rank', 'Product Name', 'Units Sold', 'Total Revenue', 'Number of Orders', 'Avg Revenue per Order', 'Market Share']
+      ];
+      const totalProductRevenue = data.top_products.reduce((sum, p) => sum + parseFloat(p.revenue || 0), 0);
+      data.top_products.forEach((row, index) => {
+        const avgRevenuePerOrder = row.order_count > 0 ? `₹${(row.revenue / row.order_count).toFixed(2)}` : '₹0.00';
+        const marketShare = totalProductRevenue > 0 ? `${((row.revenue / totalProductRevenue) * 100).toFixed(1)}%` : '0%';
+        
+        productsData.push([
+          index + 1,
+          row.product_name.replace(/"/g, '""'), // Excel CSV compatibility
+          row.total_sold,
+          `₹${parseFloat(row.revenue || 0).toFixed(2)}`,
+          row.order_count,
+          avgRevenuePerOrder,
+          marketShare
+        ]);
+      });
+      const productsSheet = XLSX.utils.aoa_to_sheet(productsData);
+      XLSX.utils.book_append_sheet(workbook, productsSheet, 'Top Products');
+      
+      // Generate Excel buffer
+      const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+      
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="Analytics_Report_${actualStartDate.split('T')[0]}_to_${actualEndDate.split('T')[0]}.xlsx"`);
+      return res.send(excelBuffer);
+    }
+
+    if (format === 'pdf') {
+      // Generate professional PDF report
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Analytics Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #4f46e5; padding-bottom: 20px; }
+            .title { font-size: 24px; font-weight: bold; color: #4f46e5; margin-bottom: 10px; }
+            .subtitle { font-size: 14px; color: #666; }
+            .section { margin: 30px 0; }
+            .section h2 { color: #4f46e5; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+            th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
+            th { background-color: #f9fafb; font-weight: bold; }
+            .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+            .metric-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; background: #f9fafb; }
+            .metric-value { font-size: 20px; font-weight: bold; color: #4f46e5; }
+            .metric-label { font-size: 12px; color: #666; margin-top: 5px; }
+            .insights { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; }
+            .page-break { page-break-before: always; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="title">Analytics Export Report</div>
+            <div class="subtitle">Date Range: ${new Date(actualStartDate).toLocaleDateString('en-IN')} - ${new Date(actualEndDate).toLocaleDateString('en-IN')}</div>
+            <div class="subtitle">Generated: ${new Date().toLocaleString('en-IN')}</div>
+            <div class="subtitle">Total Days: ${data.daily_breakdown.length}</div>
+          </div>
+
+          <div class="section">
+            <h2>Executive Summary</h2>
+            <div class="metric-grid">
+              <div class="metric-card">
+                <div class="metric-value">${data.summary.total_orders}</div>
+                <div class="metric-label">Total Orders</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-value">${data.summary.paid_orders}</div>
+                <div class="metric-label">Paid Orders (${((data.summary.paid_orders / data.summary.total_orders) * 100).toFixed(1)}%)</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-value">₹${parseFloat(data.summary.total_revenue || 0).toFixed(2)}</div>
+                <div class="metric-label">Total Revenue</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-value">₹${parseFloat(data.summary.average_order_value || 0).toFixed(2)}</div>
+                <div class="metric-label">Average Order Value</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-value">${data.summary.unique_customers}</div>
+                <div class="metric-label">Unique Customers</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-value">₹${(data.summary.total_revenue / (data.summary.unique_customers || 1)).toFixed(2)}</div>
+                <div class="metric-label">Revenue per Customer</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="insights">
+            <h3 style="margin-top: 0;">Key Insights</h3>
+            <p><strong>Peak Revenue Day:</strong> ${data.daily_breakdown.reduce((max, day) => day.revenue > max.revenue ? day : max, {revenue: 0, date: 'N/A'}).date}</p>
+            <p><strong>Best Product:</strong> ${data.top_products[0]?.product_name || 'N/A'}</p>
+            <p><strong>Average Daily Revenue:</strong> ₹${(data.summary.total_revenue / data.daily_breakdown.length).toFixed(2)}</p>
+          </div>
+
+          <div class="page-break"></div>
+          
+          <div class="section">
+            <h2>Daily Performance Breakdown</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Day</th>
+                  <th>Orders</th>
+                  <th>Paid Orders</th>
+                  <th>Revenue</th>
+                  <th>Customers</th>
+                  <th>Payment Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.daily_breakdown.map(row => {
+                  const date = new Date(row.date);
+                  const dayOfWeek = date.toLocaleDateString('en-IN', { weekday: 'short' });
+                  const paymentRate = row.orders > 0 ? `${((row.paid_orders / row.orders) * 100).toFixed(1)}%` : '0%';
+                  
+                  return `<tr>
+                    <td>${new Date(row.date).toLocaleDateString('en-IN')}</td>
+                    <td>${dayOfWeek}</td>
+                    <td>${row.orders}</td>
+                    <td>${row.paid_orders}</td>
+                    <td>₹${parseFloat(row.revenue || 0).toFixed(2)}</td>
+                    <td>${row.unique_customers}</td>
+                    <td>${paymentRate}</td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="page-break"></div>
+          
+          <div class="section">
+            <h2>Top Performing Products</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Product Name</th>
+                  <th>Units Sold</th>
+                  <th>Revenue</th>
+                  <th>Orders</th>
+                  <th>Avg Revenue/Order</th>
+                  <th>Market Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.top_products.map((row, index) => {
+                  const totalProductRevenue = data.top_products.reduce((sum, p) => sum + parseFloat(p.revenue || 0), 0);
+                  const avgRevenuePerOrder = row.order_count > 0 ? `₹${(row.revenue / row.order_count).toFixed(2)}` : '₹0.00';
+                  const marketShare = totalProductRevenue > 0 ? `${((row.revenue / totalProductRevenue) * 100).toFixed(1)}%` : '0%';
+                  
+                  return `<tr>
+                    <td>${index + 1}</td>
+                    <td>${row.product_name}</td>
+                    <td>${row.total_sold}</td>
+                    <td>₹${parseFloat(row.revenue || 0).toFixed(2)}</td>
+                    <td>${row.order_count}</td>
+                    <td>${avgRevenuePerOrder}</td>
+                    <td>${marketShare}</td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const browser = await puppeteer.launch({ 
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+      const page = await browser.newPage();
+      await page.setContent(html);
+      
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: {
+          top: '20px',
+          right: '20px',
+          bottom: '20px',
+          left: '20px'
+        }
+      });
+      
+      await browser.close();
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="Analytics_Report_${actualStartDate.split('T')[0]}_to_${actualEndDate.split('T')[0]}.pdf"`);
+      return res.send(pdfBuffer);
+    }
+
+    // For JSON format - enhanced with better structure
+    const enhancedData = {
+      export_metadata: {
+        title: 'Analytics Export Report',
+        date_range: {
+          start: actualStartDate.split('T')[0],
+          end: actualEndDate.split('T')[0],
+          formatted: `${new Date(actualStartDate).toLocaleDateString('en-IN')} - ${new Date(actualEndDate).toLocaleDateString('en-IN')}`
+        },
+        generated_at: new Date().toISOString(),
+        total_days: data.daily_breakdown.length,
+        format: 'json'
+      },
+      executive_summary: {
+        ...data.summary,
+        payment_success_rate: ((data.summary.paid_orders / data.summary.total_orders) * 100).toFixed(1) + '%',
+        revenue_per_customer: (data.summary.total_revenue / (data.summary.unique_customers || 1)).toFixed(2),
+        average_daily_revenue: (data.summary.total_revenue / data.daily_breakdown.length).toFixed(2)
+      },
+      daily_performance: data.daily_breakdown.map(row => ({
+        ...row,
+        day_of_week: new Date(row.date).toLocaleDateString('en-IN', { weekday: 'long' }),
+        payment_rate: row.orders > 0 ? ((row.paid_orders / row.orders) * 100).toFixed(1) + '%' : '0%',
+        revenue_per_customer: row.unique_customers > 0 ? (row.revenue / row.unique_customers).toFixed(2) : '0.00'
+      })),
+      top_products: data.top_products.map((row, index) => ({
+        rank: index + 1,
+        ...row,
+        avg_revenue_per_order: row.order_count > 0 ? (row.revenue / row.order_count).toFixed(2) : '0.00',
+        market_share: data.top_products.reduce((sum, p) => sum + parseFloat(p.revenue || 0), 0) > 0 ? ((row.revenue / data.top_products.reduce((sum, p) => sum + parseFloat(p.revenue || 0), 0)) * 100).toFixed(1) + '%' : '0%'
+      })),
+      insights: {
+        peak_revenue_day: data.daily_breakdown.reduce((max, day) => day.revenue > max.revenue ? day : max, {revenue: 0, date: 'N/A'}),
+        best_performing_product: data.top_products[0] || null,
+        performance_trends: {
+          average_daily_revenue: (data.summary.total_revenue / data.daily_breakdown.length).toFixed(2),
+          customer_retention: data.summary.unique_customers > 0 ? (data.summary.total_orders / data.summary.unique_customers).toFixed(2) : '0.00'
+        }
+      }
+    };
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="Analytics_Report_${actualStartDate.split('T')[0]}_to_${actualEndDate.split('T')[0]}.json"`);
+    res.json({
+      success: true,
+      data: enhancedData
+    });
+
+  } catch (error) {
+    console.error('Export analytics error:', error);
+    res.status(500).json({ success: false, message: 'Error exporting analytics data' });
   }
 });
 

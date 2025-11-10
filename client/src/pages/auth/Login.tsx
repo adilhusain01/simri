@@ -81,7 +81,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-100 to-pink-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <motion.div {...fadeInUp}>
           {/* Header */}
@@ -89,7 +89,7 @@ const Login: React.FC = () => {
           {/* Login Card */}
           <Card className="card-elegant">
             <CardHeader className="text-center pb-4">
-              <CardTitle className="font-heading text-xl text-charcoal">Sign In</CardTitle>
+              <CardTitle className="font-heading text-xl text-royal-black">Sign In</CardTitle>
             </CardHeader>
             
             <CardContent>
@@ -97,7 +97,7 @@ const Login: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full mb-6 h-12 border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50"
+                className="w-full mb-6 h-12 border-2 border-gray-200 hover:border-royal-gold hover:bg-gray-50"
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
               >
@@ -135,7 +135,7 @@ const Login: React.FC = () => {
               {/* Login Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-charcoal mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-royal-black mb-2">
                     Email Address
                   </label>
                   <div className="relative">
@@ -146,7 +146,7 @@ const Login: React.FC = () => {
                       type="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`pl-10 h-12 ${errors.email ? 'border-red-500 focus:border-red-500' : ''}`}
+                      className={`pl-10 h-12 ${errors.email ? 'border-red-500 focus:border-red-500' : 'focus:border-royal-gold'}`}
                       placeholder="Enter your email"
                       disabled={isLoading}
                     />
@@ -157,7 +157,7 @@ const Login: React.FC = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-charcoal mb-2">
+                  <label htmlFor="password" className="block text-sm font-medium text-royal-black mb-2">
                     Password
                   </label>
                   <div className="relative">
@@ -168,14 +168,14 @@ const Login: React.FC = () => {
                       type={showPassword ? 'text' : 'password'}
                       value={formData.password}
                       onChange={handleInputChange}
-                      className={`pl-10 pr-10 h-12 ${errors.password ? 'border-red-500 focus:border-red-500' : ''}`}
+                      className={`pl-10 pr-10 h-12 ${errors.password ? 'border-red-500 focus:border-red-500' : 'focus:border-royal-gold'}`}
                       placeholder="Enter your password"
                       disabled={isLoading}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-3 text-gray-400 hover:text-royal-black"
                     >
                       {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
@@ -189,7 +189,7 @@ const Login: React.FC = () => {
                 <div className="text-right">
                   <Link
                     to="/auth/forgot-password"
-                    className="text-sm text-purple-600 hover:text-purple-800 transition-colors"
+                    className="text-sm text-royal-gold hover:text-royal-black transition-colors"
                   >
                     Forgot your password?
                   </Link>
@@ -222,7 +222,7 @@ const Login: React.FC = () => {
                   <Link
                     to="/auth/signup"
                     search={{ redirect: '/' }}
-                    className="text-purple-600 hover:text-purple-800 font-medium transition-colors"
+                    className="text-royal-gold hover:text-royal-black font-medium transition-colors"
                   >
                     Create one now
                   </Link>

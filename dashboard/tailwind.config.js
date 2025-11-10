@@ -16,7 +16,8 @@ export default {
         'admin-green': '#10B981',
         'admin-red': '#EF4444',
         'admin-yellow': '#F59E0B',
-        'admin-purple': '#8B5CF6',
+        'royal-gold': '#EDBC5A',
+        'royal-black': '#020202',
         'ivory-white': 'var(--ivory-white)',
         
         // Semantic colors

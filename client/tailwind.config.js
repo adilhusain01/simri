@@ -4,57 +4,74 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    'bg-royal-gold',
+    'text-royal-gold',
+    'bg-royal-black',
+    'text-royal-black',
+    'border-royal-gold',
+    'border-royal-black'
+  ],
   theme: {
     extend: {
       colors: {
-        // Custom color palette using CSS variables
-        'royal-purple': 'var(--royal-purple)',
+        // Royal theme colors (both CSS variables and direct values)
+        'royal-gold': '#EDBC5A',
+        'royal-black': '#020202',
+
+        // Gray scale
+        gray: {
+          50: '#f9fafb',
+          800: '#1f2937',
+        },
+
+        // Semantic colors using royal theme
+        primary: {
+          DEFAULT: '#020202',
+          50: '#f9fafb',
+          100: '#f3f4f6',
+          200: '#e5e7eb',
+          300: '#d1d5db',
+          400: '#9ca3af',
+          500: '#020202',
+          600: '#020202',
+          700: '#020202',
+          800: '#020202',
+          900: '#020202',
+        },
+        secondary: {
+          DEFAULT: '#EDBC5A',
+          50: '#fffbf0',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#EDBC5A',
+          500: '#edbc5a',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
+        },
+        accent: {
+          DEFAULT: '#EDBC5A',
+          50: '#fffbf0',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#EDBC5A',
+          500: '#edbc5a',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
+        },
+
+        // Legacy colors (for compatibility)
         'lavender-mist': 'var(--lavender-mist)',
         'champagne-gold': 'var(--champagne-gold)',
         'blush-pink': 'var(--blush-pink)',
         'ivory-white': 'var(--ivory-white)',
         'charcoal': 'var(--charcoal)',
-        
-        // Semantic colors
-        primary: {
-          DEFAULT: 'var(--primary)',
-          50: '#F3E8FF',
-          100: '#E9D5FF',
-          200: '#D6BBFB',
-          300: '#C084FC',
-          400: '#A855F7',
-          500: 'var(--primary)',
-          600: '#9333EA',
-          700: '#7C3AED',
-          800: '#6B46C1',
-          900: '#581C87',
-        },
-        secondary: {
-          DEFAULT: 'var(--secondary)',
-          50: '#FAF5FF',
-          100: '#F3E8FF',
-          200: '#E9D5FF',
-          300: 'var(--secondary)',
-          400: '#C4B5FD',
-          500: '#A78BFA',
-          600: '#8B5CF6',
-          700: '#7C3AED',
-          800: '#6B46C1',
-          900: '#581C87',
-        },
-        accent: {
-          DEFAULT: 'var(--accent)',
-          50: '#FFFBEB',
-          100: '#FEF3C7',
-          200: '#FDE68A',
-          300: '#FCD34D',
-          400: 'var(--accent)',
-          500: '#F59E0B',
-          600: '#D97706',
-          700: '#B45309',
-          800: '#92400E',
-          900: '#78350F',
-        }
       },
       fontFamily: {
         'heading': ['Playfair Display', 'serif'],
@@ -89,8 +106,8 @@ export default {
         },
       },
       boxShadow: {
-        'elegant': '0 4px 6px -1px rgba(106, 13, 173, 0.1), 0 2px 4px -1px rgba(106, 13, 173, 0.06)',
-        'elegant-lg': '0 20px 25px -5px rgba(106, 13, 173, 0.1), 0 10px 10px -5px rgba(106, 13, 173, 0.04)',
+        'elegant': '0 4px 6px -1px rgba(31, 41, 55, 0.1), 0 2px 4px -1px rgba(31, 41, 55, 0.06)',
+        'elegant-lg': '0 20px 25px -5px rgba(31, 41, 55, 0.1), 0 10px 10px -5px rgba(31, 41, 55, 0.04)',
       }
     },
   },
