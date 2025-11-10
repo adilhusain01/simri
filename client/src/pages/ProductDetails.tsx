@@ -343,10 +343,10 @@ const ProductDetails: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           
           {/* Product Details */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
-            
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 mb-8 lg:mb-12">
+
             {/* Product Images */}
-            <motion.div className="space-y-4" {...fadeInUp}>
+            <motion.div className="space-y-3 lg:space-y-4" {...fadeInUp}>
               {/* Main Image */}
               <div className="aspect-[3/4] bg-white rounded-lg overflow-hidden border">
                 <img
@@ -358,15 +358,15 @@ const ProductDetails: React.FC = () => {
                   }}
                 />
               </div>
-              
+
               {/* Thumbnail Images */}
               {images.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto">
+                <div className="flex gap-2 overflow-x-auto pb-2">
                   {images.map((image, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
+                      className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 ${
                         selectedImage === index ? 'border-royal-gold' : 'border-gray-200'
                       }`}
                     >
@@ -385,23 +385,23 @@ const ProductDetails: React.FC = () => {
             </motion.div>
 
             {/* Product Info */}
-            <motion.div className="space-y-6" {...fadeInUp}>
+            <motion.div className="space-y-4 lg:space-y-6" {...fadeInUp}>
               <div>
-                <Badge variant="secondary" className="mb-2">
+                <Badge variant="secondary" className="mb-2 text-xs sm:text-sm">
                   {product.category}
                 </Badge>
-                <h1 className="font-heading text-3xl font-bold text-royal-black mb-2">
+                <h1 className="font-heading text-2xl sm:text-3xl font-bold text-royal-black mb-2">
                   {product.name}
                 </h1>
                 {product.short_description && (
-                  <p className="text-lg text-gray-600 mb-3 leading-relaxed">
+                  <p className="text-base sm:text-lg text-gray-600 mb-3 leading-relaxed">
                     {product.short_description}
                   </p>
                 )}
-                <div className="flex items-center gap-4 mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
                   <div className="flex items-center gap-2">
                     {renderStars(Number(product.averageRating || 0))}
-                    <span className="text-sm text-gray-600">
+                    <span className="text-xs sm:text-sm text-gray-600">
                       {Number(product.averageRating || 0).toFixed(1)} ({product.totalReviews || 0} reviews)
                     </span>
                   </div>
@@ -409,7 +409,7 @@ const ProductDetails: React.FC = () => {
                     variant="ghost"
                     size="sm"
                     onClick={handleShare}
-                    className="text-gray-600"
+                    className="text-gray-600 self-start sm:self-auto"
                   >
                     <Share2 className="h-4 w-4 mr-1" />
                     Share
@@ -418,16 +418,16 @@ const ProductDetails: React.FC = () => {
               </div>
 
               {/* Price */}
-              <div className="flex items-center gap-4">
-                <span className="text-3xl font-bold text-royal-black">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                <span className="text-2xl sm:text-3xl font-bold text-royal-black">
                   ₹{parseFloat(currentPrice?.toString() || '0').toLocaleString()}
                 </span>
                 {product.discount_price && (
                   <>
-                    <span className="text-lg text-gray-500 line-through">
+                    <span className="text-base sm:text-lg text-gray-500 line-through">
                       ₹{parseFloat(product.price).toLocaleString()}
                     </span>
-                    <Badge className="bg-red-500 text-white">
+                    <Badge className="bg-red-500 text-white text-xs sm:text-sm">
                       {discount}% OFF
                     </Badge>
                   </>

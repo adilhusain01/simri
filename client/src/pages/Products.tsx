@@ -215,27 +215,27 @@ const Products: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-8 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto">
 
           {/* Page Header */}
           {filters.category && (
-            <motion.div className="mb-6" {...fadeInUp}>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <motion.div className="mb-6 sm:mb-8" {...fadeInUp}>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
                 {filters.category}
               </h1>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 Discover our curated collection of {filters.category.toLowerCase()}
               </p>
             </motion.div>
           )}
 
           {/* Search and Filters */}
-          <motion.div 
-            className="bg-white rounded-lg shadow-sm border p-6 mb-8"
+          <motion.div
+            className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mb-6 sm:mb-8"
             {...fadeInUp}
           >
-            <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:gap-4">
               {/* Search */}
               <form onSubmit={handleSearch} className="flex-1">
                 <div className="relative">
@@ -244,48 +244,54 @@ const Products: React.FC = () => {
                     placeholder="Search for perfect gifts..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4"
+                    className="pl-10 pr-4 text-sm sm:text-base"
                   />
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 </div>
               </form>
 
-              {/* Sort */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="min-w-[160px]">
-                    Sort by: {sortOptions.find(opt => opt.value === filters.sortBy)?.label}
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {sortOptions.map((option) => (
-                    <DropdownMenuItem
-                      key={option.value}
-                      onClick={() => handleFilterChange({ sortBy: option.value as any })}
-                    >
-                      {option.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex gap-2">
+                {/* Sort */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="flex-1 sm:min-w-[160px] text-xs sm:text-sm">
+                      <span className="hidden sm:inline">Sort by:</span>
+                      <span className="sm:hidden">Sort</span>
+                      <span className="hidden sm:inline ml-1">
+                        {sortOptions.find(opt => opt.value === filters.sortBy)?.label}
+                      </span>
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {sortOptions.map((option) => (
+                      <DropdownMenuItem
+                        key={option.value}
+                        onClick={() => handleFilterChange({ sortBy: option.value as any })}
+                      >
+                        {option.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-              {/* Mobile Filters */}
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" className="lg:hidden">
-                    <SlidersHorizontal className="h-4 w-4 mr-2" />
-                    Filters
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-80">
-                  <div className="py-4">
-                    <h3 className="font-heading text-lg font-semibold mb-4">Filters</h3>
-                    {/* Filter content would go here */}
-                    <p className="text-gray-500">Advanced filters coming soon...</p>
-                  </div>
-                </SheetContent>
-              </Sheet>
+                {/* Mobile Filters */}
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="lg:hidden">
+                      <SlidersHorizontal className="h-4 w-4 mr-2" />
+                      <span className="text-xs sm:text-sm">Filters</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-full sm:w-80 bg-white">
+                    <div className="py-4">
+                      <h3 className="font-heading text-lg font-semibold mb-4">Filters</h3>
+                      {/* Filter content would go here */}
+                      <p className="text-gray-500 text-sm">Advanced filters coming soon...</p>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
             </div>
 
             {/* Quick filters */}
@@ -294,6 +300,7 @@ const Products: React.FC = () => {
                 variant={!filters.category ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleFilterChange({ category: '' })}
+                className="text-xs sm:text-sm px-3 sm:px-4 py-2"
               >
                 All Categories
               </Button>
@@ -303,6 +310,7 @@ const Products: React.FC = () => {
                   variant={filters.category === category.name ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleFilterChange({ category: category.name })}
+                  className="text-xs sm:text-sm px-3 sm:px-4 py-2"
                 >
                   {category.name}
                 </Button>
@@ -312,16 +320,26 @@ const Products: React.FC = () => {
 
           {/* Results Info */}
           {!loading && (
-            <motion.div 
-              className="flex items-center justify-between mb-6"
+            <motion.div
+              className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 space-y-2 sm:space-y-0"
               {...fadeInUp}
             >
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm sm:text-base">
                 Showing {products.length} of {pagination.total} products
-                {searchQuery && ` for "${searchQuery}"`}
-                {filters.category && ` in "${filters.category}"`}
+                {searchQuery && (
+                  <span className="block sm:inline">
+                    <span className="sm:hidden"><br /></span>
+                    <span className="hidden sm:inline"> </span>for "{searchQuery}"
+                  </span>
+                )}
+                {filters.category && (
+                  <span className="block sm:inline">
+                    <span className="sm:hidden"><br /></span>
+                    <span className="hidden sm:inline"> </span>in "{filters.category}"
+                  </span>
+                )}
               </p>
-              <div className="text-sm text-gray-500">
+              <div className="text-xs sm:text-sm text-gray-500">
                 Page {pagination.page} of {pagination.totalPages}
               </div>
             </motion.div>
@@ -329,32 +347,35 @@ const Products: React.FC = () => {
 
           {/* Loading State */}
           {loading && (
-            <div className="flex items-center justify-center py-16">
+            <div className="flex flex-col items-center justify-center py-12 sm:py-16">
               <LoadingSpinner size="lg" />
-              <span className="ml-3 text-gray-600">Loading products...</span>
+              <span className="ml-3 text-gray-600 text-sm sm:text-base mt-3 sm:mt-0 sm:ml-3">Loading products...</span>
             </div>
           )}
 
           {/* Empty State */}
           {!loading && products.length === 0 && (
-            <motion.div 
-              className="text-center py-16"
+            <motion.div
+              className="text-center py-12 sm:py-16 px-4"
               {...fadeInUp}
             >
-              <Package className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="font-heading text-xl font-semibold text-gray-600 mb-2">
+              <Package className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-gray-400 mb-4" />
+              <h3 className="font-heading text-lg sm:text-xl font-semibold text-gray-600 mb-2">
                 No products found
               </h3>
-              <p className="text-gray-500 mb-6">
-                {searchQuery 
+              <p className="text-gray-500 mb-6 text-sm sm:text-base">
+                {searchQuery
                   ? `No products match your search for "${searchQuery}"`
                   : 'No products available at the moment'
                 }
               </p>
-              <Button onClick={() => {
-                setSearchQuery('');
-                setFilters({ sortBy: 'relevance' });
-              }}>
+              <Button
+                onClick={() => {
+                  setSearchQuery('');
+                  setFilters({ sortBy: 'relevance' });
+                }}
+                className="text-sm sm:text-base px-4 sm:px-6"
+              >
                 Clear Filters
               </Button>
             </motion.div>
@@ -362,9 +383,9 @@ const Products: React.FC = () => {
 
           {/* Products Grid */}
           {!loading && products.length > 0 && (
-            <motion.div 
-              className={viewMode === 'grid' 
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+            <motion.div
+              className={viewMode === 'grid'
+                ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6"
                 : "space-y-4"
               }
               initial={{ opacity: 0 }}
@@ -376,9 +397,9 @@ const Products: React.FC = () => {
                   key={product.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: index * 0.05 }}
                 >
-                  <ProductCard 
+                  <ProductCard
                     product={product}
                     viewMode={viewMode}
                     onAddToCart={handleAddToCart}
@@ -392,8 +413,8 @@ const Products: React.FC = () => {
           )}
 
           {/* Enhanced Pagination */}
-          <motion.div 
-            className="mt-12"
+          <motion.div
+            className="mt-8 sm:mt-12"
             {...fadeInUp}
           >
             <Pagination
@@ -513,7 +534,7 @@ const ProductCard: React.FC<{
   }
 
   return (
-    <Card className="card-elegant group hover-lift overflow-hidden p-0">
+    <Card className="card-elegant group hover-lift overflow-hidden p-0 h-full flex flex-col">
       <div className="relative overflow-hidden">
         <div className="aspect-[3/4]">
           <img
@@ -526,69 +547,69 @@ const ProductCard: React.FC<{
           />
         </div>
         {product.discount_price && (
-          <Badge className="absolute top-2 left-2 bg-red-500 text-white">
+          <Badge className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white text-xs px-1 sm:px-2 py-0.5">
             {Math.round((1 - parseFloat(product.discount_price) / parseFloat(product.price)) * 100)}% OFF
           </Badge>
         )}
         <Button
           variant="ghost"
           size="sm"
-          className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+          className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-white/80 hover:bg-white p-1.5 sm:p-2"
           onClick={() => onAddToWishlist(product)}
           disabled={wishlistLoading}
         >
-          <Heart className="h-4 w-4" />
+          <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
         </Button>
       </div>
-      
-      <CardContent className="p-4">
-        <Badge variant="secondary" className="text-xs mb-2">
+
+      <CardContent className="p-2 sm:p-3 lg:p-4 flex flex-col flex-grow">
+        <Badge variant="secondary" className="text-xs mb-2 w-fit">
           {product.category_name}
         </Badge>
-        <h3 className="font-heading text-base font-semibold text-royal-black mb-2 line-clamp-2">
+        <h3 className="font-heading text-xs sm:text-sm lg:text-base font-semibold text-royal-black mb-2 line-clamp-2 flex-grow">
           <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-royal-gold transition-colors">
             {product.name}
           </Link>
         </h3>
-        
+
         {(product.averageRating || product.totalReviews) && (
           <div className="flex items-center gap-1 mb-2">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm text-gray-600">
+            <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
+            <span className="text-xs sm:text-sm text-gray-600">
               {product.averageRating || 'N/A'} ({product.totalReviews || 0})
             </span>
           </div>
         )}
 
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 sm:mb-3 space-y-2 sm:space-y-0">
           {product.discount_price ? (
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-bold text-royal-black">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="text-sm sm:text-base lg:text-lg font-bold text-royal-black">
                 ₹{product.discount_price}
               </span>
-              <span className="text-sm text-gray-500 line-through">
+              <span className="text-xs sm:text-sm text-gray-500 line-through">
                 ₹{product.price}
               </span>
             </div>
           ) : (
-            <span className="text-lg font-bold text-royal-black">
+            <span className="text-sm sm:text-base lg:text-lg font-bold text-royal-black">
               ₹{product.price}
             </span>
           )}
         </div>
 
         <Button
-          className="w-full btn-primary"
+          className="w-full btn-primary text-xs sm:text-sm mt-auto"
           size="sm"
           onClick={() => onAddToCart(product)}
           disabled={cartLoading || product.stock_quantity === 0}
         >
           {product.stock_quantity === 0 ? (
-            'Out of Stock'
+            <span className="text-xs sm:text-sm">Out of Stock</span>
           ) : (
             <>
-              <ShoppingBag className="h-4 w-4 mr-2" />
-              Add to Cart
+              <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="text-xs sm:text-sm">Add to Cart</span>
             </>
           )}
         </Button>
