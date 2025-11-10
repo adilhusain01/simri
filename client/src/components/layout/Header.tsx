@@ -24,7 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '../ui/sheet';
 import { useAuthStore } from '../../stores/authStore';
 import { useCartStore } from '../../stores/cartStore';
 import { useWishlistStore } from '../../stores/wishlistStore';
@@ -32,6 +32,7 @@ import { useWishlistStore } from '../../stores/wishlistStore';
 const Header: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -43,7 +44,7 @@ const Header: React.FC = () => {
     if (searchQuery.trim()) {
       navigate({
         to: '/search',
-        search: { 
+        search: {
           q: searchQuery,
           category: '',
           sortBy: 'relevance',
@@ -55,7 +56,12 @@ const Header: React.FC = () => {
       });
       setIsSearchOpen(false);
       setSearchQuery('');
+      setIsMobileMenuOpen(false); // Close mobile menu after search
     }
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
   };
 
 
@@ -211,15 +217,19 @@ const Header: React.FC = () => {
             )}
 
             {/* Mobile Menu */}
-            <Sheet>
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="sm" className="md:hidden text-royal-black hover:bg-gray-50">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80">
-                <div className="flex flex-col space-y-4 mt-8">
-                  
+              <SheetContent side="right" className="w-full sm:w-80 !bg-gradient-to-b !from-royal-gold !via-yellow-200 !to-yellow-100 border-l-0 shadow-2xl">
+                <div className="flex flex-col space-y-6 p-6 h-full">
+                  {/* Mobile Header */}
+                  <div className="flex items-center justify-between pb-4 border-b border-royal-black/20">
+                    <h2 className="text-xl font-bold text-royal-black">Menu</h2>
+                  </div>
+
                   {/* Mobile Search */}
                   <form onSubmit={handleSearch} className="relative">
                     <Input
@@ -227,40 +237,127 @@ const Header: React.FC = () => {
                       placeholder="Search for gifts..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-4 py-2 bg-white border-gray-300 focus:border-gray-400 focus:ring-gray-400"
+                      className="pl-10 pr-4 py-3 bg-white border-gray-300 focus:border-royal-black focus:ring-royal-black rounded-lg shadow-sm"
                     />
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                   </form>
 
                   {/* Mobile Navigation */}
-                  <nav className="flex flex-col space-y-4">
+                  <nav className="flex flex-col space-y-2">
                     {navigation.map((item) => (
-                      <Link
-                        key={item.name}
-                        to={item.href as any}
-                        className="text-gray-600 hover:text-royal-black font-medium transition-colors duration-200 py-2"
-                      >
-                        {item.name}
-                      </Link>
+                      <SheetClose key={item.name} asChild>
+                        <Link
+                          to={item.href as any}
+                          className="text-royal-black hover:text-gray-800 font-medium transition-colors duration-200 py-3 px-4 rounded-lg hover:bg-white/80 border border-transparent hover:border-royal-black/20"
+                        >
+                          {item.name}
+                        </Link>
+                      </SheetClose>
                     ))}
+
+                    {/* Additional Quick Links for Authenticated Users */}
+                    {isAuthenticated && (
+                      <>
+                        <SheetClose asChild>
+                          <Link
+                            to="/wishlist"
+                            className="text-royal-black hover:text-gray-800 font-medium transition-colors duration-200 py-3 px-4 rounded-lg hover:bg-white/80 border border-transparent hover:border-royal-black/20 flex items-center"
+                          >
+                            <Heart className="mr-3 h-4 w-4" />
+                            Wishlist
+                            {wishlist && wishlist.totalItems > 0 && (
+                              <Badge className="ml-auto bg-royal-black text-white">
+                                {wishlist.totalItems}
+                              </Badge>
+                            )}
+                          </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Link
+                            to="/cart"
+                            className="text-royal-black hover:text-gray-800 font-medium transition-colors duration-200 py-3 px-4 rounded-lg hover:bg-white/80 border border-transparent hover:border-royal-black/20 flex items-center"
+                          >
+                            <ShoppingBag className="mr-3 h-4 w-4" />
+                            Cart
+                            {cart && cart.item_count > 0 && (
+                              <Badge className="ml-auto bg-royal-black text-white">
+                                {cart.item_count}
+                              </Badge>
+                            )}
+                          </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Link
+                            to="/profile"
+                            className="text-royal-black hover:text-gray-800 font-medium transition-colors duration-200 py-3 px-4 rounded-lg hover:bg-white/80 border border-transparent hover:border-royal-black/20 flex items-center"
+                          >
+                            <User className="mr-3 h-4 w-4" />
+                            Profile
+                          </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Link
+                            to="/orders"
+                            className="text-royal-black hover:text-gray-800 font-medium transition-colors duration-200 py-3 px-4 rounded-lg hover:bg-white/80 border border-transparent hover:border-royal-black/20 flex items-center"
+                          >
+                            <Package className="mr-3 h-4 w-4" />
+                            Orders
+                          </Link>
+                        </SheetClose>
+                      </>
+                    )}
                   </nav>
 
                   {/* Mobile User Actions */}
-                  {!isAuthenticated && (
-                    <div className="flex flex-col space-y-2 mt-4 pt-4 border-t border-gray-200">
-                      <Link to="/auth/login" search={{ redirect: '/' }}>
-                        <Button variant="outline" className="w-full">
-                          Sign In
-                        </Button>
-                      </Link>
-                      <Link to="/auth/signup" search={{ redirect: '/' }}>
-                        <Button className="btn-primary w-full">
-                          <User className="mr-2 h-4 w-4" />
-                          Get Started
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
+                  <div className="mt-auto pt-6 border-t border-royal-black/20">
+                    {isAuthenticated ? (
+                      <div className="flex flex-col space-y-3">
+                        <div className="flex items-center space-x-3 p-3 bg-white/90 rounded-lg border border-royal-black/20 backdrop-blur-sm">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={user?.avatar} alt={user?.name} />
+                            <AvatarFallback className="bg-royal-black text-white text-sm">
+                              {user?.name?.charAt(0)?.toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="font-semibold text-royal-black text-sm">{user?.name}</p>
+                            <p className="text-gray-600 text-xs truncate">{user?.email}</p>
+                          </div>
+                        </div>
+                        <SheetClose asChild>
+                          <Button
+                            onClick={() => {
+                              logout();
+                              closeMobileMenu();
+                            }}
+                            variant="outline"
+                            className="w-full border-royal-black text-royal-black hover:bg-royal-black hover:text-white transition-colors"
+                          >
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Log out
+                          </Button>
+                        </SheetClose>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col space-y-3">
+                        <SheetClose asChild>
+                          <Link to="/auth/login" search={{ redirect: '/' }}>
+                            <Button variant="outline" className="w-full border-royal-black text-royal-black hover:bg-royal-black hover:text-white transition-colors">
+                              Sign In
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Link to="/auth/signup" search={{ redirect: '/' }}>
+                            <Button className="btn-primary w-full shadow-lg">
+                              <User className="mr-2 h-4 w-4" />
+                              Get Started
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

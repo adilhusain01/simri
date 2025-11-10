@@ -130,57 +130,66 @@ const Home: React.FC = () => {
     <div className="min-h-screen">
       
       {/* Hero Section */}
-      <section className="relative bg-royal-gold overflow-hidden">
-        <div className="absolute inset-0 bg-royal-gold" />
-        
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            
+      <section className="relative bg-gradient-to-br from-royal-gold via-royal-gold to-yellow-400 overflow-hidden">
+        <div className="absolute inset-0 bg-royal-gold opacity-90" />
+
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-10 left-10 w-20 h-20 border border-royal-black rounded-full"></div>
+          <div className="absolute top-40 right-20 w-16 h-16 border border-royal-black rounded-full"></div>
+          <div className="absolute bottom-20 left-1/4 w-12 h-12 border border-royal-black rounded-full"></div>
+        </div>
+
+        <div className="relative container mx-auto px-6 sm:px-8 lg:px-8 py-16 sm:py-20 lg:py-32">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
             {/* Hero Content */}
             <motion.div
               {...fadeInUp}
-              className="text-center lg:text-left"
+              className="text-center lg:text-left space-y-6 sm:space-y-8"
             >
-              
+
               {isAuthenticated && user ? (
                 <>
-                  <div className="flex items-center mb-4">
-                    <User className="w-6 h-6 text-royal-black mr-2" />
-                    <span className="text-lg text-royal-black">Welcome back, {user.name}!</span>
+                  <div className="flex items-center justify-center lg:justify-start mb-6">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 flex items-center space-x-2 border border-royal-black/10">
+                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-royal-black" />
+                      <span className="text-sm sm:text-base font-medium text-royal-black">Welcome back, {user.name}!</span>
+                    </div>
                   </div>
-                  <h1 className="font-heading text-5xl lg:text-7xl font-bold text-royal-black mb-6 leading-tight">
+                  <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-royal-black leading-[1.1] tracking-tight">
                     Ready to Make
-                    <span className="text-royal-black block">
+                    <span className="text-royal-black block bg-gradient-to-r from-royal-black to-gray-800 bg-clip-text">
                       Someone's
                     </span>
-                    <span className="text-royal-black">
+                    <span className="text-royal-black bg-gradient-to-r from-royal-black to-gray-800 bg-clip-text">
                       Day Special?
                     </span>
                   </h1>
-                  
-                  <p className="text-xl text-gray-800 mb-8 max-w-lg">
+
+                  <p className="text-lg sm:text-xl lg:text-2xl text-gray-800 font-medium max-w-2xl mx-auto lg:mx-0 leading-relaxed">
                     Continue your gifting journey with our personalized recommendations and curated collections just for you.
                   </p>
                 </>
               ) : (
                 <>
-                  <h1 className="font-heading text-5xl lg:text-7xl font-bold text-royal-black mb-6 leading-tight">
+                  <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-royal-black leading-[1.1] tracking-tight">
                     Make Every
-                    <span className="text-royal-black block">
+                    <span className="text-royal-black block bg-gradient-to-r from-royal-black to-gray-800 bg-clip-text">
                       Moment
                     </span>
-                    <span className="text-royal-black">
+                    <span className="text-royal-black bg-gradient-to-r from-royal-black to-gray-800 bg-clip-text">
                       Magical
                     </span>
                   </h1>
-                  
-                  <p className="text-xl text-gray-800 mb-8 max-w-lg">
+
+                  <p className="text-lg sm:text-xl lg:text-2xl text-gray-800 font-medium max-w-2xl mx-auto lg:mx-0 leading-relaxed">
                     Discover our curated collection of premium gifts that speak from the heart
                   </p>
                 </>
               )}
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center lg:justify-start">
                 {isAuthenticated ? (
                   <>
                     <Link to="/products" search={{
@@ -192,16 +201,16 @@ const Home: React.FC = () => {
                       inStock: false,
                       featured: false
                     }}>
-                      <Button size="lg" className="btn-primary text-lg px-8 py-4 group">
-                        <ShoppingBag className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                      <Button size="lg" className="btn-primary text-lg px-8 py-4 group w-full sm:w-auto shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-royal-black">
+                        <ShoppingBag className="mr-3 h-5 w-5 group-hover:scale-110 transition-transform" />
                         Shop Gifts
-                        <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </Link>
-                    
+
                     <Link to="/wishlist">
-                      <Button variant="outline" size="lg" className="text-lg px-8 py-4 border-2 border-royal-black hover:border-black hover:bg-gray-50">
-                        <Heart className="mr-2 h-5 w-5" />
+                      <Button variant="outline" size="lg" className="text-lg px-8 py-4 border-2 border-royal-black hover:border-black hover:bg-white/80 backdrop-blur-sm w-full sm:w-auto shadow-lg hover:shadow-xl transition-all duration-300">
+                        <Heart className="mr-3 h-5 w-5" />
                         My Wishlist
                       </Button>
                     </Link>
@@ -209,13 +218,13 @@ const Home: React.FC = () => {
                 ) : (
                   <>
                     <Link to="/auth/signup" search={{ redirect: '/' }}>
-                      <Button size="lg" className="btn-primary text-lg px-8 py-4 group">
-                        <User className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                      <Button size="lg" className="btn-primary text-lg px-8 py-4 group w-full sm:w-auto shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-royal-black">
+                        <User className="mr-3 h-5 w-5 group-hover:scale-110 transition-transform" />
                         Get Started
-                        <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </Link>
-                    
+
                     <Link to="/products" search={{
                       category: '',
                       q: '',
@@ -225,40 +234,40 @@ const Home: React.FC = () => {
                       inStock: false,
                       featured: false
                     }}>
-                      <Button variant="outline" size="lg" className="text-lg px-8 py-4 border-2 border-royal-black hover:border-black hover:bg-gray-50">
-                        <ShoppingBag className="mr-2 h-5 w-5" />
+                      <Button variant="outline" size="lg" className="text-lg px-8 py-4 border-2 border-royal-black hover:border-black hover:bg-white/80 backdrop-blur-sm w-full sm:w-auto shadow-lg hover:shadow-xl transition-all duration-300">
+                        <ShoppingBag className="mr-3 h-5 w-5" />
                         Browse Gifts
                       </Button>
                     </Link>
                   </>
                 )}
               </div>
-              
+
               {/* Trust Indicators */}
-              <div className="flex items-center justify-center lg:justify-start gap-6 mt-12 text-sm text-royal-black">
-                <div className="flex items-center">
-                  <Star className="w-4 h-4 mr-1" />
-                  <span>4.9/5 Rating</span>
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-8 text-sm sm:text-base text-royal-black">
+                <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 border border-royal-black/10">
+                  <Star className="w-4 h-4 mr-2 fill-royal-black" />
+                  <span className="font-medium">4.9/5 Rating</span>
                 </div>
-                <div className="flex items-center">
-                  <Shield className="w-4 h-4 mr-1" />
-                  <span>Secure Checkout</span>
+                <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 border border-royal-black/10">
+                  <Shield className="w-4 h-4 mr-2" />
+                  <span className="font-medium">Secure Checkout</span>
                 </div>
-                <div className="flex items-center">
-                  <Truck className="w-4 h-4 mr-1" />
-                  <span>Free Shipping</span>
+                <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 border border-royal-black/10">
+                  <Truck className="w-4 h-4 mr-2" />
+                  <span className="font-medium">Free Shipping</span>
                 </div>
               </div>
             </motion.div>
 
+            {/* Pixelated Heart - Hidden on mobile */}
             <motion.div
               initial={{ opacity: 0, x: 60 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
+              className="relative hidden lg:block"
             >
-            <PixelatedHeart />
-
+              <PixelatedHeart />
             </motion.div>
           </div>
         </div>

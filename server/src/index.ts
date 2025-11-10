@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import session from 'express-session';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+dotenv.config();
 import {RedisStore} from 'connect-redis';
 
 import redisClient from './config/redis';
