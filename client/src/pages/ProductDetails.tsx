@@ -339,7 +339,7 @@ const ProductDetails: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="max-w-7xl mx-auto">
           
           {/* Product Details */}
@@ -435,7 +435,7 @@ const ProductDetails: React.FC = () => {
               </div>
 
               {/* Description */}
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                 {product.description}
               </p>
 
@@ -460,7 +460,7 @@ const ProductDetails: React.FC = () => {
               {/* Quantity and Add to Cart */}
               {product.stock_quantity > 0 && (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                     <span className="text-sm font-medium text-gray-700">Quantity:</span>
                     <div className="flex items-center gap-2">
                       <Button
@@ -472,7 +472,7 @@ const ProductDetails: React.FC = () => {
                       >
                         <Minus className="h-3 w-3" />
                       </Button>
-                      <span className="w-12 text-center font-medium">{quantity}</span>
+                      <span className="w-12 text-center font-medium text-sm sm:text-base">{quantity}</span>
                       <Button
                         variant="outline"
                         size="sm"
@@ -485,11 +485,11 @@ const ProductDetails: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <Button
                       onClick={handleAddToCart}
                       disabled={cartLoading}
-                      className="flex-1 btn-primary"
+                      className="w-full sm:flex-1 btn-primary text-sm sm:text-base"
                       size="lg"
                     >
                       <ShoppingBag className="h-4 w-4 mr-2" />
@@ -500,8 +500,10 @@ const ProductDetails: React.FC = () => {
                       disabled={wishlistLoading}
                       variant="outline"
                       size="lg"
+                      className="w-full sm:w-auto sm:flex-shrink-0"
                     >
                       <Heart className="h-4 w-4" />
+                      <span className="sm:hidden ml-2">Wishlist</span>
                     </Button>
                   </div>
                 </div>
@@ -509,9 +511,9 @@ const ProductDetails: React.FC = () => {
 
               {/* Product Specifications */}
               {(product.sku || product.weight || product.dimensions) && (
-                <div className="space-y-3 pt-6 border-t">
-                  <h3 className="text-lg font-semibold text-royal-black">Product Specifications</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div className="space-y-3 pt-4 lg:pt-6 border-t">
+                  <h3 className="text-base lg:text-lg font-semibold text-royal-black">Product Specifications</h3>
+                  <div className="space-y-2 lg:grid lg:grid-cols-2 lg:gap-3 lg:space-y-0 text-xs sm:text-sm">
                     {product.sku && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">SKU:</span>
@@ -525,7 +527,7 @@ const ProductDetails: React.FC = () => {
                       </div>
                     )}
                     {product.dimensions && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between lg:col-span-2">
                         <span className="text-gray-600">Dimensions:</span>
                         <span className="font-medium">
                           {product.dimensions.length} × {product.dimensions.width} × {product.dimensions.height} cm
@@ -537,21 +539,21 @@ const ProductDetails: React.FC = () => {
               )}
 
               {/* Features */}
-              <div className="grid grid-cols-2 gap-4 pt-6 border-t">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Truck className="h-4 w-4" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4 pt-4 lg:pt-6 border-t">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                  <Truck className="h-4 w-4 flex-shrink-0" />
                   <span>Free shipping above ₹999</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Shield className="h-4 w-4" />
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                  <Shield className="h-4 w-4 flex-shrink-0" />
                   <span>Secure payment</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <RotateCcw className="h-4 w-4" />
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                  <RotateCcw className="h-4 w-4 flex-shrink-0" />
                   <span>Easy returns</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Package className="h-4 w-4" />
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                  <Package className="h-4 w-4 flex-shrink-0" />
                   <span>Quality assured</span>
                 </div>
               </div>
@@ -559,26 +561,26 @@ const ProductDetails: React.FC = () => {
           </div>
 
           {/* Description Section */}
-          <motion.div {...fadeInUp} className="mb-12">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-royal-black mb-4">Description</h2>
+          <motion.div {...fadeInUp} className="mb-8 lg:mb-12">
+            <div className="mb-4 lg:mb-6">
+              <h2 className="text-xl lg:text-2xl font-bold text-royal-black mb-4">Description</h2>
             </div>
             <Card>
-              <CardContent className="p-6">
-                <div className="prose max-w-none space-y-4">
+              <CardContent className="p-4 lg:p-6">
+                <div className="prose max-w-none space-y-3 lg:space-y-4">
                   {product.short_description && product.short_description !== product.description && (
                     <div>
-                      <h3 className="text-lg font-semibold text-royal-black mb-2">Overview</h3>
-                      <p className="text-gray-700 leading-relaxed">
+                      <h3 className="text-base lg:text-lg font-semibold text-royal-black mb-2">Overview</h3>
+                      <p className="text-sm lg:text-base text-gray-700 leading-relaxed">
                         {product.short_description}
                       </p>
                     </div>
                   )}
                   <div>
                     {product.short_description && product.short_description !== product.description && (
-                      <h3 className="text-lg font-semibold text-royal-black mb-2">Detailed Description</h3>
+                      <h3 className="text-base lg:text-lg font-semibold text-royal-black mb-2">Detailed Description</h3>
                     )}
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                    <p className="text-sm lg:text-base text-gray-700 leading-relaxed whitespace-pre-line">
                       {product.description}
                     </p>
                   </div>
@@ -588,9 +590,9 @@ const ProductDetails: React.FC = () => {
           </motion.div>
 
           {/* Related Products Section */}
-          <motion.div {...fadeInUp} className="mb-12">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-royal-black mb-4">Related Products</h2>
+          <motion.div {...fadeInUp} className="mb-8 lg:mb-12">
+            <div className="mb-4 lg:mb-6">
+              <h2 className="text-xl lg:text-2xl font-bold text-royal-black mb-4">Related Products</h2>
             </div>
             {relatedLoading ? (
               <div className="flex justify-center py-8">
@@ -598,19 +600,19 @@ const ProductDetails: React.FC = () => {
               </div>
             ) : relatedProducts.length === 0 ? (
               <Card>
-                <CardContent className="p-6 text-center">
-                  <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-600 mb-2">No related products</h3>
-                  <p className="text-gray-500">Check out our other products!</p>
+                <CardContent className="p-4 lg:p-6 text-center">
+                  <Package className="h-8 lg:h-12 w-8 lg:w-12 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-base lg:text-lg font-medium text-gray-600 mb-2">No related products</h3>
+                  <p className="text-sm lg:text-base text-gray-500">Check out our other products!</p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                 {relatedProducts.map((relatedProduct) => (
-                  <Card key={relatedProduct.id} className="card-elegant group hover-lift overflow-hidden p-0">
+                  <Card key={relatedProduct.id} className="card-elegant group hover-lift overflow-hidden p-0 h-full flex flex-col">
                     <div className="aspect-[3/4] overflow-hidden">
                       <img
-                        src={relatedProduct.images?.[0] 
+                        src={relatedProduct.images?.[0]
                           ? getImageUrl(relatedProduct.images[0], 'medium')
                           : relatedProduct.imageUrl || '/placeholder-product.jpg'
                         }
@@ -621,29 +623,41 @@ const ProductDetails: React.FC = () => {
                         }}
                       />
                     </div>
-                    <CardContent className="p-4">
-                      <Badge variant="secondary" className="text-xs mb-2">
+                    <CardContent className="p-3 lg:p-4 flex-1 flex flex-col">
+                      <Badge variant="secondary" className="text-xs mb-2 self-start">
                         {relatedProduct.category}
                       </Badge>
-                      <h3 className="font-heading text-sm font-semibold text-royal-black mb-2 line-clamp-2">
+                      <h3 className="font-heading text-xs sm:text-sm font-semibold text-royal-black mb-2 line-clamp-2 flex-1">
                         {relatedProduct.name}
                       </h3>
                       <div className="flex items-center gap-1 mb-2">
-                        {renderStars(relatedProduct.averageRating || 0)}
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`h-3 w-3 ${
+                                star <= (relatedProduct.averageRating || 0)
+                                  ? 'fill-yellow-400 text-yellow-400'
+                                  : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
                         <span className="text-xs text-gray-600">
                           ({relatedProduct.totalReviews || 0})
                         </span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-royal-black">
+                      <div className="flex items-center justify-between mt-auto">
+                        <span className="font-bold text-royal-black text-xs sm:text-sm">
                           ₹{parseFloat(relatedProduct.price?.toString() || '0').toLocaleString()}
                         </span>
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigate({ 
+                          onClick={() => navigate({
                             to: `/products/${relatedProduct.id}`
                           })}
+                          className="text-xs px-2 py-1 h-7"
                         >
                           View
                         </Button>
@@ -656,55 +670,57 @@ const ProductDetails: React.FC = () => {
           </motion.div>
 
           {/* Reviews Section */}
-          <motion.div {...fadeInUp} className="mb-12">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-royal-black mb-4">
+          <motion.div {...fadeInUp} className="mb-8 lg:mb-12">
+            <div className="mb-4 lg:mb-6">
+              <h2 className="text-xl lg:text-2xl font-bold text-royal-black mb-4">
                 Reviews ({product.totalReviews || 0})
               </h2>
               </div>
                 {/* Add Review Button */}
                 {isAuthenticated && (
                   <Card>
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 lg:p-6">
                       {userHasReviewed ? (
                         <div className="text-center text-gray-600">
-                          <MessageCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                          <p className="font-medium">You have already reviewed this product</p>
-                          <p className="text-sm text-gray-500">Thank you for your feedback!</p>
+                          <MessageCircle className="h-6 lg:h-8 w-6 lg:w-8 mx-auto mb-2 text-gray-400" />
+                          <p className="font-medium text-sm lg:text-base">You have already reviewed this product</p>
+                          <p className="text-xs lg:text-sm text-gray-500">Thank you for your feedback!</p>
                         </div>
                       ) : !showReviewForm ? (
-                        <Button onClick={() => setShowReviewForm(true)}>
+                        <Button onClick={() => setShowReviewForm(true)} className="text-sm lg:text-base">
                           <MessageCircle className="h-4 w-4 mr-2" />
                           Write a Review
                         </Button>
                       ) : (
                         <form onSubmit={handleReviewSubmit} className="space-y-4">
                           <div>
-                            <label className="block text-sm font-medium mb-2">Rating</label>
-                            {renderStars(reviewForm.rating, true, (rating) => 
+                            <label className="block text-xs lg:text-sm font-medium mb-2">Rating</label>
+                            {renderStars(reviewForm.rating, true, (rating) =>
                               setReviewForm(prev => ({ ...prev, rating }))
                             )}
                           </div>
                           <div>
-                            <label className="block text-sm font-medium mb-2">Title (optional)</label>
+                            <label className="block text-xs lg:text-sm font-medium mb-2">Title (optional)</label>
                             <Input
                               value={reviewForm.title}
                               onChange={(e) => setReviewForm(prev => ({ ...prev, title: e.target.value }))}
                               placeholder="Brief summary of your review"
+                              className="text-sm lg:text-base"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium mb-2">Review</label>
+                            <label className="block text-xs lg:text-sm font-medium mb-2">Review</label>
                             <Textarea
                               value={reviewForm.comment}
                               onChange={(e) => setReviewForm(prev => ({ ...prev, comment: e.target.value }))}
                               placeholder="Share your experience with this product"
                               rows={4}
                               required
+                              className="text-sm lg:text-base"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium mb-2">Photos (optional)</label>
+                            <label className="block text-xs lg:text-sm font-medium mb-2">Photos (optional)</label>
                             <ReviewImageUpload
                               clientOnly={true}
                               onFilesSelected={(files) => {
@@ -715,11 +731,11 @@ const ProductDetails: React.FC = () => {
                               className="max-w-md"
                             />
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex flex-col sm:flex-row gap-2">
                             <Button
                               type="submit"
                               disabled={reviewSubmitting}
-                              className="btn-primary"
+                              className="btn-primary text-sm lg:text-base"
                             >
                               {reviewSubmitting ? (
                                 <>
@@ -739,6 +755,7 @@ const ProductDetails: React.FC = () => {
                                 setReviewForm({ rating: 5, title: '', comment: '', images: [] });
                                 setReviewImageFiles([]);
                               }}
+                              className="text-sm lg:text-base"
                             >
                               Cancel
                             </Button>
@@ -749,7 +766,7 @@ const ProductDetails: React.FC = () => {
                   </Card>
                 )}
 
-                <br/>                
+                <div className="mt-4 lg:mt-6">
                 {/* Reviews List */}
                 {reviewsLoading ? (
                   <div className="flex justify-center py-8">
@@ -757,55 +774,55 @@ const ProductDetails: React.FC = () => {
                   </div>
                 ) : reviews.length === 0 ? (
                   <Card>
-                    <CardContent className="p-6 text-center">
-                      <MessageCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                      <h3 className="text-lg font-medium text-gray-600 mb-2">No reviews yet</h3>
-                      <p className="text-gray-500">Be the first to review this product!</p>
+                    <CardContent className="p-4 lg:p-6 text-center">
+                      <MessageCircle className="h-8 lg:h-12 w-8 lg:w-12 mx-auto text-gray-400 mb-4" />
+                      <h3 className="text-base lg:text-lg font-medium text-gray-600 mb-2">No reviews yet</h3>
+                      <p className="text-sm lg:text-base text-gray-500">Be the first to review this product!</p>
                     </CardContent>
                   </Card>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-3 lg:space-y-4">
                     {reviews.map((review) => (
                       <Card key={review.id}>
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-medium">{review.user_name || review.user?.name || 'Anonymous'}</span>
+                        <CardContent className="p-4 lg:p-6">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2">
+                            <div className="flex-1">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                                <span className="font-medium text-sm lg:text-base">{review.user_name || review.user?.name || 'Anonymous'}</span>
                                 {(review.is_verified_purchase || review.isVerified) && (
-                                  <Badge variant="outline" className="text-xs">
+                                  <Badge variant="outline" className="text-xs self-start">
                                     Verified Purchase
                                   </Badge>
                                 )}
                               </div>
                               {renderStars(review.rating)}
                             </div>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-gray-500 self-start sm:self-auto">
                               {new Date(review.created_at || review.createdAt || '').toLocaleDateString()}
                             </span>
                           </div>
                           {review.title && (
-                            <h4 className="font-medium mb-2">{review.title}</h4>
+                            <h4 className="font-medium mb-2 text-sm lg:text-base">{review.title}</h4>
                           )}
-                          <p className="text-gray-700 mb-3">{review.comment}</p>
-                          
+                          <p className="text-gray-700 mb-3 text-sm lg:text-base leading-relaxed">{review.comment}</p>
+
                           {/* Review Images */}
                           {review.images && review.images.length > 0 && (
-                            <div className="flex gap-2 mb-3">
+                            <div className="flex gap-2 mb-3 overflow-x-auto pb-2">
                               {review.images.map((image, index) => (
                                 <button
                                   key={index}
                                   onClick={() => openImageModal(
-                                    review.images!, 
-                                    index, 
+                                    review.images!,
+                                    index,
                                     `Review by ${review.user_name}`
                                   )}
-                                  className="relative overflow-hidden rounded-lg border hover:border-blue-500 transition-colors cursor-pointer group"
+                                  className="relative overflow-hidden rounded-lg border hover:border-blue-500 transition-colors cursor-pointer group flex-shrink-0"
                                 >
                                   <img
                                     src={image.startsWith('http') ? image : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${image}`}
                                     alt={`Review image ${index + 1}`}
-                                    className="w-16 h-16 object-cover group-hover:scale-105 transition-transform"
+                                    className="w-12 h-12 lg:w-16 lg:h-16 object-cover group-hover:scale-105 transition-transform"
                                     onError={(e) => {
                                       e.currentTarget.style.display = 'none';
                                       console.log('Image failed to load:', image);
@@ -820,13 +837,13 @@ const ProductDetails: React.FC = () => {
                               ))}
                             </div>
                           )}
-                          
+
                           {/* Helpful Button */}
                           <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-gray-600 hover:text-gray-800"
+                              className="text-gray-600 hover:text-gray-800 text-xs lg:text-sm px-2 lg:px-3"
                             >
                               <ThumbsUp className="h-3 w-3 mr-1" />
                               Helpful ({review.helpful_count || 0})
@@ -837,6 +854,7 @@ const ProductDetails: React.FC = () => {
                     ))}
                   </div>
                 )}
+                </div>
 
           </motion.div>
       </div>
