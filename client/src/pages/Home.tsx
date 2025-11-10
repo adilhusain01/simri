@@ -356,7 +356,7 @@ const Home: React.FC = () => {
               </motion.div>
             ) : (
               categories.map((category, index) => {
-                const { color, icon } = getCategoryDisplay(category, index);
+                const { icon } = getCategoryDisplay(category, index);
                 return (
                   <motion.div key={category.id} variants={fadeInUp}>
                     <Link to="/products" search={{
