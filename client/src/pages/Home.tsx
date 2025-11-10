@@ -274,19 +274,19 @@ const Home: React.FC = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-12 sm:py-16 lg:py-20 bg-white">
+        <div className="container mx-auto px-6 sm:px-8 lg:px-8">
           <motion.div
             variants={stagger}
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-12 sm:mb-16"
           >
-            <motion.h2 variants={fadeInUp} className="font-heading text-4xl font-bold text-royal-black mb-4">
+            <motion.h2 variants={fadeInUp} className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-royal-black mb-4 sm:mb-6">
               Why Choose Simri?
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-xl text-gray-800 max-w-2xl mx-auto">
+            <motion.p variants={fadeInUp} className="text-base sm:text-lg lg:text-xl text-gray-800 max-w-2xl mx-auto leading-relaxed">
               We're committed to making your gift-giving experience extraordinary with our premium service and attention to detail.
             </motion.p>
           </motion.div>
@@ -296,21 +296,21 @@ const Home: React.FC = () => {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8"
           >
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
                 <motion.div key={index} variants={fadeInUp}>
-                  <Card className="card-elegant text-center p-6">
-                    <CardContent className="pt-6">
-                      <div className="w-16 h-16 bg-royal-gold rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Icon className="w-8 h-8 text-royal-black" />
+                  <Card className="card-elegant text-center p-4 sm:p-6 h-full hover:shadow-xl transition-all duration-300">
+                    <CardContent className="pt-4 sm:pt-6 flex flex-col h-full">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-royal-gold rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                        <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-royal-black" />
                       </div>
-                      <h3 className="font-heading text-xl font-semibold text-royal-black mb-2">
+                      <h3 className="font-heading text-lg sm:text-xl font-semibold text-royal-black mb-2 sm:mb-3">
                         {feature.title}
                       </h3>
-                      <p className="text-gray-800">
+                      <p className="text-sm sm:text-base text-gray-800 leading-relaxed flex-grow">
                         {feature.description}
                       </p>
                     </CardContent>
@@ -323,19 +323,19 @@ const Home: React.FC = () => {
       </section>
 
       {/* Categories Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+        <div className="container mx-auto px-6 sm:px-8 lg:px-8">
           <motion.div
             variants={stagger}
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-12 sm:mb-16"
           >
-            <motion.h2 variants={fadeInUp} className="font-heading text-4xl font-bold text-royal-black mb-4">
+            <motion.h2 variants={fadeInUp} className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-royal-black mb-4 sm:mb-6">
               Perfect Gifts for Every Occasion
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-xl text-gray-800 max-w-2xl mx-auto">
+            <motion.p variants={fadeInUp} className="text-base sm:text-lg lg:text-xl text-gray-800 max-w-2xl mx-auto leading-relaxed">
               From birthdays to celebrations, find the ideal gift that matches the moment and creates lasting memories.
             </motion.p>
           </motion.div>
@@ -344,16 +344,16 @@ const Home: React.FC = () => {
             variants={stagger}
             initial="initial"
             animate="animate"
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6"
           >
             {categoriesLoading ? (
               // Loading skeleton
               Array.from({ length: 6 }).map((_, index) => (
                 <motion.div key={index} variants={fadeInUp}>
-                  <Card className="card-elegant text-center p-6">
-                    <CardContent className="pt-6">
-                      <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 animate-pulse" />
-                      <div className="h-4 bg-gray-200 rounded mx-auto animate-pulse" />
+                  <Card className="card-elegant text-center p-3 sm:p-4">
+                    <CardContent className="pt-3 sm:pt-4">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-200 rounded-full mx-auto mb-2 sm:mb-3 animate-pulse" />
+                      <div className="h-3 sm:h-4 bg-gray-200 rounded mx-auto animate-pulse" />
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -361,7 +361,7 @@ const Home: React.FC = () => {
             ) : categories.length === 0 ? (
               // No categories fallback
               <motion.div variants={fadeInUp} className="col-span-full text-center py-8">
-                <p className="text-gray-500">No categories available</p>
+                <p className="text-gray-500 text-sm sm:text-base">No categories available</p>
               </motion.div>
             ) : (
               categories.map((category, index) => {
@@ -377,9 +377,9 @@ const Home: React.FC = () => {
                       inStock: false,
                       featured: false
                     }}>
-                      <Card className="card-elegant text-center p-6 hover:scale-105 transition-transform duration-300 cursor-pointer">
-                        <CardContent className="pt-6">
-                          <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden">
+                      <Card className="card-elegant text-center p-3 sm:p-4 lg:p-6 hover:scale-105 hover:shadow-lg transition-all duration-300 cursor-pointer">
+                        <CardContent className="pt-3 sm:pt-4 lg:pt-6">
+                          <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full mx-auto mb-2 sm:mb-3 lg:mb-4 overflow-hidden">
                             {category.image_url ? (
                               <img
                                 src={category.image_url}
@@ -387,12 +387,12 @@ const Home: React.FC = () => {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className={`w-full h-full bg-royal-gold flex items-center justify-center text-2xl`}>
+                              <div className={`w-full h-full bg-royal-gold flex items-center justify-center text-lg sm:text-xl lg:text-2xl`}>
                                 {icon}
                               </div>
                             )}
                           </div>
-                          <h3 className="font-medium text-royal-black">
+                          <h3 className="font-medium text-royal-black text-xs sm:text-sm lg:text-base leading-tight">
                             {category.name}
                           </h3>
                         </CardContent>
@@ -407,19 +407,19 @@ const Home: React.FC = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-12 sm:py-16 lg:py-20 bg-white">
+        <div className="container mx-auto px-6 sm:px-8 lg:px-8">
           <motion.div
             variants={stagger}
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-12 sm:mb-16"
           >
-            <motion.h2 variants={fadeInUp} className="font-heading text-4xl font-bold text-royal-black mb-4">
+            <motion.h2 variants={fadeInUp} className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-royal-black mb-4 sm:mb-6">
               What Our Customers Say
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-xl text-gray-800 max-w-2xl mx-auto">
+            <motion.p variants={fadeInUp} className="text-base sm:text-lg lg:text-xl text-gray-800 max-w-2xl mx-auto leading-relaxed">
               Join thousands of satisfied customers who trust Simri for their special moments.
             </motion.p>
           </motion.div>
@@ -429,26 +429,26 @@ const Home: React.FC = () => {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="grid md:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
           >
             {testimonials.map((testimonial, index) => (
               <motion.div key={index} variants={fadeInUp}>
-                <Card className="card-elegant p-6">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center mb-4">
-                      <div className="w-12 h-12 bg-royal-gold rounded-full flex items-center justify-center text-royal-black font-semibold mr-4">
+                <Card className="card-elegant p-4 sm:p-6 h-full hover:shadow-xl transition-all duration-300">
+                  <CardContent className="pt-4 sm:pt-6 flex flex-col h-full">
+                    <div className="flex items-center mb-4 sm:mb-6">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-royal-gold rounded-full flex items-center justify-center text-royal-black font-semibold mr-3 sm:mr-4 text-sm sm:text-base">
                         {testimonial.avatar}
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-royal-black">{testimonial.name}</h4>
-                        <div className="flex items-center">
+                      <div className="flex-grow">
+                        <h4 className="font-semibold text-royal-black text-sm sm:text-base">{testimonial.name}</h4>
+                        <div className="flex items-center mt-1">
                           {[...Array(testimonial.rating)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 text-royal-gold fill-current" />
+                            <Star key={i} className="w-3 h-3 sm:w-4 sm:h-4 text-royal-gold fill-current" />
                           ))}
                         </div>
                       </div>
                     </div>
-                    <p className="text-gray-800 italic">
+                    <p className="text-gray-800 italic text-sm sm:text-base leading-relaxed flex-grow">
                       "{testimonial.comment}"
                     </p>
                   </CardContent>
@@ -460,18 +460,28 @@ const Home: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-royal-gold">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-royal-gold via-royal-gold to-yellow-400 relative overflow-hidden">
+        <div className="absolute inset-0 bg-royal-gold opacity-90" />
+
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-10 left-10 w-20 h-20 border border-royal-black rounded-full"></div>
+          <div className="absolute bottom-10 right-10 w-16 h-16 border border-royal-black rounded-full"></div>
+          <div className="absolute top-1/2 left-1/4 w-12 h-12 border border-royal-black rounded-full"></div>
+        </div>
+
+        <div className="relative container mx-auto px-6 sm:px-8 lg:px-8 text-center">
           <motion.div
             variants={fadeInUp}
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
+            className="max-w-3xl mx-auto"
           >
-            <h2 className="font-heading text-4xl font-bold text-royal-black mb-4">
+            <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-royal-black mb-4 sm:mb-6 leading-tight">
               Ready to Make Someone's Day?
             </h2>
-            <p className="text-xl text-gray-800 mb-8 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-800 mb-8 sm:mb-10 lg:mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
               Browse our collection and find the perfect gift that speaks from your heart to theirs.
             </p>
             <Link to="/products" search={{
@@ -483,8 +493,8 @@ const Home: React.FC = () => {
               inStock: false,
               featured: false
             }}>
-              <Button size="lg" variant="secondary" className="btn-secondary text-lg px-8 py-4">
-                <Gift className="mr-2 h-5 w-5" />
+              <Button size="lg" variant="secondary" className="btn-secondary text-base sm:text-lg lg:text-xl px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 shadow-2xl hover:shadow-3xl transition-all duration-300 border-2 border-royal-black hover:scale-105">
+                <Gift className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
                 Start Shopping
               </Button>
             </Link>
