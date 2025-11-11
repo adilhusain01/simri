@@ -39,7 +39,6 @@ const Products: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.q || '');
   const [debouncedSearch, setDebouncedSearch] = useState(searchParams.q || '');
-  const [viewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState<SearchFilters>({
     category: searchParams.category || '',
     sortBy: (searchParams.sortBy as "relevance" | "price_low" | "price_high" | "rating" | "newest") || 'relevance',
@@ -384,10 +383,7 @@ const Products: React.FC = () => {
           {/* Products Grid */}
           {!loading && products.length > 0 && (
             <motion.div
-              className={viewMode === 'grid'
-                ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6"
-                : "space-y-4"
-              }
+              className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6 }}
@@ -401,7 +397,6 @@ const Products: React.FC = () => {
                 >
                   <ProductCard
                     product={product}
-                    viewMode={viewMode}
                     onAddToCart={handleAddToCart}
                     onAddToWishlist={handleAddToWishlist}
                     cartLoading={cartLoading}
@@ -448,91 +443,11 @@ const getImageUrl = (imageData: any, size: 'thumb' | 'medium' | 'large' | 'origi
 // Product Card Component
 const ProductCard: React.FC<{
   product: Product;
-  viewMode: 'grid' | 'list';
   onAddToCart: (product: Product) => void;
   onAddToWishlist: (product: Product) => void;
   cartLoading: boolean;
   wishlistLoading: boolean;
-}> = ({ product, viewMode, onAddToCart, onAddToWishlist, cartLoading, wishlistLoading }) => {
-  if (viewMode === 'list') {
-    return (
-      <Card className="card-elegant overflow-hidden">
-        <div className="flex">
-          <div className="flex-shrink-0 w-48 h-32">
-            <img
-              src={product.images?.[0] ? getImageUrl(product.images[0], 'medium') : '/placeholder-product.jpg'}
-              alt={product.name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = '/placeholder-product.jpg';
-              }}
-            />
-          </div>
-          <CardContent className="flex-1 p-6">
-            <div className="flex justify-between">
-              <div className="flex-1">
-                <h3 className="font-heading text-lg font-semibold text-royal-black mb-2">
-                  <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-royal-gold transition-colors">
-                    {product.name}
-                  </Link>
-                </h3>
-                <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                  {product.description}
-                </p>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm text-gray-600 ml-1">
-                      {product.averageRating || 'N/A'} ({product.totalReviews || 0})
-                    </span>
-                  </div>
-                  <Badge variant="secondary">{product.category_name}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {product.discount_price ? (
-                      <>
-                        <span className="text-lg font-bold text-royal-black">
-                          ₹{product.discount_price}
-                        </span>
-                        <span className="text-sm text-gray-500 line-through">
-                          ₹{product.price}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-lg font-bold text-royal-black">
-                        ₹{product.price}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onAddToWishlist(product)}
-                      disabled={wishlistLoading}
-                    >
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => onAddToCart(product)}
-                      disabled={cartLoading || product.stock_quantity === 0}
-                      className="btn-primary"
-                    >
-                      <ShoppingBag className="h-4 w-4 mr-2" />
-                      Add to Cart
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </div>
-      </Card>
-    );
-  }
-
+}> = ({ product, onAddToCart, onAddToWishlist, cartLoading, wishlistLoading }) => {
   return (
     <Card className="card-elegant group hover-lift overflow-hidden p-0 h-full flex flex-col">
       <div className="relative overflow-hidden">

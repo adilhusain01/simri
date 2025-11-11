@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 
 const Callback: React.FC = () => {
   const navigate = useNavigate();
-  const { handleOAuthCallback, isLoading } = useAuthStore();
+  const { isLoading } = useAuthStore();
   const [status, setStatus] = React.useState<'loading' | 'success' | 'error'>('loading');
 
   useEffect(() => {
@@ -16,35 +16,37 @@ const Callback: React.FC = () => {
       try {
         // Extract URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        const state = urlParams.get('state');
+        const success = urlParams.get('success');
+        const redirect = urlParams.get('redirect');
         const error = urlParams.get('error');
-        
+
+        console.log('Callback URL params:', { success, redirect, error });
+        console.log('Full URL:', window.location.href);
+
         if (error) {
           throw new Error(error === 'access_denied' ? 'Access denied' : 'Authentication failed');
         }
 
-        if (!code) {
-          throw new Error('No authorization code received');
-        }
+        if (success === 'true') {
+          // OAuth was successful, user is already authenticated on the backend
+          setStatus('success');
+          toast.success('Successfully signed in with Google!');
 
-        // Handle OAuth callback
-        await handleOAuthCallback({ code, state });
-        
-        setStatus('success');
-        toast.success('Successfully signed in with Google!');
-        
-        // Redirect after a short delay
-        setTimeout(() => {
-          const redirectTo = state || '/';
-          navigate({ to: redirectTo });
-        }, 2000);
+          // Redirect after a short delay
+          setTimeout(() => {
+            const redirectTo = redirect ? decodeURIComponent(redirect) : '/';
+            console.log('Redirecting to:', redirectTo);
+            navigate({ to: redirectTo });
+          }, 2000);
+        } else {
+          throw new Error('Authentication was not successful');
+        }
 
       } catch (error: any) {
         console.error('OAuth callback error:', error);
         setStatus('error');
         toast.error(error.message || 'Authentication failed');
-        
+
         // Redirect to login after error
         setTimeout(() => {
           navigate({ to: '/auth/login', search: { redirect: '/' } });
@@ -53,7 +55,7 @@ const Callback: React.FC = () => {
     };
 
     processCallback();
-  }, [handleOAuthCallback, navigate]);
+  }, [navigate]);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },

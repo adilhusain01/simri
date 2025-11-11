@@ -119,19 +119,21 @@ const Signup: React.FC = () => {
   };
 
   const handleGoogleSignup = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/google`;
+    const redirectParam = redirect && redirect !== '/' ? encodeURIComponent(redirect) : '';
+    const googleAuthUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/google${redirectParam ? `?state=${redirectParam}` : ''}`;
+    window.location.href = googleAuthUrl;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg">
         <motion.div {...fadeInUp}>
           {/* Header */}
-          
+
           {/* Signup Card */}
           <Card className="card-elegant">
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="font-heading text-xl text-royal-black">Create Account</CardTitle>
+            <CardHeader className="text-center pb-3 sm:pb-4">
+              <CardTitle className="font-heading text-lg sm:text-xl lg:text-2xl text-royal-black">Create Account</CardTitle>
             </CardHeader>
             
             <CardContent>
@@ -139,11 +141,11 @@ const Signup: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full mb-6 h-12 border-2 border-gray-200 hover:border-royal-gold hover:bg-gray-50"
+                className="w-full mb-4 sm:mb-6 h-10 sm:h-12 border-2 border-gray-200 hover:border-royal-gold hover:bg-gray-50 text-sm sm:text-base"
                 onClick={handleGoogleSignup}
                 disabled={isLoading}
               >
-                <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -165,191 +167,191 @@ const Signup: React.FC = () => {
               </Button>
 
               {/* Divider */}
-              <div className="relative my-6">
+              <div className="relative my-4 sm:my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-200"></div>
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-white px-4 text-gray-500">Or create with email</span>
+                <div className="relative flex justify-center text-xs sm:text-sm">
+                  <span className="bg-white px-3 sm:px-4 text-gray-500">Or create with email</span>
                 </div>
               </div>
 
               {/* Signup Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                 {/* Name Fields */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-royal-black mb-2">
+                    <label htmlFor="firstName" className="block text-xs sm:text-sm font-medium text-royal-black mb-1.5 sm:mb-2">
                       First Name
                     </label>
                     <div className="relative">
-                      <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <User className="absolute left-3 top-2.5 sm:top-3 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                       <Input
                         id="firstName"
                         name="firstName"
                         type="text"
                         value={formData.firstName}
                         onChange={handleInputChange}
-                        className={`pl-10 h-12 ${errors.firstName ? 'border-red-500 focus:border-red-500' : ''}`}
+                        className={`pl-9 sm:pl-10 h-10 sm:h-12 text-sm sm:text-base ${errors.firstName ? 'border-red-500 focus:border-red-500' : ''}`}
                         placeholder="John"
                         disabled={isLoading}
                       />
                     </div>
                     {errors.firstName && (
-                      <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
+                      <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.firstName}</p>
                     )}
                   </div>
 
                   <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-royal-black mb-2">
+                    <label htmlFor="lastName" className="block text-xs sm:text-sm font-medium text-royal-black mb-1.5 sm:mb-2">
                       Last Name
                     </label>
                     <div className="relative">
-                      <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <User className="absolute left-3 top-2.5 sm:top-3 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                       <Input
                         id="lastName"
                         name="lastName"
                         type="text"
                         value={formData.lastName}
                         onChange={handleInputChange}
-                        className={`pl-10 h-12 ${errors.lastName ? 'border-red-500 focus:border-red-500' : ''}`}
+                        className={`pl-9 sm:pl-10 h-10 sm:h-12 text-sm sm:text-base ${errors.lastName ? 'border-red-500 focus:border-red-500' : ''}`}
                         placeholder="Doe"
                         disabled={isLoading}
                       />
                     </div>
                     {errors.lastName && (
-                      <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+                      <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.lastName}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-royal-black mb-2">
+                  <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-royal-black mb-1.5 sm:mb-2">
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Mail className="absolute left-3 top-2.5 sm:top-3 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                     <Input
                       id="email"
                       name="email"
                       type="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`pl-10 h-12 ${errors.email ? 'border-red-500 focus:border-red-500' : ''}`}
+                      className={`pl-9 sm:pl-10 h-10 sm:h-12 text-sm sm:text-base ${errors.email ? 'border-red-500 focus:border-red-500' : ''}`}
                       placeholder="john@example.com"
                       disabled={isLoading}
                     />
                   </div>
                   {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                    <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.email}</p>
                   )}
                 </div>
 
                 {/* Phone (Optional) */}
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-royal-black mb-2">
+                  <label htmlFor="phone" className="block text-xs sm:text-sm font-medium text-royal-black mb-1.5 sm:mb-2">
                     Phone Number <span className="text-gray-400">(Optional)</span>
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Phone className="absolute left-3 top-2.5 sm:top-3 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                     <Input
                       id="phone"
                       name="phone"
                       type="tel"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className={`pl-10 h-12 ${errors.phone ? 'border-red-500 focus:border-red-500' : ''}`}
+                      className={`pl-9 sm:pl-10 h-10 sm:h-12 text-sm sm:text-base ${errors.phone ? 'border-red-500 focus:border-red-500' : ''}`}
                       placeholder="+1 (555) 123-4567"
                       disabled={isLoading}
                     />
                   </div>
                   {errors.phone && (
-                    <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+                    <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.phone}</p>
                   )}
                 </div>
 
                 {/* Password */}
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-royal-black mb-2">
+                  <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-royal-black mb-1.5 sm:mb-2">
                     Password
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Lock className="absolute left-3 top-2.5 sm:top-3 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                     <Input
                       id="password"
                       name="password"
                       type={showPassword ? 'text' : 'password'}
                       value={formData.password}
                       onChange={handleInputChange}
-                      className={`pl-10 pr-10 h-12 ${errors.password ? 'border-red-500 focus:border-red-500' : ''}`}
+                      className={`pl-9 sm:pl-10 pr-9 sm:pr-10 h-10 sm:h-12 text-sm sm:text-base ${errors.password ? 'border-red-500 focus:border-red-500' : ''}`}
                       placeholder="Create a strong password"
                       disabled={isLoading}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-2.5 sm:top-3 text-gray-400 hover:text-gray-600"
                     >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                    <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.password}</p>
                   )}
                 </div>
 
                 {/* Confirm Password */}
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-royal-black mb-2">
+                  <label htmlFor="confirmPassword" className="block text-xs sm:text-sm font-medium text-royal-black mb-1.5 sm:mb-2">
                     Confirm Password
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Lock className="absolute left-3 top-2.5 sm:top-3 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                     <Input
                       id="confirmPassword"
                       name="confirmPassword"
                       type={showConfirmPassword ? 'text' : 'password'}
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
-                      className={`pl-10 pr-10 h-12 ${errors.confirmPassword ? 'border-red-500 focus:border-red-500' : ''}`}
+                      className={`pl-9 sm:pl-10 pr-9 sm:pr-10 h-10 sm:h-12 text-sm sm:text-base ${errors.confirmPassword ? 'border-red-500 focus:border-red-500' : ''}`}
                       placeholder="Confirm your password"
                       disabled={isLoading}
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-2.5 sm:top-3 text-gray-400 hover:text-gray-600"
                     >
-                      {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+                    <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.confirmPassword}</p>
                   )}
                 </div>
 
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  className="w-full btn-primary h-12 group mt-6"
+                  className="w-full btn-primary h-10 sm:h-12 group mt-4 sm:mt-6 text-sm sm:text-base"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <>
-                      <div className="spinner w-5 h-5 mr-2"></div>
+                      <div className="spinner w-4 h-4 sm:w-5 sm:h-5 mr-2"></div>
                       Creating Account...
                     </>
                   ) : (
                     <>
                       Create Account
-                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
                 </Button>
 
                 {/* Terms */}
-                <p className="text-xs text-gray-500 text-center mt-4">
+                <p className="text-xs text-gray-500 text-center mt-3 sm:mt-4">
                   By creating an account, you agree to our{' '}
                   <a href="#" className="text-royal-gold hover:text-royal-black">
                     Terms of Service
@@ -362,8 +364,8 @@ const Signup: React.FC = () => {
               </form>
 
               {/* Login Link */}
-              <div className="text-center mt-6 pt-6 border-t border-gray-200">
-                <p className="text-gray-600">
+              <div className="text-center mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
+                <p className="text-gray-600 text-sm sm:text-base">
                   Already have an account?{' '}
                   <Link
                     to="/auth/login"

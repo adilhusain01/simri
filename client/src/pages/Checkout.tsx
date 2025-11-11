@@ -252,72 +252,65 @@ const Checkout: React.FC = () => {
       // Create order
       const order = await orderService.createOrder(orderRequest);
       
-      if (paymentMethod === 'razorpay') {
-        // Create payment intent and handle Razorpay
-        const paymentIntent = await paymentService.createPaymentIntent(order.order_id, total);
-        
-        // Initialize Razorpay payment
-        const options = {
-          key: paymentIntent.key_id,
-          amount: paymentIntent.amount,
-          currency: paymentIntent.currency,
-          order_id: paymentIntent.razorpay_order_id,
-          name: 'Simri',
-          description: `Order #${order.order_number}`,
-          image: '/logo.png',
-          handler: async (response: any) => {
-            try {
-              // Verify payment with backend
-              await paymentService.verifyPayment({
-                order_id: order.order_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              });
-              
-              toast.success('Payment successful! Order placed.');
-              await clearCart();
-              navigate({ to: `/orders` });
-            } catch (error) {
-              console.error('Payment verification failed:', error);
-              toast.error('Payment verification failed. Please contact support.');
-            }
-          },
-          modal: {
-            ondismiss: () => {
-              toast.error('Payment cancelled');
-            }
-          },
-          notes: {
-            order_id: order.order_id,
-            order_number: order.order_number,
-          },
-          theme: {
-            color: '#667eea'
-          }
-        };
+      // Create payment intent and handle Razorpay
+      const paymentIntent = await paymentService.createPaymentIntent(order.order_id, total);
 
-        // Load Razorpay script dynamically if not already loaded
-        if (!window.Razorpay) {
-          const script = document.createElement('script');
-          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-          script.onerror = () => {
-            toast.error('Failed to load payment gateway. Please try again.');
-          };
-          script.onload = () => {
-            const rzp = new window.Razorpay(options);
-            rzp.open();
-          };
-          document.body.appendChild(script);
-        } else {
+      // Initialize Razorpay payment
+      const options = {
+        key: paymentIntent.key_id,
+        amount: paymentIntent.amount,
+        currency: paymentIntent.currency,
+        order_id: paymentIntent.razorpay_order_id,
+        name: 'Simri',
+        description: `Order #${order.order_number}`,
+        image: '/logo.png',
+        handler: async (response: any) => {
+          try {
+            // Verify payment with backend
+            await paymentService.verifyPayment({
+              order_id: order.order_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            toast.success('Payment successful! Order placed.');
+            await clearCart();
+            navigate({ to: `/orders` });
+          } catch (error) {
+            console.error('Payment verification failed:', error);
+            toast.error('Payment verification failed. Please contact support.');
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            toast.error('Payment cancelled');
+          }
+        },
+        notes: {
+          order_id: order.order_id,
+          order_number: order.order_number,
+        },
+        theme: {
+          color: '#667eea'
+        }
+      };
+
+      // Load Razorpay script dynamically if not already loaded
+      if (!window.Razorpay) {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onerror = () => {
+          toast.error('Failed to load payment gateway. Please try again.');
+        };
+        script.onload = () => {
           const rzp = new window.Razorpay(options);
           rzp.open();
-        }
+        };
+        document.body.appendChild(script);
       } else {
-        // COD or other methods
-        toast.success('Order placed successfully!');
-        await clearCart();
-        navigate({ to: `/orders` });
+        const rzp = new window.Razorpay(options);
+        rzp.open();
       }
     } catch (error) {
       console.error('Failed to place order:', error);
@@ -489,38 +482,27 @@ const Checkout: React.FC = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 lg:space-y-4 pt-0">
-                      <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                        <div className="space-y-3">
-                          <Label className="flex items-start gap-3 p-3 lg:p-4 border rounded-lg cursor-pointer hover:border-royal-gold transition-colors">
-                            <RadioGroupItem value="razorpay" id="razorpay" className="mt-1" />
+                      <div className="space-y-3">
+                        <div className="p-3 lg:p-4 border border-royal-gold rounded-lg bg-gray-50">
+                          <div className="flex items-start gap-3">
+                            <div className="w-4 h-4 lg:w-5 lg:h-5 bg-royal-gold rounded-full flex items-center justify-center mt-0.5">
+                              <div className="w-2 h-2 bg-royal-black rounded-full"></div>
+                            </div>
                             <div className="flex-1">
                               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                                 <div className="flex items-center gap-2">
-                                  <CreditCard className="h-4 w-4 lg:h-5 lg:w-5" />
-                                  <span className="font-medium text-sm lg:text-base">Credit/Debit Card & UPI</span>
+                                  <CreditCard className="h-4 w-4 lg:h-5 lg:w-5 text-royal-black" />
+                                  <span className="font-medium text-sm lg:text-base text-royal-black">Credit/Debit Card & UPI</span>
                                 </div>
-                                <Badge variant="secondary" className="text-xs self-start">Recommended</Badge>
+                                <Badge variant="secondary" className="text-xs self-start">Secure Payment</Badge>
                               </div>
-                              <p className="text-xs lg:text-sm text-gray-600 mt-1">
-                                Pay securely using Razorpay
+                              <p className="text-xs lg:text-sm text-gray-700 mt-1">
+                                Pay securely using Razorpay - supports all major cards, UPI, and net banking
                               </p>
                             </div>
-                          </Label>
-
-                          <Label className="flex items-start gap-3 p-3 lg:p-4 border rounded-lg cursor-pointer hover:border-royal-gold transition-colors">
-                            <RadioGroupItem value="cod" id="cod" className="mt-1" />
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <Package className="h-4 w-4 lg:h-5 lg:w-5" />
-                                <span className="font-medium text-sm lg:text-base">Cash on Delivery</span>
-                              </div>
-                              <p className="text-xs lg:text-sm text-gray-600 mt-1">
-                                Pay when you receive your order
-                              </p>
-                            </div>
-                          </Label>
+                          </div>
                         </div>
-                      </RadioGroup>
+                      </div>
 
                       <div className="flex items-start gap-2 pt-4">
                         <Shield className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
@@ -611,9 +593,12 @@ const Checkout: React.FC = () => {
                       {/* Payment Method */}
                       <div>
                         <h4 className="font-medium mb-2 text-sm lg:text-base">Payment Method</h4>
-                        <p className="text-xs lg:text-sm text-gray-600">
-                          {paymentMethod === 'razorpay' ? 'Credit/Debit Card & UPI' : 'Cash on Delivery'}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="h-4 w-4 text-royal-black" />
+                          <p className="text-xs lg:text-sm text-gray-600">
+                            Credit/Debit Card & UPI (Razorpay)
+                          </p>
+                        </div>
                       </div>
 
                       <div className="flex flex-col sm:flex-row justify-between pt-4 gap-2">
@@ -742,105 +727,146 @@ const Checkout: React.FC = () => {
 
           {/* Address Dialog */}
           <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>
+            <DialogContent className="max-w-sm sm:max-w-md lg:max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+              <DialogHeader className="pb-4">
+                <DialogTitle className="text-base sm:text-lg">
                   {editingAddress ? 'Edit Address' : 'Add New Address'}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleAddressSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Type</label>
+              <form onSubmit={handleAddressSubmit} className="space-y-4 sm:space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-medium text-royal-black">Type</label>
                     <select
                       value={addressForm.type}
                       onChange={(e) => setAddressForm(prev => ({ ...prev, type: e.target.value as 'shipping' | 'billing' }))}
-                      className="w-full p-2 border rounded-md"
+                      className="w-full p-2.5 sm:p-3 border border-gray-300 rounded-md text-sm focus:border-royal-gold focus:ring-1 focus:ring-royal-gold"
                     >
                       <option value="shipping">Shipping</option>
                       <option value="billing">Billing</option>
                     </select>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">First Name</label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-medium text-royal-black">First Name</label>
                     <Input
                       value={addressForm.first_name}
                       onChange={(e) => setAddressForm(prev => ({ ...prev, first_name: e.target.value }))}
                       required
+                      className="h-9 sm:h-10 text-sm"
+                      placeholder="Enter first name"
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Last Name</label>
+
+                <div className="space-y-1.5 sm:space-y-2">
+                  <label className="text-xs sm:text-sm font-medium text-royal-black">Last Name</label>
                   <Input
                     value={addressForm.last_name}
                     onChange={(e) => setAddressForm(prev => ({ ...prev, last_name: e.target.value }))}
                     required
+                    className="h-9 sm:h-10 text-sm"
+                    placeholder="Enter last name"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Company (Optional)</label>
+
+                <div className="space-y-1.5 sm:space-y-2">
+                  <label className="text-xs sm:text-sm font-medium text-royal-black">Company (Optional)</label>
                   <Input
                     value={addressForm.company}
                     onChange={(e) => setAddressForm(prev => ({ ...prev, company: e.target.value }))}
+                    className="h-9 sm:h-10 text-sm"
+                    placeholder="Enter company name"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Address Line 1</label>
+
+                <div className="space-y-1.5 sm:space-y-2">
+                  <label className="text-xs sm:text-sm font-medium text-royal-black">Address Line 1</label>
                   <Input
                     value={addressForm.address_line_1}
                     onChange={(e) => setAddressForm(prev => ({ ...prev, address_line_1: e.target.value }))}
                     required
+                    className="h-9 sm:h-10 text-sm"
+                    placeholder="Enter street address"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Address Line 2 (Optional)</label>
+
+                <div className="space-y-1.5 sm:space-y-2">
+                  <label className="text-xs sm:text-sm font-medium text-royal-black">Address Line 2 (Optional)</label>
                   <Input
                     value={addressForm.address_line_2}
                     onChange={(e) => setAddressForm(prev => ({ ...prev, address_line_2: e.target.value }))}
+                    className="h-9 sm:h-10 text-sm"
+                    placeholder="Apartment, suite, etc."
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">City</label>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-medium text-royal-black">City</label>
                     <Input
                       value={addressForm.city}
                       onChange={(e) => setAddressForm(prev => ({ ...prev, city: e.target.value }))}
                       required
+                      className="h-9 sm:h-10 text-sm"
+                      placeholder="Enter city"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">State</label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-medium text-royal-black">State</label>
                     <Input
                       value={addressForm.state}
                       onChange={(e) => setAddressForm(prev => ({ ...prev, state: e.target.value }))}
                       required
+                      className="h-9 sm:h-10 text-sm"
+                      placeholder="Enter state"
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Postal Code</label>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-medium text-royal-black">Postal Code</label>
                     <Input
                       value={addressForm.postal_code}
                       onChange={(e) => setAddressForm(prev => ({ ...prev, postal_code: e.target.value }))}
                       required
+                      className="h-9 sm:h-10 text-sm"
+                      placeholder="Enter postal code"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Phone</label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-medium text-royal-black">Phone</label>
                     <Input
                       value={addressForm.phone}
                       onChange={(e) => setAddressForm(prev => ({ ...prev, phone: e.target.value }))}
+                      className="h-9 sm:h-10 text-sm"
+                      placeholder="Enter phone number"
                     />
                   </div>
                 </div>
-                <div className="flex justify-between">
-                  <Button type="button" variant="ghost" onClick={() => setShowAddressDialog(false)}>
+
+                <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 pt-4 border-t">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowAddressDialog(false)}
+                    className="w-full sm:w-auto h-9 sm:h-10 text-sm"
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={loading} className="btn-primary">
-                    {editingAddress ? 'Update' : 'Add'} Address
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="btn-primary w-full sm:w-auto h-9 sm:h-10 text-sm"
+                  >
+                    {loading ? (
+                      <>
+                        <LoadingSpinner size="sm" />
+                        <span className="ml-2">Saving...</span>
+                      </>
+                    ) : (
+                      `${editingAddress ? 'Update' : 'Add'} Address`
+                    )}
                   </Button>
                 </div>
               </form>

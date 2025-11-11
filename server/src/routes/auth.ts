@@ -9,13 +9,30 @@ import pool from '../config/database';
 const router = express.Router();
 
 // Google OAuth routes
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', (req, res, next) => {
+  // Capture the state parameter from the query string
+  const state = req.query.state as string || '/';
 
-router.get('/google/callback', 
+  // Store the state in the session to retrieve after OAuth callback
+  req.session.oauthState = state;
+
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    state: state // Pass state to Google OAuth
+  })(req, res, next);
+});
+
+router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/auth/login' }),
   (req, res) => {
-    // Successful authentication, redirect to client home page
-    res.redirect(`${process.env.CLIENT_URL}/`);
+    // Get the original redirect URL from session or query state
+    const redirectTo = req.session.oauthState || req.query.state || '/';
+
+    // Clean up the session state
+    delete req.session.oauthState;
+
+    // Redirect to the original intended page
+    res.redirect(`${process.env.CLIENT_URL}/auth/callback?success=true&redirect=${encodeURIComponent(redirectTo)}`);
   }
 );
 

@@ -3,9 +3,6 @@ import { useNavigate, useSearch } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import {
   Search,
-  Grid,
-  List,
-  Star,
   Heart,
   ShoppingBag,
   Package,
@@ -41,7 +38,6 @@ const SearchResults: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.q || '');
   const [, setDebouncedSearch] = useState(searchParams.q || '');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState<SearchFilters>({
     category: searchParams.category || '',
     sortBy: (searchParams.sortBy as "relevance" | "price_low" | "price_high" | "rating" | "newest") || 'relevance',
@@ -212,17 +208,17 @@ const SearchResults: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="max-w-7xl mx-auto">
 
           {/* Search Header */}
-          <motion.div className="mb-8" {...fadeInUp}>
-            <div className="text-center mb-6">
-              <h1 className="font-heading text-3xl font-bold text-royal-black mb-2">
+          <motion.div className="mb-6 lg:mb-8" {...fadeInUp}>
+            <div className="text-center mb-4 sm:mb-6">
+              <h1 className="font-heading text-xl sm:text-2xl lg:text-3xl font-bold text-royal-black mb-2">
                 {searchParams.q ? `Search Results for "${searchParams.q}"` : 'Search Products'}
               </h1>
               {products.length > 0 && (
-                <p className="text-gray-600">
+                <p className="text-sm sm:text-base text-gray-600">
                   Found {pagination.total} products
                 </p>
               )}
@@ -236,15 +232,16 @@ const SearchResults: React.FC = () => {
                   placeholder="Search for products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-3 text-lg"
+                  className="pl-10 pr-16 sm:pr-20 py-2 sm:py-3 text-sm sm:text-base lg:text-lg"
                 />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 <Button
                   type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 btn-primary"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 btn-primary text-xs sm:text-sm"
                   size="sm"
                 >
-                  Search
+                  <span className="hidden sm:inline">Search</span>
+                  <span className="sm:hidden">Go</span>
                 </Button>
               </div>
             </form>
@@ -263,37 +260,21 @@ const SearchResults: React.FC = () => {
           )}
 
           {/* Search and Filters */}
-          <motion.div 
-            className="bg-white rounded-lg shadow-sm border p-6 mb-8"
+          <motion.div
+            className="bg-white rounded-lg shadow-sm border p-3 sm:p-4 lg:p-6 mb-6 lg:mb-8"
             {...fadeInUp}
           >
-            <div className="flex flex-col lg:flex-row gap-4">
-              
-              {/* View Mode */}
-              <div className="flex items-center gap-2">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                >
-                  <Grid className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-              </div>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+
 
               <div className="flex-1" />
 
               {/* Sort */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="min-w-[160px]">
-                    Sort: {sortOptions.find(opt => opt.value === filters.sortBy)?.label}
+                  <Button variant="outline" className="min-w-[120px] sm:min-w-[160px] text-xs sm:text-sm">
+                    <span className="hidden sm:inline">Sort: </span>
+                    {sortOptions.find(opt => opt.value === filters.sortBy)?.label}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -301,6 +282,7 @@ const SearchResults: React.FC = () => {
                     <DropdownMenuItem
                       key={option.value}
                       onClick={() => handleFilterChange({ sortBy: option.value as any })}
+                      className="text-sm"
                     >
                       {option.label}
                     </DropdownMenuItem>
@@ -311,8 +293,8 @@ const SearchResults: React.FC = () => {
               {/* Mobile Filters */}
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="outline" className="lg:hidden">
-                    <SlidersHorizontal className="h-4 w-4 mr-2" />
+                  <Button variant="outline" className="lg:hidden text-xs sm:text-sm">
+                    <SlidersHorizontal className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     Filters
                   </Button>
                 </SheetTrigger>
@@ -327,11 +309,12 @@ const SearchResults: React.FC = () => {
             </div>
 
             {/* Quick filters */}
-            <div className="flex flex-wrap gap-2 mt-4">
+            <div className="flex flex-wrap gap-1 sm:gap-2 mt-3 sm:mt-4">
               <Button
                 variant={!filters.category ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleFilterChange({ category: '' })}
+                className="text-xs sm:text-sm px-2 sm:px-4"
               >
                 All Categories
               </Button>
@@ -341,6 +324,7 @@ const SearchResults: React.FC = () => {
                   variant={filters.category === category.name ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleFilterChange({ category: category.name })}
+                  className="text-xs sm:text-sm px-2 sm:px-4"
                 >
                   {category.name}
                 </Button>
@@ -350,17 +334,17 @@ const SearchResults: React.FC = () => {
 
           {/* Results Info */}
           {searchQuery && !loading && (
-            <motion.div 
-              className="flex items-center justify-between mb-6"
+            <motion.div
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 sm:mb-6"
               {...fadeInUp}
             >
-              <p className="text-gray-600">
-                {searchParams.q 
-                  ? `Showing ${products.length} of ${pagination.total} results for "${searchParams.q}"` 
+              <p className="text-sm sm:text-base text-gray-600">
+                {searchParams.q
+                  ? `Showing ${products.length} of ${pagination.total} results for "${searchParams.q}"`
                   : `Showing ${products.length} of ${pagination.total} products`}
                 {filters.category && ` in "${filters.category}"`}
               </p>
-              <div className="text-sm text-gray-500">
+              <div className="text-xs sm:text-sm text-gray-500">
                 Page {pagination.page} of {pagination.totalPages}
               </div>
             </motion.div>
@@ -417,11 +401,8 @@ const SearchResults: React.FC = () => {
 
           {/* Products Grid */}
           {!loading && products.length > 0 && (
-            <motion.div 
-              className={viewMode === 'grid' 
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-                : "space-y-4"
-              }
+            <motion.div
+              className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6 }}
@@ -433,9 +414,8 @@ const SearchResults: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <ProductCard 
+                  <ProductCard
                     product={product}
-                    viewMode={viewMode}
                     onAddToCart={handleAddToCart}
                     onAddToWishlist={handleAddToWishlist}
                     cartLoading={cartLoading}
@@ -472,105 +452,23 @@ const SearchResults: React.FC = () => {
 // Product Card Component for Search Results
 const ProductCard: React.FC<{
   product: Product;
-  viewMode: 'grid' | 'list';
   onAddToCart: (product: Product) => void;
   onAddToWishlist: (product: Product) => void;
   cartLoading: boolean;
   wishlistLoading: boolean;
   searchQuery: string;
-}> = ({ product, viewMode, onAddToCart, onAddToWishlist, cartLoading, wishlistLoading, searchQuery }) => {
+}> = ({ product, onAddToCart, onAddToWishlist, cartLoading, wishlistLoading, searchQuery }) => {
   
   // Highlight search terms in text
   const highlightText = (text: string, query: string) => {
     if (!query.trim()) return text;
-    
+
     const regex = new RegExp(`(${query})`, 'gi');
     return text.replace(regex, '<mark className="bg-yellow-200">$1</mark>');
   };
 
-  if (viewMode === 'list') {
-    return (
-      <Card className="card-elegant overflow-hidden">
-        <div className="flex">
-          <div className="flex-shrink-0 w-48">
-            <div className="aspect-[3/4] overflow-hidden rounded-md">
-              <img
-                src={product.imageUrl || product.images?.[0] || '/placeholder-product.jpg'}
-                alt={product.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = '/placeholder-product.jpg';
-                }}
-              />
-            </div>
-          </div>
-          <CardContent className="flex-1 p-6">
-            <div className="flex justify-between">
-              <div className="flex-1">
-                <h3 className="font-heading text-lg font-semibold text-royal-black mb-2">
-                  <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-royal-gold transition-colors">
-                    <span dangerouslySetInnerHTML={{ __html: highlightText(product.name, searchQuery) }} />
-                  </Link>
-                </h3>
-                <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                  <span dangerouslySetInnerHTML={{ __html: highlightText(product.description, searchQuery) }} />
-                </p>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm text-gray-600 ml-1">
-                      {product.averageRating || 0} ({product.totalReviews || 0})
-                    </span>
-                  </div>
-                  <Badge variant="secondary">{product.category || product.category_name}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {product.discount_price ? (
-                      <>
-                        <span className="text-lg font-bold text-royal-black">
-                          ₹{parseFloat(product.discount_price).toLocaleString()}
-                        </span>
-                        <span className="text-sm text-gray-500 line-through">
-                          ₹{parseFloat(product.price).toLocaleString()}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-lg font-bold text-royal-black">
-                        ₹{parseFloat(product.price).toLocaleString()}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onAddToWishlist(product)}
-                      disabled={wishlistLoading}
-                    >
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => onAddToCart(product)}
-                      disabled={cartLoading || (product.stockQuantity || product.stock_quantity) === 0}
-                      className="btn-primary"
-                    >
-                      <ShoppingBag className="h-4 w-4 mr-2" />
-                      Add to Cart
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </div>
-      </Card>
-    );
-  }
-
   return (
-    <Card className="card-elegant group hover-lift overflow-hidden p-0">
+    <Card className="card-elegant group hover-lift overflow-hidden p-0 h-full flex flex-col">
       <div className="relative">
         <div className="aspect-[3/4] overflow-hidden">
           <img
@@ -583,57 +481,51 @@ const ProductCard: React.FC<{
           />
         </div>
         {product.discount_price && (
-          <Badge className="absolute top-2 left-2 bg-red-500 text-white">
+          <Badge className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white text-xs px-1 sm:px-2 py-0.5">
             {Math.round((1 - parseFloat(product.discount_price) / parseFloat(product.price)) * 100)}% OFF
           </Badge>
         )}
         <Button
           variant="ghost"
           size="sm"
-          className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+          className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-white/80 hover:bg-white p-1.5 sm:p-2"
           onClick={() => onAddToWishlist(product)}
           disabled={wishlistLoading}
         >
-          <Heart className="h-4 w-4" />
+          <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
         </Button>
       </div>
-      
-      <CardContent className="p-4">
-        <Badge variant="secondary" className="text-xs mb-2">
+
+      <CardContent className="p-2 sm:p-3 lg:p-4 flex flex-col flex-grow">
+        <Badge variant="secondary" className="text-xs mb-2 w-fit">
           {product.category || product.category_name}
         </Badge>
-        <h3 className="font-heading text-base font-semibold text-royal-black mb-2 line-clamp-2">
+        <h3 className="font-heading text-xs sm:text-sm lg:text-base font-semibold text-royal-black mb-2 line-clamp-2 flex-grow">
           <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-royal-gold transition-colors">
             <span dangerouslySetInnerHTML={{ __html: highlightText(product.name, searchQuery) }} />
           </Link>
         </h3>
-        
-        <div className="flex items-center gap-1 mb-2">
-          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-          <span className="text-sm text-gray-600">
-            {product.averageRating || 0} ({product.totalReviews || 0})
-          </span>
-        </div>
 
-        <div className="flex items-center justify-between mb-3">
+
+        <div className="flex items-center gap-1 sm:gap-2 mb-3">
           {product.discount_price ? (
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-bold text-royal-black">
+            <>
+              <span className="text-sm sm:text-base lg:text-lg font-bold text-royal-black">
                 ₹{parseFloat(product.discount_price).toLocaleString()}
               </span>
-              <span className="text-sm text-gray-500 line-through">
+              <span className="text-xs sm:text-sm text-gray-500 line-through">
                 ₹{parseFloat(product.price).toLocaleString()}
               </span>
-            </div>
+            </>
           ) : (
-            <span className="text-lg font-bold text-royal-black">
+            <span className="text-sm sm:text-base lg:text-lg font-bold text-royal-black">
               ₹{parseFloat(product.price).toLocaleString()}
             </span>
           )}
         </div>
 
         <Button
-          className="w-full btn-primary"
+          className="w-full btn-primary text-xs sm:text-sm mt-auto"
           size="sm"
           onClick={() => onAddToCart(product)}
           disabled={cartLoading || (product.stockQuantity || product.stock_quantity) === 0}
@@ -642,8 +534,9 @@ const ProductCard: React.FC<{
             'Out of Stock'
           ) : (
             <>
-              <ShoppingBag className="h-4 w-4 mr-2" />
-              Add to Cart
+              <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Add to Cart</span>
+              <span className="sm:hidden">Add</span>
             </>
           )}
         </Button>

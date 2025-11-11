@@ -97,40 +97,40 @@ const ForgotPassword: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        <div className="w-full max-w-sm sm:max-w-md">
           <motion.div {...fadeInUp}>
             {/* Header */}
         
             <Card className="card-elegant text-center">
-              <CardContent className="pt-8 pb-8">
-                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
-                
-                <h1 className="font-heading text-2xl font-bold text-royal-black mb-4">
+              <CardContent className="pt-6 sm:pt-8 pb-6 sm:pb-8">
+                <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-green-500 mx-auto mb-4 sm:mb-6" />
+
+                <h1 className="font-heading text-xl sm:text-2xl font-bold text-royal-black mb-3 sm:mb-4">
                   Check Your Email
                 </h1>
-                
-                <p className="text-gray-600 mb-2">
+
+                <p className="text-gray-600 mb-2 text-sm sm:text-base">
                   We've sent password reset instructions to:
                 </p>
-                <p className="font-medium text-royal-black mb-6">
+                <p className="font-medium text-royal-black mb-4 sm:mb-6 text-sm sm:text-base break-words">
                   {email}
                 </p>
-                
-                <p className="text-sm text-gray-500 mb-8">
+
+                <p className="text-xs sm:text-sm text-gray-500 mb-6 sm:mb-8">
                   Didn't receive the email? Check your spam folder or click below to resend.
                 </p>
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <Button
                     onClick={handleResend}
                     variant="outline"
-                    className="w-full border-gray-200 hover:border-royal-gold hover:bg-gray-50 disabled:opacity-50"
+                    className="w-full border-gray-200 hover:border-royal-gold hover:bg-gray-50 disabled:opacity-50 h-10 sm:h-12 text-sm sm:text-base"
                     disabled={isLoading || !canResend}
                   >
                     {isLoading ? (
                       <>
-                        <div className="spinner w-4 h-4 mr-2"></div>
+                        <div className="spinner w-3 h-3 sm:w-4 sm:h-4 mr-2"></div>
                         Resending...
                       </>
                     ) : !canResend ? (
@@ -141,8 +141,8 @@ const ForgotPassword: React.FC = () => {
                   </Button>
 
                   <Link to="/auth/login" search={{ redirect: '/' }}>
-                    <Button variant="ghost" className="w-full text-royal-gold hover:text-royal-black">
-                      <ArrowLeft className="mr-2 h-4 w-4" />
+                    <Button variant="ghost" className="w-full text-royal-gold hover:text-royal-black h-10 sm:h-12 text-sm sm:text-base">
+                      <ArrowLeft className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       Back to Login
                     </Button>
                   </Link>
@@ -156,25 +156,25 @@ const ForgotPassword: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-sm sm:max-w-md">
         <motion.div {...fadeInUp}>
           {/* Header */}
 
           {/* Forgot Password Card */}
           <Card className="card-elegant">
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="font-heading text-xl text-royal-black">Reset Password</CardTitle>
+            <CardHeader className="text-center pb-3 sm:pb-4">
+              <CardTitle className="font-heading text-lg sm:text-xl lg:text-2xl text-royal-black">Reset Password</CardTitle>
             </CardHeader>
-            
+
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-royal-black mb-2">
+                  <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-royal-black mb-1.5 sm:mb-2">
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Mail className="absolute left-3 top-2.5 sm:top-3 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                     <Input
                       id="email"
                       type="email"
@@ -183,43 +183,43 @@ const ForgotPassword: React.FC = () => {
                         setEmail(e.target.value);
                         setErrors('');
                       }}
-                      className={`pl-10 h-12 ${errors ? 'border-red-500 focus:border-red-500' : ''}`}
+                      className={`pl-9 sm:pl-10 h-10 sm:h-12 text-sm sm:text-base ${errors ? 'border-red-500 focus:border-red-500' : ''}`}
                       placeholder="Enter your email address"
                       disabled={isLoading}
                     />
                   </div>
                   {errors && (
-                    <p className="text-red-500 text-sm mt-2">{errors}</p>
+                    <p className="text-red-500 text-xs sm:text-sm mt-2">{errors}</p>
                   )}
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full btn-primary h-12 group"
+                  className="w-full btn-primary h-10 sm:h-12 group text-sm sm:text-base"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <>
-                      <div className="spinner w-5 h-5 mr-2"></div>
+                      <div className="spinner w-4 h-4 sm:w-5 sm:h-5 mr-2"></div>
                       Sending Instructions...
                     </>
                   ) : (
                     <>
                       Send Reset Instructions
-                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
                 </Button>
               </form>
 
               {/* Back to Login */}
-              <div className="text-center mt-6 pt-6 border-t border-gray-200">
+              <div className="text-center mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
                 <Link
                   to="/auth/login"
                   search={{ redirect: '/' }}
-                  className="inline-flex items-center text-royal-gold hover:text-royal-black font-medium transition-colors"
+                  className="inline-flex items-center text-royal-gold hover:text-royal-black font-medium transition-colors text-sm sm:text-base"
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <ArrowLeft className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                   Back to Login
                 </Link>
               </div>
@@ -227,8 +227,8 @@ const ForgotPassword: React.FC = () => {
           </Card>
 
           {/* Help Text */}
-          <div className="text-center mt-8">
-            <p className="text-sm text-gray-500">
+          <div className="text-center mt-6 sm:mt-8">
+            <p className="text-xs sm:text-sm text-gray-500">
               Remember your password?{' '}
               <Link to="/auth/login" search={{ redirect: '/' }} className="text-royal-gold hover:text-royal-black transition-colors">
                 Sign in here

@@ -229,48 +229,50 @@ const OrderHistory: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="max-w-6xl mx-auto">
-          
+
           {/* Header */}
-          <motion.div 
-            className="flex items-center gap-4 mb-8"
+          <motion.div
+            className="flex items-center gap-4 mb-6 lg:mb-8"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="flex-1">
-              <h1 className="font-heading text-3xl font-bold text-royal-black">
+              <h1 className="font-heading text-xl sm:text-2xl lg:text-3xl font-bold text-royal-black">
                 Order History
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-600 mt-1 text-sm sm:text-base">
                 Track and manage your orders
               </p>
             </div>
           </motion.div>
 
           {/* Search and Filters */}
-          <motion.div 
-            className="mb-6 flex flex-col sm:flex-row gap-4"
+          <motion.div
+            className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4"
             {...fadeInUp}
           >
             <div className="flex-1 relative">
-              <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Search className="h-3 w-3 sm:h-4 sm:w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input
                 placeholder="Search by order number or product name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-9 sm:pl-10 text-sm sm:text-base"
               />
             </div>
-            
-            {/* Sort By Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Filter className="h-4 w-4" />
-                  Sort: {sortBy === 'created_at' ? 'Date' : sortBy === 'total_amount' ? 'Amount' : sortBy === 'status' ? 'Status' : 'Date'} ({sortOrder === 'DESC' ? '↓' : '↑'})
-                </Button>
-              </DropdownMenuTrigger>
+
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+              {/* Sort By Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2 text-xs sm:text-sm">
+                    <Filter className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">Sort:</span>
+                    {sortBy === 'created_at' ? 'Date' : sortBy === 'total_amount' ? 'Amount' : sortBy === 'status' ? 'Status' : 'Date'} ({sortOrder === 'DESC' ? '↓' : '↑'})
+                  </Button>
+                </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => { setSortBy('created_at'); setSortOrder('DESC'); }}>
                   Date (Newest First)
@@ -299,14 +301,15 @@ const OrderHistory: React.FC = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Status Filter Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Filter className="h-4 w-4" />
-                  Status: {statusFilter === 'all' ? 'All' : statusFilter}
-                </Button>
-              </DropdownMenuTrigger>
+              {/* Status Filter Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2 text-xs sm:text-sm">
+                    <Filter className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">Status:</span>
+                    {statusFilter === 'all' ? 'All' : statusFilter}
+                  </Button>
+                </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => setStatusFilter('all')}>
                   All Orders
@@ -327,7 +330,8 @@ const OrderHistory: React.FC = () => {
                   Cancelled
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+              </DropdownMenu>
+            </div>
           </motion.div>
 
           {/* Loading */}
@@ -376,7 +380,7 @@ const OrderHistory: React.FC = () => {
           {/* Orders List */}
           {!loading && filteredOrders.length > 0 && (
             <>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {filteredOrders.map((order, index) => {
                   const statusConfig = getStatusConfig(order.status);
                   const StatusIcon = statusConfig.icon;
@@ -389,107 +393,107 @@ const OrderHistory: React.FC = () => {
                       transition={{ delay: index * 0.1 }}
                     >
                       <Card className="card-elegant hover:shadow-md transition-shadow">
-                        <CardContent className="p-6">
-                          <div className="flex flex-col lg:flex-row gap-6">
+                        <CardContent className="p-3 sm:p-4 lg:p-6">
+                          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
                             
                             {/* Order Info */}
                             <div className="flex-1">
-                              <div className="flex items-center justify-between mb-4">
-                                <div>
-                                  <h3 className="font-heading text-lg font-semibold text-royal-black">
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-heading text-sm sm:text-base lg:text-lg font-semibold text-royal-black truncate">
                                     Order #{order.orderNumber}
                                   </h3>
-                                  <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-gray-600 mt-1">
                                     <div className="flex items-center gap-1">
-                                      <Calendar className="h-3 w-3" />
-                                      {formatDate(order.createdAt)}
+                                      <Calendar className="h-3 w-3 flex-shrink-0" />
+                                      <span>{formatDate(order.createdAt)}</span>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                      <CreditCard className="h-3 w-3" />
-                                      ₹{order.totalAmount.toLocaleString()}
+                                      <CreditCard className="h-3 w-3 flex-shrink-0" />
+                                      <span>₹{order.totalAmount.toLocaleString()}</span>
                                     </div>
                                   </div>
                                   
                                   {/* Payment, Shipping and Refund Status */}
-                                  <div className="flex flex-wrap items-center gap-2 mt-2">
-                                    <Badge 
-                                      className={order.paymentStatus === 'paid' 
-                                        ? 'bg-green-100 text-green-800' 
-                                        : order.paymentStatus === 'failed' 
+                                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-2">
+                                    <Badge
+                                      className={`text-xs ${order.paymentStatus === 'paid'
+                                        ? 'bg-green-100 text-green-800'
+                                        : order.paymentStatus === 'failed'
                                         ? 'bg-red-100 text-red-800'
                                         : 'bg-yellow-100 text-yellow-800'
-                                      }
+                                      }`}
                                     >
                                       Payment: {order.paymentStatus}
                                     </Badge>
                                     
                                     {/* Shipping Status */}
                                     {order.shippingStatus && (
-                                      <Badge className={getShippingStatusConfig(order.shippingStatus).color}>
+                                      <Badge className={`text-xs ${getShippingStatusConfig(order.shippingStatus).color}`}>
                                         <Truck className="h-3 w-3 mr-1" />
                                         {getShippingStatusConfig(order.shippingStatus).text}
                                       </Badge>
                                     )}
-                                    
+
                                     {/* Courier Info */}
                                     {order.courierName && (
-                                      <Badge className="bg-blue-100 text-blue-800">
+                                      <Badge className="bg-blue-100 text-blue-800 text-xs">
                                         📦 {order.courierName}
                                       </Badge>
                                     )}
                                     
                                     {/* Refund Status */}
                                     {order.status === 'cancelled' && order.refundStatus && order.refundStatus !== 'none' && (
-                                      <Badge 
-                                        className={order.refundStatus === 'completed' 
-                                          ? 'bg-green-100 text-green-800' 
-                                          : order.refundStatus === 'pending' 
+                                      <Badge
+                                        className={`text-xs ${order.refundStatus === 'completed'
+                                          ? 'bg-green-100 text-green-800'
+                                          : order.refundStatus === 'pending'
                                           ? 'bg-yellow-100 text-yellow-800'
                                           : order.refundStatus === 'failed'
                                           ? 'bg-red-100 text-red-800'
                                           : 'bg-blue-100 text-blue-800'
-                                        }
+                                        }`}
                                       >
                                         Refund: {order.refundStatus}
                                       </Badge>
                                     )}
                                   </div>
                                 </div>
-                                <Badge className={statusConfig.color}>
+                                <Badge className={`${statusConfig.color} text-xs self-start sm:self-center`}>
                                   <StatusIcon className="h-3 w-3 mr-1" />
                                   {order.status}
                                 </Badge>
                               </div>
 
                               {/* Order Items Preview */}
-                              <div className="mb-4">
-                                <h4 className="text-sm font-medium text-gray-700 mb-2">
+                              <div className="mb-3 sm:mb-4">
+                                <h4 className="text-xs sm:text-sm font-medium text-gray-700 mb-2">
                                   Items ({order.items.length})
                                 </h4>
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-1 sm:gap-2">
                                   {order.items.slice(0, 3).map((item) => (
-                                    <div key={item.id} className="flex items-center gap-2 text-xs bg-gray-50 px-2 py-1 rounded">
+                                    <div key={item.id} className="flex items-center gap-1 sm:gap-2 text-xs bg-gray-50 px-1.5 sm:px-2 py-1 rounded">
                                       <img
-                                        src={item.product.images?.[0] 
+                                        src={item.product.images?.[0]
                                           ? getImageUrl(item.product.images[0], 'thumb')
                                           : item.product.imageUrl || '/placeholder-product.jpg'
                                         }
                                         alt={item.product.name}
-                                        className="w-6 h-6 object-cover rounded"
+                                        className="w-5 h-5 sm:w-6 sm:h-6 object-cover rounded"
                                         onError={(e) => {
                                           e.currentTarget.src = '/placeholder-product.jpg';
                                         }}
                                       />
-                                      <span className="truncate max-w-24">
+                                      <span className="truncate max-w-16 sm:max-w-24 text-xs">
                                         {item.product.name}
                                       </span>
-                                      <span className="text-gray-500">
+                                      <span className="text-gray-500 text-xs flex-shrink-0">
                                         ×{item.quantity}
                                       </span>
                                     </div>
                                   ))}
                                   {order.items.length > 3 && (
-                                    <span className="text-xs text-gray-500 px-2 py-1">
+                                    <span className="text-xs text-gray-500 px-1.5 sm:px-2 py-1">
                                       +{order.items.length - 3} more
                                     </span>
                                   )}
@@ -498,12 +502,12 @@ const OrderHistory: React.FC = () => {
 
                               {/* Shipping Address */}
                               {order.shippingAddress && (
-                                <div className="text-sm text-gray-600">
+                                <div className="text-xs sm:text-sm text-gray-600">
                                   <div className="flex items-center gap-1 mb-1">
-                                    <MapPin className="h-3 w-3" />
+                                    <MapPin className="h-3 w-3 flex-shrink-0" />
                                     <span className="font-medium">Shipping to:</span>
                                   </div>
-                                  <p className="text-xs ml-4">
+                                  <p className="text-xs ml-4 line-clamp-2">
                                     {order.shippingAddress.first_name} {order.shippingAddress.last_name}, {order.shippingAddress.address_line_1}, {order.shippingAddress.city}
                                   </p>
                                 </div>
@@ -511,35 +515,36 @@ const OrderHistory: React.FC = () => {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex flex-row lg:flex-col gap-2">
+                            <div className="flex flex-col sm:flex-row lg:flex-col gap-2 mt-3 lg:mt-0 min-h-0">
                               <Dialog>
                                 <DialogTrigger asChild>
                                   <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setSelectedOrder(order)}
-                                    className="flex-1 lg:flex-none"
+                                    className="flex-1 lg:flex-none text-xs sm:text-sm py-3 sm:py-2"
                                   >
-                                    <Eye className="h-4 w-4 mr-2" />
-                                    View Details
+                                    <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                                    <span className="hidden sm:inline">View Details</span>
+                                    <span className="sm:hidden">Details</span>
                                   </Button>
                                 </DialogTrigger>
-                                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                                <DialogContent className="max-w-sm sm:max-w-2xl max-h-[80vh] overflow-y-auto mx-4">
                                   <DialogHeader>
-                                    <DialogTitle>Order Details</DialogTitle>
+                                    <DialogTitle className="text-base sm:text-lg">Order Details</DialogTitle>
                                   </DialogHeader>
                                   {selectedOrder && (
-                                    <div className="space-y-4">
+                                    <div className="space-y-3 sm:space-y-4">
                                       {/* Order Summary */}
-                                      <div className="border-b pb-4">
-                                        <div className="flex justify-between items-start mb-2">
-                                          <div>
-                                            <h3 className="font-semibold">Order #{selectedOrder.orderNumber}</h3>
-                                            <p className="text-sm text-gray-600">
+                                      <div className="border-b pb-3 sm:pb-4">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0 mb-2">
+                                          <div className="flex-1 min-w-0">
+                                            <h3 className="font-semibold text-sm sm:text-base truncate">Order #{selectedOrder.orderNumber}</h3>
+                                            <p className="text-xs sm:text-sm text-gray-600">
                                               Placed on {formatDate(selectedOrder.createdAt)}
                                             </p>
                                           </div>
-                                          <Badge className={getStatusConfig(selectedOrder.status).color}>
+                                          <Badge className={`${getStatusConfig(selectedOrder.status).color} text-xs self-start sm:self-center flex-shrink-0`}>
                                             {selectedOrder.status}
                                           </Badge>
                                         </div>
@@ -547,26 +552,26 @@ const OrderHistory: React.FC = () => {
 
                                       {/* Items */}
                                       <div>
-                                        <h4 className="font-medium mb-3">Items</h4>
+                                        <h4 className="font-medium mb-2 sm:mb-3 text-sm sm:text-base">Items</h4>
                                         <div className="space-y-2">
                                           {selectedOrder.items.map((item) => (
-                                            <div key={item.id} className="flex items-center gap-3 p-2 border rounded">
+                                            <div key={item.id} className="flex items-center gap-2 sm:gap-3 p-2 border rounded">
                                               <img
                                                 src={item.product.imageUrl}
                                                 alt={item.product.name}
-                                                className="w-12 h-12 object-cover rounded"
+                                                className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded flex-shrink-0"
                                                 onError={(e) => {
                                                   e.currentTarget.src = '/placeholder-product.jpg';
                                                 }}
                                               />
-                                              <div className="flex-1">
-                                                <p className="font-medium text-sm">{item.product.name}</p>
+                                              <div className="flex-1 min-w-0">
+                                                <p className="font-medium text-xs sm:text-sm line-clamp-2">{item.product.name}</p>
                                                 <p className="text-xs text-gray-600">
-                                                  Quantity: {item.quantity} × ₹{item.priceAtTime}
+                                                  Qty: {item.quantity} × ₹{item.priceAtTime}
                                                 </p>
                                               </div>
-                                              <div className="text-right">
-                                                <p className="font-medium">
+                                              <div className="text-right flex-shrink-0">
+                                                <p className="font-medium text-xs sm:text-sm">
                                                   ₹{(item.quantity * item.priceAtTime).toLocaleString()}
                                                 </p>
                                               </div>
@@ -576,8 +581,8 @@ const OrderHistory: React.FC = () => {
                                       </div>
 
                                       {/* Order Total */}
-                                      <div className="border-t pt-4">
-                                        <div className="flex justify-between items-center font-bold text-lg">
+                                      <div className="border-t pt-3 sm:pt-4">
+                                        <div className="flex justify-between items-center font-bold text-base sm:text-lg">
                                           <span>Total</span>
                                           <span>₹{selectedOrder.totalAmount.toLocaleString()}</span>
                                         </div>
@@ -594,14 +599,14 @@ const OrderHistory: React.FC = () => {
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      className="flex-1 lg:flex-none"
+                                      className="flex-1 lg:flex-none text-xs sm:text-sm py-3 sm:py-2"
                                       onClick={() => handleTrackOrder(order)}
                                     >
-                                      <MapIcon className="h-4 w-4 mr-2" />
+                                      <MapIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                                       Track
                                     </Button>
                                   </DialogTrigger>
-                                  <DialogContent className="max-w-md">
+                                  <DialogContent className="max-w-sm sm:max-w-md mx-4">
                                     <DialogHeader>
                                       <DialogTitle>Order Tracking</DialogTitle>
                                     </DialogHeader>
@@ -711,14 +716,14 @@ const OrderHistory: React.FC = () => {
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      className="flex-1 lg:flex-none text-red-600 hover:text-red-700 hover:bg-red-50"
+                                      className="flex-1 lg:flex-none text-red-600 hover:text-red-700 hover:bg-red-50 text-xs sm:text-sm py-3 sm:py-2"
                                       onClick={() => setCancelOrder(order)}
                                     >
-                                      <Ban className="h-4 w-4 mr-2" />
+                                      <Ban className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                                       Cancel
                                     </Button>
                                   </DialogTrigger>
-                                  <DialogContent className="max-w-md">
+                                  <DialogContent className="max-w-sm sm:max-w-md mx-4">
                                     <DialogHeader>
                                       <DialogTitle>Cancel Order</DialogTitle>
                                     </DialogHeader>
@@ -793,11 +798,12 @@ const OrderHistory: React.FC = () => {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="flex-1 lg:flex-none"
+                                  className="flex-1 lg:flex-none text-xs sm:text-sm py-3 sm:py-2"
                                   onClick={() => toast.success('Invoice download feature coming soon!')}
                                 >
-                                  <Download className="h-4 w-4 mr-2" />
-                                  Invoice
+                                  <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                                  <span className="hidden sm:inline">Invoice</span>
+                                  <span className="sm:hidden">PDF</span>
                                 </Button>
                               )}
                             </div>

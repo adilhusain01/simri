@@ -5,9 +5,6 @@ import {
   Heart,
   ShoppingBag,
   Trash2,
-  Grid,
-  List,
-  Star,
   Package,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -48,7 +45,6 @@ const Wishlist: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
 
   // State
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
@@ -193,28 +189,6 @@ const Wishlist: React.FC = () => {
               </p>
             </div>
 
-            {wishlist?.items && wishlist.items.length > 0 && (
-              <div className="flex items-center gap-2 self-start sm:self-auto">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                  className="text-xs sm:text-sm"
-                >
-                  <Grid className="h-4 w-4" />
-                  <span className="ml-1 sm:hidden">Grid</span>
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className="text-xs sm:text-sm"
-                >
-                  <List className="h-4 w-4" />
-                  <span className="ml-1 sm:hidden">List</span>
-                </Button>
-              </div>
-            )}
           </motion.div>
 
           {/* Empty Wishlist */}
@@ -310,10 +284,7 @@ const Wishlist: React.FC = () => {
 
               {/* Items Grid/List */}
               <motion.div
-                className={viewMode === 'grid'
-                  ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6"
-                  : "space-y-3 lg:space-y-4"
-                }
+                className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6 }}
@@ -325,9 +296,8 @@ const Wishlist: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <WishlistItemCard 
+                    <WishlistItemCard
                       item={item}
-                      viewMode={viewMode}
                       isSelected={selectedItems.has(item.id)}
                       onSelect={() => handleSelectItem(item.id)}
                       onRemove={() => handleRemoveItem(item)}
@@ -348,109 +318,13 @@ const Wishlist: React.FC = () => {
 // Wishlist Item Card Component
 const WishlistItemCard: React.FC<{
   item: WishlistItem;
-  viewMode: 'grid' | 'list';
   isSelected: boolean;
   onSelect: () => void;
   onRemove: () => void;
   onAddToCart: () => void;
   onMoveToCart: () => void;
-}> = ({ item, viewMode, isSelected, onSelect, onRemove, onAddToCart, onMoveToCart }) => {
+}> = ({ item, isSelected, onSelect, onRemove, onAddToCart, onMoveToCart }) => {
   const { product } = item;
-
-  if (viewMode === 'list') {
-    return (
-      <Card className="card-elegant overflow-hidden">
-        <div className="flex">
-          <div className="flex-shrink-0 w-4 flex items-center justify-center">
-            <input
-              type="checkbox"
-              checked={isSelected}
-              onChange={onSelect}
-              className="w-4 h-4 text-royal-gold border-gray-300 rounded focus:ring-royal-gold"
-            />
-          </div>
-          <div className="flex-shrink-0 w-48 ml-4">
-            <div className="aspect-[3/4] overflow-hidden rounded-md">
-              <img
-                src={(product.images && product.images.length > 0)
-                  ? getImageUrl(product.images[0], 'medium')
-                  : product.imageUrl || '/placeholder-product.jpg'}
-                alt={product.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = '/placeholder-product.jpg';
-                }}
-              />
-            </div>
-          </div>
-          <CardContent className="flex-1 p-6">
-            <div className="flex justify-between h-full">
-              <div className="flex-1">
-                <h3 className="font-heading text-lg font-semibold text-royal-black mb-2">
-                  {product.name}
-                </h3>
-                <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                  {product.description}
-                </p>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm text-gray-600 ml-1">
-                      {product.averageRating || 'N/A'} ({product.totalReviews || 0})
-                    </span>
-                  </div>
-                  <Badge variant="secondary">{product.category_name}</Badge>
-                </div>
-                <div className="flex items-center gap-2 mb-4">
-                  {product.discount_price ? (
-                    <>
-                      <span className="text-lg font-bold text-royal-black">
-                        ₹{parseFloat(product.discount_price).toLocaleString()}
-                      </span>
-                      <span className="text-sm text-gray-500 line-through">
-                        ₹{parseFloat(product.price).toLocaleString()}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-lg font-bold text-royal-black">
-                      ₹{parseFloat(product.price).toLocaleString()}
-                    </span>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    onClick={onMoveToCart}
-                    disabled={product.stock_quantity === 0}
-                    className="btn-primary"
-                  >
-                    <ShoppingBag className="h-4 w-4 mr-2" />
-                    Move to Cart
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={onAddToCart}
-                    disabled={product.stock_quantity === 0}
-                  >
-                    Add to Cart
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onRemove}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </div>
-      </Card>
-    );
-  }
 
   return (
     <Card className="card-elegant group hover-lift overflow-hidden relative p-0 h-full flex flex-col">
