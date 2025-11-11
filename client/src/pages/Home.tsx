@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
-import { 
-  Gift, 
-  Star, 
-  ShoppingBag, 
-  Truck, 
-  Shield, 
+import {
+  Gift,
+  Star,
+  ShoppingBag,
+  Truck,
+  Shield,
   RefreshCw,
   ArrowRight,
   Heart,
@@ -14,14 +14,126 @@ import {
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
 import { useAuthStore } from '../stores/authStore';
+import { useCartStore } from '../stores/cartStore';
+import { useWishlistStore } from '../stores/wishlistStore';
 import { productService } from '../services/api';
-import type { Category } from '../types';
+import type { Category, Product } from '../types';
+import { toast } from 'sonner';
+
+// Helper function to extract image URL from Cloudinary object or use string directly
+const getImageUrl = (imageData: any, size: 'thumb' | 'medium' | 'large' | 'original' = 'medium') => {
+  if (typeof imageData === 'string') {
+    return imageData; // Legacy string format
+  }
+  if (typeof imageData === 'object' && imageData) {
+    return imageData[size] || imageData.original || imageData.large || imageData.medium || imageData.thumb;
+  }
+  return '/placeholder-product.jpg';
+};
+
+// Product Card Component
+const ProductCard: React.FC<{
+  product: Product;
+  onAddToCart: (product: Product) => void;
+  onAddToWishlist: (product: Product) => void;
+  cartLoading: boolean;
+  wishlistLoading: boolean;
+}> = ({ product, onAddToCart, onAddToWishlist, cartLoading, wishlistLoading }) => {
+  return (
+    <Card className="card-elegant group hover-lift overflow-hidden p-0 h-full flex flex-col">
+      <div className="relative overflow-hidden">
+        <div className="aspect-[3/4]">
+          <img
+            src={product.images?.[0] ? getImageUrl(product.images[0], 'medium') : '/placeholder-product.jpg'}
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder-product.jpg';
+            }}
+          />
+        </div>
+        {product.discount_price && (
+          <Badge className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white text-xs px-1 sm:px-2 py-0.5">
+            {Math.round((1 - parseFloat(product.discount_price) / parseFloat(product.price)) * 100)}% OFF
+          </Badge>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-white/80 hover:bg-white p-1.5 sm:p-2"
+          onClick={() => onAddToWishlist(product)}
+          disabled={wishlistLoading}
+        >
+          <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
+        </Button>
+      </div>
+
+      <CardContent className="p-2 sm:p-3 lg:p-4 flex flex-col flex-grow">
+        <Badge variant="secondary" className="text-xs mb-2 w-fit">
+          {product.category_name}
+        </Badge>
+        <h3 className="font-heading text-xs sm:text-sm lg:text-base font-semibold text-royal-black mb-2 line-clamp-2 flex-grow">
+          <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-royal-gold transition-colors">
+            {product.name}
+          </Link>
+        </h3>
+
+        {(product.averageRating || product.totalReviews) && (
+          <div className="flex items-center gap-1 mb-2">
+            <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
+            <span className="text-xs sm:text-sm text-gray-600">
+              {product.averageRating || 'N/A'} ({product.totalReviews || 0})
+            </span>
+          </div>
+        )}
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 sm:mb-3 space-y-2 sm:space-y-0">
+          {product.discount_price ? (
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="text-sm sm:text-base lg:text-lg font-bold text-royal-black">
+                ₹{product.discount_price}
+              </span>
+              <span className="text-xs sm:text-sm text-gray-500 line-through">
+                ₹{product.price}
+              </span>
+            </div>
+          ) : (
+            <span className="text-sm sm:text-base lg:text-lg font-bold text-royal-black">
+              ₹{product.price}
+            </span>
+          )}
+        </div>
+
+        <Button
+          className="w-full btn-primary text-xs sm:text-sm mt-auto"
+          size="sm"
+          onClick={() => onAddToCart(product)}
+          disabled={cartLoading || product.stock_quantity === 0}
+        >
+          {product.stock_quantity === 0 ? (
+            <span className="text-xs sm:text-sm">Out of Stock</span>
+          ) : (
+            <>
+              <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="text-xs sm:text-sm">Add to Cart</span>
+            </>
+          )}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
 
 const Home: React.FC = () => {
   const { user, isAuthenticated } = useAuthStore();
+  const { addItem: addToCart, isLoading: cartLoading } = useCartStore();
+  const { addItem: addToWishlist, isLoading: wishlistLoading } = useWishlistStore();
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
 
 
   // Fetch categories on mount
@@ -45,6 +157,47 @@ const Home: React.FC = () => {
 
     loadCategories();
   }, []); // Empty dependency array to prevent re-runs
+
+  // Fetch featured products
+  useEffect(() => {
+    const loadFeaturedProducts = async () => {
+      try {
+        setProductsLoading(true);
+        const products = await productService.getFeaturedProducts(8);
+        setFeaturedProducts(products);
+      } catch (error) {
+        console.error('Failed to load featured products:', error);
+        setFeaturedProducts([]);
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+
+    loadFeaturedProducts();
+  }, []);
+
+  // Product card handlers
+  const handleAddToCart = async (product: Product) => {
+    try {
+      await addToCart({ productId: product.id, quantity: 1 });
+      toast.success(`${product.name} added to cart!`);
+    } catch (error) {
+      toast.error('Failed to add to cart');
+    }
+  };
+
+  const handleAddToWishlist = async (product: Product) => {
+    if (!isAuthenticated) {
+      toast.error('Please login to add items to wishlist');
+      return;
+    }
+    try {
+      await addToWishlist(product.id);
+      toast.success(`${product.name} added to wishlist!`);
+    } catch (error) {
+      toast.error('Failed to add to wishlist');
+    }
+  };
 
 
   // Function to get fallback icon and color for category
@@ -139,7 +292,76 @@ const Home: React.FC = () => {
           <div className="absolute bottom-20 left-1/4 w-12 h-12 border border-royal-black rounded-full"></div>
         </div>
 
-        <div className="relative container mx-auto px-6 sm:px-8 lg:px-8 py-16 sm:py-20 lg:py-32">
+        {/* Quick Categories Strip - Mobile Only */}
+        <div className="relative z-10 py-4 sm:py-6 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 md:hidden">
+          <div className="container mx-auto px-6 sm:px-8 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="flex overflow-x-auto scrollbar-thin gap-3 sm:gap-4 md:gap-6 lg:justify-center xl:justify-between pb-2 lg:px-4 xl:px-8">
+                {categoriesLoading ? (
+                  // Loading skeleton
+                  Array.from({ length: 8 }).map((_, index) => (
+                    <div key={index} className="flex-shrink-0 text-center">
+                      <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-18 lg:h-18 bg-gray-200 rounded-full mx-auto mb-2 animate-pulse" />
+                      <div className="h-2 w-12 sm:w-14 bg-gray-200 rounded mx-auto animate-pulse" />
+                    </div>
+                  ))
+                ) : categories.length === 0 ? (
+                  <div className="w-full text-center py-4">
+                    <p className="text-royal-black/60 text-sm">Categories coming soon...</p>
+                  </div>
+                ) : (
+                  categories.map((category, index) => {
+                    const { icon } = getCategoryDisplay(category, index);
+                    return (
+                      <motion.div
+                        key={category.id}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.4, delay: 0.1 * index }}
+                        className="flex-shrink-0 text-center group"
+                      >
+                        <Link to="/products" search={{
+                          category: category.name,
+                          q: '',
+                          sortBy: 'relevance',
+                          minPrice: undefined,
+                          maxPrice: undefined,
+                          inStock: false,
+                          featured: false
+                        }}>
+                          <div className="cursor-pointer transition-all duration-300 hover:scale-110">
+                            <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-18 lg:h-18 rounded-full mx-auto mb-2 overflow-hidden shadow-md group-hover:shadow-xl transition-all duration-300 border-2 border-gray-200 group-hover:border-royal-gold">
+                              {category.image_url ? (
+                                <img
+                                  src={category.image_url}
+                                  alt={category.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-royal-gold to-yellow-400 flex items-center justify-center text-2xl sm:text-3xl md:text-4xl lg:text-3xl transform group-hover:scale-110 transition-transform duration-300">
+                                  {icon}
+                                </div>
+                              )}
+                            </div>
+                            <h3 className="font-medium text-royal-black text-xs sm:text-sm leading-tight max-w-[85px] mx-auto group-hover:text-royal-gold transition-colors duration-300">
+                              {category.name}
+                            </h3>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    );
+                  })
+                )}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        <div className="relative container mx-auto px-6 sm:px-8 lg:px-8 py-12 sm:py-16 lg:py-24">
           <motion.div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
             {/* Hero Content */}
@@ -248,8 +470,9 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+
+      {/* Categories Section - Desktop/Tablet Only */}
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50 hidden md:block">
         <div className="container mx-auto px-6 sm:px-8 lg:px-8">
           <motion.div
             variants={stagger}
@@ -261,16 +484,13 @@ const Home: React.FC = () => {
             <motion.h2 variants={fadeInUp} className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-royal-black mb-4 sm:mb-6">
               Perfect Gifts for Every Occasion
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-base sm:text-lg lg:text-xl text-gray-800 max-w-2xl mx-auto leading-relaxed">
-              From birthdays to celebrations, find the ideal gift that matches the moment and creates lasting memories.
-            </motion.p>
           </motion.div>
 
           <motion.div
             variants={stagger}
             initial="initial"
             animate="animate"
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6"
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-6"
           >
             {categoriesLoading ? (
               // Loading skeleton
@@ -303,26 +523,25 @@ const Home: React.FC = () => {
                       inStock: false,
                       featured: false
                     }}>
-                      <Card className="card-elegant text-center p-3 sm:p-4 lg:p-6 hover:scale-105 hover:shadow-lg transition-all duration-300 cursor-pointer">
-                        <CardContent className="pt-3 sm:pt-4 lg:pt-6">
-                          <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full mx-auto mb-2 sm:mb-3 lg:mb-4 overflow-hidden">
-                            {category.image_url ? (
-                              <img
-                                src={category.image_url}
-                                alt={category.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className={`w-full h-full bg-royal-gold flex items-center justify-center text-lg sm:text-xl lg:text-2xl`}>
-                                {icon}
-                              </div>
-                            )}
-                          </div>
-                          <h3 className="font-medium text-royal-black text-xs sm:text-sm lg:text-base leading-tight">
+                      <div className="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-64 lg:h-64 mx-auto overflow-hidden relative cursor-pointer">
+                        <div className="w-full h-full bg-gray-100 arch-frame relative shadow-lg">
+                          {category.image_url ? (
+                            <img
+                              src={category.image_url}
+                              alt={category.name}
+                              className="w-full h-full object-cover arch-frame"
+                            />
+                          ) : (
+                            <div className={`w-full h-full bg-royal-gold flex items-center justify-center text-xl sm:text-2xl lg:text-3xl arch-frame`}>
+                              {icon}
+                            </div>
+                          )}
+                          {/* Category name overlay */}
+                          <div className="absolute bottom-0 left-0 right-0 bg-[#dee3e8] text-royal-black text-sm lg:text-base font-medium py-1 lg:py-2 px-2 text-center">
                             {category.name}
-                          </h3>
-                        </CardContent>
-                      </Card>
+                          </div>
+                        </div>
+                      </div>
                     </Link>
                   </motion.div>
                 );
@@ -332,7 +551,96 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-            {/* Features Section */}
+      {/* Featured Products Section */}
+      <section className="py-12 sm:py-16 lg:py-20 bg-white">
+        <div className="container mx-auto px-6 sm:px-8 lg:px-8">
+          <motion.div
+            variants={stagger}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="text-center mb-12 sm:mb-16"
+          >
+            <motion.h2 variants={fadeInUp} className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-royal-black mb-4 sm:mb-6">
+              Featured Products
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-base sm:text-lg lg:text-xl text-gray-800 max-w-2xl mx-auto leading-relaxed">
+              Discover our handpicked collection of premium gifts that make every moment special.
+            </motion.p>
+          </motion.div>
+
+          <motion.div
+            variants={stagger}
+            initial="initial"
+            animate="animate"
+            className="overflow-x-auto scrollbar-thin pb-4"
+          >
+            <div className="flex gap-3 sm:gap-4 min-w-max md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-4 lg:gap-6 md:min-w-0">
+              {productsLoading ? (
+                // Loading skeleton
+                Array.from({ length: 4 }).map((_, index) => (
+                  <motion.div key={index} variants={fadeInUp} className="flex-shrink-0 w-48 sm:w-52 md:w-auto">
+                    <Card className="card-elegant overflow-hidden p-0 h-full">
+                      <div className="aspect-[3/4] bg-gray-200 animate-pulse" />
+                      <CardContent className="p-3">
+                        <div className="h-4 bg-gray-200 rounded mb-2 animate-pulse" />
+                        <div className="h-6 bg-gray-200 rounded mb-2 animate-pulse" />
+                        <div className="h-4 bg-gray-200 rounded mb-3 animate-pulse" />
+                        <div className="h-8 bg-gray-200 rounded animate-pulse" />
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))
+              ) : featuredProducts.length === 0 ? (
+                <motion.div variants={fadeInUp} className="col-span-full text-center py-12">
+                  <p className="text-gray-500 text-lg">No featured products available</p>
+                </motion.div>
+              ) : (
+                featuredProducts.map((product, index) => (
+                  <motion.div
+                    key={product.id}
+                    variants={fadeInUp}
+                    className="flex-shrink-0 w-48 sm:w-52 md:w-auto"
+                  >
+                    <ProductCard
+                      product={product}
+                      onAddToCart={handleAddToCart}
+                      onAddToWishlist={handleAddToWishlist}
+                      cartLoading={cartLoading}
+                      wishlistLoading={wishlistLoading}
+                    />
+                  </motion.div>
+                ))
+              )}
+            </div>
+          </motion.div>
+
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="text-center mt-8 sm:mt-12"
+          >
+            <Link to="/products" search={{
+              category: '',
+              q: '',
+              sortBy: 'relevance',
+              minPrice: undefined,
+              maxPrice: undefined,
+              inStock: false,
+              featured: false
+            }}>
+              <Button variant="outline" size="lg" className="btn-secondary">
+                <ShoppingBag className="mr-2 h-5 w-5" />
+                View All Products
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Features Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="container mx-auto px-6 sm:px-8 lg:px-8">
           <motion.div

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from '@tanstack/react-router';
-import { Gift, Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+import simriLogo from '../../assets/simri_black.png';
+import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 import { Newsletter } from '../ui/newsletter';
 
 const Footer: React.FC = () => {
@@ -50,13 +51,8 @@ const Footer: React.FC = () => {
           
           {/* Brand Section */}
           <div className="sm:col-span-2 lg:col-span-2 mb-8 sm:mb-0">
-            <Link to="/" className="flex items-center space-x-2 mb-4 sm:mb-6">
-              <div className="p-2 rounded-lg bg-royal-gold">
-                <Gift className="h-5 w-5 sm:h-6 sm:w-6 text-royal-black" />
-              </div>
-              <span className="font-heading text-xl sm:text-2xl font-bold text-royal-black">
-                Simri
-              </span>
+            <Link to="/" className="flex items-center">
+              <img src={simriLogo} alt="Simri" className="h-6 md:h-8 w-auto hover:opacity-90 transition-opacity" />
             </Link>
             <p className="text-gray-800 mb-4 sm:mb-6 max-w-sm text-sm sm:text-base leading-relaxed">
               Discover the joy of giving with our curated collection of premium gifts.

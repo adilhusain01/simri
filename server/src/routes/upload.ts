@@ -239,11 +239,13 @@ router.post('/category-image', requireAdmin, categoryImageUpload.single('image')
       });
     }
 
-    // Upload single image to Cloudinary with standard size
+    // Upload single image to Cloudinary with WebP conversion
     const cloudinaryResult = await uploadService.uploadToCloudinary(req.file.path, {
-      folder: 'categories',
+      folder: 'simri/categories',
+      format: 'webp',
       transformation: [
-        { width: 400, height: 300, crop: 'fill', quality: 'auto', format: 'auto' }
+        { width: 400, height: 300, crop: 'fill' },
+        { quality: 'auto:good' }
       ]
     });
 

@@ -172,13 +172,6 @@ router.get('/verify-email/:token', async (req: any, res: any) => {
 
 // Get current user
 router.get('/me', (req, res) => {
-  console.log('Auth check:', {
-    isAuthenticated: req.isAuthenticated(),
-    sessionID: req.sessionID,
-    user: req.user?.email || 'None',
-    cookies: req.headers.cookie || 'None'
-  });
-
   if (req.isAuthenticated()) {
     res.json({ success: true, user: req.user });
   } else {

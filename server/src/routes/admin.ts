@@ -1506,6 +1506,55 @@ router.get('/users', async (req, res) => {
   }
 });
 
+// Legacy analytics endpoint (for compatibility with older dashboard)
+router.get('/analytics/legacy', async (req, res) => {
+  try {
+    console.log('Legacy analytics request params:', req.query);
+    const { period = '30' } = req.query;
+
+    // Use the same logic as the main analytics endpoint with simplified response
+    const periodDays = parseInt(period as string) || 30;
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - periodDays);
+
+    // Get basic metrics for legacy dashboard
+    const [
+      totalUsers,
+      totalOrders,
+      totalRevenue,
+      totalProducts
+    ] = await Promise.all([
+      pool.query('SELECT COUNT(*) as count FROM users'),
+      pool.query('SELECT COUNT(*) as count FROM orders WHERE created_at >= $1', [startDate]),
+      pool.query('SELECT COALESCE(SUM(total_amount), 0) as total FROM orders WHERE created_at >= $1', [startDate]),
+      pool.query('SELECT COUNT(*) as count FROM products')
+    ]);
+
+    const legacyResponse = {
+      success: true,
+      data: {
+        users: parseInt(totalUsers.rows[0].count),
+        orders: parseInt(totalOrders.rows[0].count),
+        revenue: parseFloat(totalRevenue.rows[0].total || 0),
+        products: parseInt(totalProducts.rows[0].count),
+        period: periodDays,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
+      }
+    };
+
+    res.json(legacyResponse);
+  } catch (error) {
+    console.error('Legacy analytics error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching legacy analytics',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 // Export analytics data
 router.get('/analytics/export', async (req, res) => {
   try {

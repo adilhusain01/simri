@@ -200,6 +200,14 @@ export const productService = {
     const response = await api.get<ApiResponse<Category[]>>('/api/products/categories');
     return response.data.data;
   },
+
+  // Get featured products
+  getFeaturedProducts: async (limit: number = 10): Promise<Product[]> => {
+    const response = await api.get<ApiResponse<Product[]>>('/api/products/featured', {
+      params: { limit }
+    });
+    return response.data.data;
+  },
 };
 
 export const cartService = {

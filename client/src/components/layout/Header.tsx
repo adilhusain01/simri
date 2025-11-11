@@ -13,7 +13,7 @@ import {
   Settings,
 } from 'lucide-react';
 import { Button } from '../ui/button';
-import simriLogo from '../../assets/simri-no-bg.png';
+import simriLogo from '../../assets/simri_black.png';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';

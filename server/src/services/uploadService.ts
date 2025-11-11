@@ -151,13 +151,13 @@ class UploadService {
     return processedImages;
   }
 
-  // Process avatar images with Cloudinary
+  // Process avatar images with Cloudinary (WebP format)
   async processAvatarImage(file: Express.Multer.File): Promise<string> {
     try {
-      // Upload directly to Cloudinary
+      // Upload directly to Cloudinary with WebP conversion
       const result = await cloudinary.uploader.upload(file.path, {
         folder: 'simri/avatars',
-        format: 'jpg',
+        format: 'webp',
         transformation: [
           { width: 200, height: 200, crop: 'fill', gravity: 'face' },
           { quality: 'auto:good' }
@@ -166,7 +166,7 @@ class UploadService {
 
       // Delete original uploaded file
       fs.unlinkSync(file.path);
-      
+
       return result.secure_url;
     } catch (error) {
       console.error('Avatar processing error:', error);
@@ -177,16 +177,16 @@ class UploadService {
     }
   }
 
-  // Process review images with Cloudinary
+  // Process review images with Cloudinary (WebP format)
   async processReviewImages(files: Express.Multer.File[]): Promise<string[]> {
     const processedImages: string[] = [];
 
     for (const file of files) {
       try {
-        // Upload directly to Cloudinary
+        // Upload directly to Cloudinary with WebP conversion
         const result = await cloudinary.uploader.upload(file.path, {
           folder: 'simri/reviews',
-          format: 'jpg',
+          format: 'webp',
           transformation: [
             { width: 600, height: 600, crop: 'limit' },
             { quality: 'auto:good' }
@@ -195,7 +195,7 @@ class UploadService {
 
         // Delete original uploaded file
         fs.unlinkSync(file.path);
-        
+
         processedImages.push(result.secure_url);
       } catch (error) {
         console.error('Review image processing error:', error);
@@ -208,52 +208,52 @@ class UploadService {
     return processedImages;
   }
 
-  // Process product images with Cloudinary (multiple sizes)
+  // Process product images with Cloudinary (multiple sizes, WebP format)
   async processProductImagesCloudinary(files: Express.Multer.File[]): Promise<any[]> {
     const processedImages: any[] = [];
 
     for (const file of files) {
       try {
         const fileId = uuidv4();
-        
-        // Upload original image to Cloudinary
+
+        // Upload original image to Cloudinary with WebP conversion
         const originalResult = await cloudinary.uploader.upload(file.path, {
           folder: 'simri/products',
           public_id: `${fileId}_original`,
-          format: 'jpg',
+          format: 'webp',
           transformation: [
             { width: 1200, height: 1200, crop: 'limit' },
             { quality: 'auto:good' }
           ]
         });
 
-        // Upload thumbnail version
+        // Upload thumbnail version with WebP conversion
         const thumbResult = await cloudinary.uploader.upload(file.path, {
           folder: 'simri/products',
           public_id: `${fileId}_thumb`,
-          format: 'jpg',
+          format: 'webp',
           transformation: [
             { width: 150, height: 150, crop: 'fill' },
             { quality: 'auto:good' }
           ]
         });
 
-        // Upload medium version
+        // Upload medium version with WebP conversion
         const mediumResult = await cloudinary.uploader.upload(file.path, {
           folder: 'simri/products',
           public_id: `${fileId}_medium`,
-          format: 'jpg',
+          format: 'webp',
           transformation: [
             { width: 400, height: 400, crop: 'limit' },
             { quality: 'auto:good' }
           ]
         });
 
-        // Upload large version
+        // Upload large version with WebP conversion
         const largeResult = await cloudinary.uploader.upload(file.path, {
           folder: 'simri/products',
           public_id: `${fileId}_large`,
-          format: 'jpg',
+          format: 'webp',
           transformation: [
             { width: 800, height: 800, crop: 'limit' },
             { quality: 'auto:good' }
@@ -263,7 +263,7 @@ class UploadService {
         // Delete original uploaded file
         fs.unlinkSync(file.path);
 
-        // Create image object with all sizes
+        // Create image object with all sizes (now all WebP URLs)
         const imageUrls = {
           original: originalResult.secure_url,
           thumb: thumbResult.secure_url,
@@ -403,10 +403,18 @@ class UploadService {
     }
   }
 
-  // Generic upload to Cloudinary
+  // Generic upload to Cloudinary (with automatic WebP conversion)
   async uploadToCloudinary(filePath: string, options: any = {}): Promise<any> {
     try {
-      const result = await cloudinary.uploader.upload(filePath, options);
+      // Ensure WebP format is used unless explicitly overridden
+      const defaultOptions = {
+        format: 'webp',
+        quality: 'auto:good',
+        ...options
+      };
+
+      const result = await cloudinary.uploader.upload(filePath, defaultOptions);
+      console.log(`🌐 Uploaded to Cloudinary as WebP: ${result.public_id}`);
       return result;
     } catch (error) {
       console.error('Cloudinary upload error:', error);
