@@ -179,7 +179,7 @@ const Home: React.FC = () => {
   // Product card handlers
   const handleAddToCart = async (product: Product) => {
     try {
-      await addToCart({ productId: product.id, quantity: 1 });
+      await addToCart(product.id, 1);
       toast.success(`${product.name} added to cart!`);
     } catch (error) {
       toast.error('Failed to add to cart');
@@ -596,7 +596,7 @@ const Home: React.FC = () => {
                   <p className="text-gray-500 text-lg">No featured products available</p>
                 </motion.div>
               ) : (
-                featuredProducts.map((product, index) => (
+                featuredProducts.map((product) => (
                   <motion.div
                     key={product.id}
                     variants={fadeInUp}
