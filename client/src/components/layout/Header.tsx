@@ -384,7 +384,7 @@ const Header: React.FC = () => {
           </>
         )}
       </AnimatePresence>
-    </header>
+    </header> 
   );
 };
 
