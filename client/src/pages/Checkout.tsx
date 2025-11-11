@@ -339,30 +339,30 @@ const Checkout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="max-w-6xl mx-auto">
-          
+
           {/* Progress Steps */}
-          <motion.div className="mb-8" {...fadeInUp}>
+          <motion.div className="mb-6 lg:mb-8" {...fadeInUp}>
             <div className="flex items-center justify-center">
               {[1, 2, 3].map((stepNumber) => (
                 <div key={stepNumber} className="flex items-center">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2 text-sm sm:text-base ${
                       step >= stepNumber
                         ? 'bg-royal-gold border-royal-gold text-royal-black'
                         : 'bg-white border-gray-300 text-gray-400'
                     }`}
                   >
                     {step > stepNumber ? (
-                      <CheckCircle className="h-5 w-5" />
+                      <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                     ) : (
                       stepNumber
                     )}
                   </div>
                   {stepNumber < 3 && (
                     <div
-                      className={`w-16 h-0.5 mx-2 ${
+                      className={`w-8 sm:w-16 h-0.5 mx-1 sm:mx-2 ${
                         step > stepNumber ? 'bg-royal-gold' : 'bg-gray-300'
                       }`}
                     />
@@ -371,7 +371,7 @@ const Checkout: React.FC = () => {
               ))}
             </div>
             <div className="flex justify-center mt-2">
-              <div className="grid grid-cols-3 gap-8 text-sm text-center">
+              <div className="grid grid-cols-3 gap-4 sm:gap-8 text-xs sm:text-sm text-center">
                 <span className={step >= 1 ? 'text-royal-gold font-medium' : 'text-gray-500'}>
                   Address
                 </span>
@@ -385,31 +385,31 @@ const Checkout: React.FC = () => {
             </div>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 lg:space-y-6">
               
               {/* Step 1: Address Selection */}
               {step === 1 && (
                 <motion.div {...fadeInUp}>
                   <Card className="card-elegant">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <MapPin className="h-5 w-5" />
+                    <CardHeader className="pb-4 lg:pb-6">
+                      <CardTitle className="flex items-center gap-2 text-base lg:text-lg">
+                        <MapPin className="h-4 w-4 lg:h-5 lg:w-5" />
                         Delivery Address
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-3 lg:space-y-4 pt-0">
                       {addressesLoading ? (
                         <div className="flex justify-center py-8">
                           <LoadingSpinner size="md" />
                         </div>
                       ) : addresses.length === 0 ? (
-                        <div className="text-center py-8">
-                          <MapPin className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                          <p className="text-gray-600 mb-4">No addresses found</p>
-                          <Button onClick={() => setShowAddressDialog(true)}>
+                        <div className="text-center py-6 lg:py-8">
+                          <MapPin className="h-8 lg:h-12 w-8 lg:w-12 mx-auto text-gray-400 mb-4" />
+                          <p className="text-sm lg:text-base text-gray-600 mb-4">No addresses found</p>
+                          <Button onClick={() => setShowAddressDialog(true)} className="text-sm lg:text-base">
                             <Plus className="h-4 w-4 mr-2" />
                             Add Address
                           </Button>
@@ -420,7 +420,7 @@ const Checkout: React.FC = () => {
                             {addresses.filter(addr => addr.type === 'shipping').map((address) => (
                               <Label
                                 key={address.id}
-                                className={`flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-royal-gold ${
+                                className={`flex items-start gap-3 p-3 lg:p-4 border rounded-lg cursor-pointer hover:border-royal-gold transition-colors ${
                                   selectedShippingAddress === address.id
                                     ? 'border-royal-gold bg-gray-50'
                                     : 'border-gray-200'
@@ -434,38 +434,38 @@ const Checkout: React.FC = () => {
                                   onChange={(e) => setSelectedShippingAddress(e.target.value)}
                                   className="mt-1"
                                 />
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-medium">{address.first_name} {address.last_name}</span>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                                    <span className="font-medium text-sm lg:text-base">{address.first_name} {address.last_name}</span>
                                     {(address.is_default || address.isDefault) && (
-                                      <Badge variant="outline">Default</Badge>
+                                      <Badge variant="outline" className="text-xs self-start">Default</Badge>
                                     )}
                                   </div>
-                                  <p className="text-sm text-gray-600">
+                                  <p className="text-xs lg:text-sm text-gray-600 line-clamp-2">
                                     {address.address_line_1}, {address.city}, {address.state} {address.postal_code}
                                   </p>
                                   {address.phone && (
-                                    <p className="text-sm text-gray-600">{address.phone}</p>
+                                    <p className="text-xs lg:text-sm text-gray-600">{address.phone}</p>
                                   )}
                                 </div>
                               </Label>
                             ))}
                           </div>
-                          
+
                           <Button
                             variant="outline"
                             onClick={() => setShowAddressDialog(true)}
-                            className="w-full"
+                            className="w-full text-sm lg:text-base"
                           >
                             <Plus className="h-4 w-4 mr-2" />
                             Add New Address
                           </Button>
 
-                          <div className="flex justify-end pt-4">
+                          <div className="flex flex-col sm:flex-row justify-end pt-4 gap-2">
                             <Button
                               onClick={() => setStep(2)}
                               disabled={!selectedShippingAddress}
-                              className="btn-primary"
+                              className="btn-primary w-full sm:w-auto text-sm lg:text-base"
                             >
                               Continue to Payment
                               <ArrowRight className="h-4 w-4 ml-2" />
@@ -482,37 +482,39 @@ const Checkout: React.FC = () => {
               {step === 2 && (
                 <motion.div {...fadeInUp}>
                   <Card className="card-elegant">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <CreditCard className="h-5 w-5" />
+                    <CardHeader className="pb-4 lg:pb-6">
+                      <CardTitle className="flex items-center gap-2 text-base lg:text-lg">
+                        <CreditCard className="h-4 w-4 lg:h-5 lg:w-5" />
                         Payment Method
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-3 lg:space-y-4 pt-0">
                       <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                         <div className="space-y-3">
-                          <Label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-royal-gold">
-                            <RadioGroupItem value="razorpay" id="razorpay" />
+                          <Label className="flex items-start gap-3 p-3 lg:p-4 border rounded-lg cursor-pointer hover:border-royal-gold transition-colors">
+                            <RadioGroupItem value="razorpay" id="razorpay" className="mt-1" />
                             <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <CreditCard className="h-5 w-5" />
-                                <span className="font-medium">Credit/Debit Card & UPI</span>
-                                <Badge variant="secondary">Recommended</Badge>
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                <div className="flex items-center gap-2">
+                                  <CreditCard className="h-4 w-4 lg:h-5 lg:w-5" />
+                                  <span className="font-medium text-sm lg:text-base">Credit/Debit Card & UPI</span>
+                                </div>
+                                <Badge variant="secondary" className="text-xs self-start">Recommended</Badge>
                               </div>
-                              <p className="text-sm text-gray-600 mt-1">
+                              <p className="text-xs lg:text-sm text-gray-600 mt-1">
                                 Pay securely using Razorpay
                               </p>
                             </div>
                           </Label>
-                          
-                          <Label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-royal-gold">
-                            <RadioGroupItem value="cod" id="cod" />
+
+                          <Label className="flex items-start gap-3 p-3 lg:p-4 border rounded-lg cursor-pointer hover:border-royal-gold transition-colors">
+                            <RadioGroupItem value="cod" id="cod" className="mt-1" />
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <Package className="h-5 w-5" />
-                                <span className="font-medium">Cash on Delivery</span>
+                                <Package className="h-4 w-4 lg:h-5 lg:w-5" />
+                                <span className="font-medium text-sm lg:text-base">Cash on Delivery</span>
                               </div>
-                              <p className="text-sm text-gray-600 mt-1">
+                              <p className="text-xs lg:text-sm text-gray-600 mt-1">
                                 Pay when you receive your order
                               </p>
                             </div>
@@ -520,23 +522,24 @@ const Checkout: React.FC = () => {
                         </div>
                       </RadioGroup>
 
-                      <div className="flex items-center gap-2 pt-4">
-                        <Shield className="h-4 w-4 text-green-600" />
-                        <span className="text-sm text-gray-600">
+                      <div className="flex items-start gap-2 pt-4">
+                        <Shield className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                        <span className="text-xs lg:text-sm text-gray-600">
                           Your payment information is secure and encrypted
                         </span>
                       </div>
 
-                      <div className="flex justify-between pt-4">
+                      <div className="flex flex-col sm:flex-row justify-between pt-4 gap-2">
                         <Button
                           variant="outline"
                           onClick={() => setStep(1)}
+                          className="w-full sm:w-auto text-sm lg:text-base"
                         >
                           Back to Address
                         </Button>
                         <Button
                           onClick={() => setStep(3)}
-                          className="btn-primary"
+                          className="btn-primary w-full sm:w-auto text-sm lg:text-base"
                         >
                           Review Order
                           <ArrowRight className="h-4 w-4 ml-2" />
@@ -551,38 +554,38 @@ const Checkout: React.FC = () => {
               {step === 3 && (
                 <motion.div {...fadeInUp}>
                   <Card className="card-elegant">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Package className="h-5 w-5" />
+                    <CardHeader className="pb-4 lg:pb-6">
+                      <CardTitle className="flex items-center gap-2 text-base lg:text-lg">
+                        <Package className="h-4 w-4 lg:h-5 lg:w-5" />
                         Review Your Order
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-4 lg:space-y-6 pt-0">
                       {/* Order Items */}
                       <div>
-                        <h4 className="font-medium mb-3">Items ({cart.items.length})</h4>
+                        <h4 className="font-medium mb-3 text-sm lg:text-base">Items ({cart.items.length})</h4>
                         <div className="space-y-3">
                           {cart.items.slice(0, 3).map((item) => (
                             <div key={item.id} className="flex items-center gap-3">
                               <img
                                 src={(item.images && item.images.length > 0) ? getImageUrl(item.images[0], 'thumb') : '/placeholder-product.jpg'}
                                 alt={item.name}
-                                className="w-12 h-12 object-cover rounded"
+                                className="w-10 h-10 lg:w-12 lg:h-12 object-cover rounded flex-shrink-0"
                                 onError={(e) => {
                                   e.currentTarget.src = '/placeholder-product.jpg';
                                 }}
                               />
-                              <div className="flex-1">
-                                <p className="font-medium text-sm">{item.name}</p>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-xs lg:text-sm line-clamp-1">{item.name}</p>
                                 <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
                               </div>
-                              <span className="font-medium">
+                              <span className="font-medium text-xs lg:text-sm">
                                 ₹{(item.quantity * item.price_at_time).toLocaleString()}
                               </span>
                             </div>
                           ))}
                           {cart.items.length > 3 && (
-                            <p className="text-sm text-gray-600">
+                            <p className="text-xs lg:text-sm text-gray-600">
                               +{cart.items.length - 3} more items
                             </p>
                           )}
@@ -591,13 +594,13 @@ const Checkout: React.FC = () => {
 
                       {/* Delivery Address */}
                       <div>
-                        <h4 className="font-medium mb-2">Delivery Address</h4>
+                        <h4 className="font-medium mb-2 text-sm lg:text-base">Delivery Address</h4>
                         {(() => {
                           const address = addresses.find(addr => addr.id === selectedShippingAddress);
                           return address ? (
-                            <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                            <div className="text-xs lg:text-sm text-gray-600 bg-gray-50 p-3 rounded">
                               <p className="font-medium">{address.first_name} {address.last_name}</p>
-                              <p>{address.address_line_1}</p>
+                              <p className="line-clamp-1">{address.address_line_1}</p>
                               <p>{address.city}, {address.state} {address.postal_code}</p>
                               {address.phone && <p>{address.phone}</p>}
                             </div>
@@ -607,23 +610,24 @@ const Checkout: React.FC = () => {
 
                       {/* Payment Method */}
                       <div>
-                        <h4 className="font-medium mb-2">Payment Method</h4>
-                        <p className="text-sm text-gray-600">
+                        <h4 className="font-medium mb-2 text-sm lg:text-base">Payment Method</h4>
+                        <p className="text-xs lg:text-sm text-gray-600">
                           {paymentMethod === 'razorpay' ? 'Credit/Debit Card & UPI' : 'Cash on Delivery'}
                         </p>
                       </div>
 
-                      <div className="flex justify-between pt-4">
+                      <div className="flex flex-col sm:flex-row justify-between pt-4 gap-2">
                         <Button
                           variant="outline"
                           onClick={() => setStep(2)}
+                          className="w-full sm:w-auto text-sm lg:text-base"
                         >
                           Back to Payment
                         </Button>
                         <Button
                           onClick={handlePlaceOrder}
                           disabled={loading}
-                          className="btn-primary"
+                          className="btn-primary w-full sm:w-auto text-sm lg:text-base"
                         >
                           {loading ? (
                             <LoadingSpinner size="sm" />
@@ -642,19 +646,19 @@ const Checkout: React.FC = () => {
             </div>
 
             {/* Order Summary Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-4 lg:space-y-6">
               {/* Coupon Code */}
               <motion.div {...fadeInUp}>
                 <Card className="card-elegant">
-                  <CardHeader>
-                    <CardTitle className="text-base">Coupon Code</CardTitle>
+                  <CardHeader className="pb-3 lg:pb-6">
+                    <CardTitle className="text-sm lg:text-base">Coupon Code</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-3 lg:space-y-4 pt-0">
                     {appliedCoupon ? (
                       <div className="flex items-center justify-between p-3 bg-green-50 rounded-md border border-green-200">
                         <div className="flex items-center gap-2">
                           <CheckCircle className="h-4 w-4 text-green-600" />
-                          <span className="font-medium text-green-800">
+                          <span className="font-medium text-green-800 text-sm">
                             {appliedCoupon.code}
                           </span>
                         </div>
@@ -662,23 +666,24 @@ const Checkout: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           onClick={handleRemoveCoupon}
-                          className="text-green-600 hover:text-green-700"
+                          className="text-green-600 hover:text-green-700 text-xs lg:text-sm"
                         >
                           Remove
                         </Button>
                       </div>
                     ) : (
-                      <form onSubmit={handleApplyCoupon} className="flex gap-2">
+                      <form onSubmit={handleApplyCoupon} className="flex flex-col sm:flex-row gap-2">
                         <Input
                           placeholder="Enter coupon code"
                           value={couponCode}
                           onChange={(e) => setCouponCode(e.target.value)}
-                          className="flex-1"
+                          className="flex-1 text-sm lg:text-base"
                         />
-                        <Button 
-                          type="submit" 
+                        <Button
+                          type="submit"
                           disabled={couponLoading || !couponCode.trim()}
                           size="sm"
+                          className="text-sm lg:text-base sm:flex-shrink-0"
                         >
                           {couponLoading ? 'Applying...' : 'Apply'}
                         </Button>
@@ -691,28 +696,28 @@ const Checkout: React.FC = () => {
               {/* Order Summary */}
               <motion.div {...fadeInUp}>
                 <Card className="card-elegant">
-                  <CardHeader>
-                    <CardTitle className="text-base">Order Summary</CardTitle>
+                  <CardHeader className="pb-3 lg:pb-6">
+                    <CardTitle className="text-sm lg:text-base">Order Summary</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex justify-between text-sm">
+                  <CardContent className="space-y-2 lg:space-y-3 pt-0">
+                    <div className="flex justify-between text-xs lg:text-sm">
                       <span>Subtotal ({cart.item_count || cart.itemCount} items)</span>
                       <span>₹{subtotal.toLocaleString()}</span>
                     </div>
-                    
+
                     {appliedCoupon && (
-                      <div className="flex justify-between text-sm text-green-600">
+                      <div className="flex justify-between text-xs lg:text-sm text-green-600">
                         <span>Discount ({appliedCoupon.code})</span>
                         <span>-₹{discountAmount.toLocaleString()}</span>
                       </div>
                     )}
-                    
-                    <div className="flex justify-between text-sm">
+
+                    <div className="flex justify-between text-xs lg:text-sm">
                       <span>Tax (GST 18%)</span>
                       <span>₹{taxAmount.toLocaleString()}</span>
                     </div>
-                    
-                    <div className="flex justify-between text-sm">
+
+                    <div className="flex justify-between text-xs lg:text-sm">
                       <span>Shipping</span>
                       <span>
                         {shippingAmount === 0 ? (
@@ -722,10 +727,10 @@ const Checkout: React.FC = () => {
                         )}
                       </span>
                     </div>
-                    
+
                     <hr className="my-2" />
-                    
-                    <div className="flex justify-between font-bold text-lg">
+
+                    <div className="flex justify-between font-bold text-sm lg:text-lg">
                       <span>Total</span>
                       <span className="text-royal-black">₹{total.toLocaleString()}</span>
                     </div>
