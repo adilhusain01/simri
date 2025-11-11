@@ -40,11 +40,15 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
+// Trust proxy for deployment behind reverse proxy (AWS ALB, CloudFront, etc.)
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 app.use(cors({
   origin: [
     process.env.CLIENT_URL || 'http://localhost:3000',
+    'https://simri-beta.vercel.app', // Production frontend
     'http://localhost:3001', // Dashboard
     'http://localhost:3002', // Dashboard fallback
   ],
@@ -76,7 +80,9 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
 
@@ -106,7 +112,7 @@ app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/cart-abandonment', cartAbandonmentRoutes);
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
