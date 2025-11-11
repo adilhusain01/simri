@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import PixelatedHeart from '@/components/layout/PixelatedHeart';
 import { useAuthStore } from '../stores/authStore';
 import { productService } from '../services/api';
 import type { Category } from '../types';
@@ -243,32 +242,6 @@ const Home: React.FC = () => {
                 )}
               </div>
 
-              {/* Trust Indicators */}
-              {/* <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-8 text-sm sm:text-base text-royal-black">
-                <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 border border-royal-black/10">
-                  <Star className="w-4 h-4 mr-2 fill-royal-black" />
-                  <span className="font-medium">4.9/5 Rating</span>
-                </div>
-                <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 border border-royal-black/10">
-                  <Shield className="w-4 h-4 mr-2" />
-                  <span className="font-medium">Secure Checkout</span>
-                </div>
-                <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 border border-royal-black/10">
-                  <Truck className="w-4 h-4 mr-2" />
-                  <span className="font-medium">Free Shipping</span>
-                </div>
-              </div> */}
-            </motion.div>
-
-            {/* Pixelated Heart - Hidden on mobile */}
-            {/* <motion.div
-              initial={{ opacity: 0, x: 60 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative hidden lg:block"
-            >
-              <PixelatedHeart />
-            </motion.div> */}
             <img src="https://res.cloudinary.com/djxuqljgr/image/upload/v1762887094/hero_pfalyj.webp" alt="hero" />
           </div>
         </div>
