@@ -16,7 +16,7 @@ passport.use(new GoogleStrategy({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
    callbackURL:
         process.env.NODE_ENV === "production"
-          ? "https://simri-beta.vercel.app/api/auth/google/callback"
+          ? "http://simri.adilhusain.xyz/api/auth/google/callback"
           : "http://localhost:8000/api/auth/google/callback",
 }, async (accessToken, refreshToken, profile, done) => {
   try {
