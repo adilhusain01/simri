@@ -78,6 +78,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
+  name: 'simri.sid', // Custom session name
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
