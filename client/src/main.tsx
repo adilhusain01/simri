@@ -94,6 +94,11 @@ const callbackRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/auth/callback',
   component: Callback,
+  validateSearch: (search: Record<string, unknown>) => ({
+    success: search.success as string,
+    redirect: search.redirect as string,
+    error: search.error as string,
+  }),
 })
 
 // Main app routes

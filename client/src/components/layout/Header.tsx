@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate, useLocation } from '@tanstack/react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -35,6 +35,7 @@ const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { cart } = useCartStore();
   const { wishlist } = useWishlistStore();
@@ -204,7 +205,7 @@ const Header: React.FC = () => {
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <Link to="/auth/login" search={{ redirect: '/' }}>
+                <Link to="/auth/login" search={{ redirect: location.pathname }}>
                   <Button variant="ghost" size="sm" className="hover:bg-gray-50">
                     Sign In
                   </Button>
@@ -309,14 +310,14 @@ const Header: React.FC = () => {
                     ) : (
                       <div className="flex flex-col space-y-3">
                         <SheetClose asChild>
-                          <Link to="/auth/login" search={{ redirect: '/' }}>
+                          <Link to="/auth/login" search={{ redirect: location.pathname }}>
                             <Button variant="outline" className="w-full border-royal-black text-royal-black hover:bg-royal-black hover:text-white transition-colors">
                               Sign In
                             </Button>
                           </Link>
                         </SheetClose>
                         <SheetClose asChild>
-                          <Link to="/auth/signup" search={{ redirect: '/' }}>
+                          <Link to="/auth/signup" search={{ redirect: location.pathname }}>
                             <Button className="btn-primary w-full shadow-lg">
                               <User className="mr-2 h-4 w-4" />
                               Get Started
