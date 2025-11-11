@@ -140,7 +140,7 @@ const Home: React.FC = () => {
         </div>
 
         <div className="relative container mx-auto px-6 sm:px-8 lg:px-8 py-16 sm:py-20 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <motion.div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
             {/* Hero Content */}
             <motion.div
@@ -241,9 +241,10 @@ const Home: React.FC = () => {
                   </>
                 )}
               </div>
-
+           
+            </motion.div>
             <img src="https://res.cloudinary.com/djxuqljgr/image/upload/v1762887094/hero_pfalyj.webp" alt="hero" />
-          </div>
+          </motion.div>
         </div>
       </section>
 
