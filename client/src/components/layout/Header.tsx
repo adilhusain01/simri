@@ -149,6 +149,7 @@ const Header: React.FC = () => {
 
             {/* User Menu */}
             {isAuthenticated ? (
+              <div className='md:block hidden'>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -200,17 +201,12 @@ const Header: React.FC = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              </div>
             ) : (
               <div className="flex items-center space-x-2">
                 <Link to="/auth/login" search={{ redirect: '/' }}>
                   <Button variant="ghost" size="sm" className="hover:bg-gray-50">
                     Sign In
-                  </Button>
-                </Link>
-                <Link to="/auth/signup" search={{ redirect: '/' }}>
-                  <Button size="sm" className="btn-primary">
-                    <User className="mr-2 h-4 w-4" />
-                    Get Started
                   </Button>
                 </Link>
               </div>
@@ -258,34 +254,6 @@ const Header: React.FC = () => {
                     {/* Additional Quick Links for Authenticated Users */}
                     {isAuthenticated && (
                       <>
-                        <SheetClose asChild>
-                          <Link
-                            to="/wishlist"
-                            className="text-royal-black hover:text-gray-800 font-medium transition-colors duration-200 py-3 px-4 rounded-lg hover:bg-white/80 border border-transparent hover:border-royal-black/20 flex items-center"
-                          >
-                            <Heart className="mr-3 h-4 w-4" />
-                            Wishlist
-                            {wishlist && wishlist.totalItems > 0 && (
-                              <Badge className="ml-auto bg-royal-black text-white">
-                                {wishlist.totalItems}
-                              </Badge>
-                            )}
-                          </Link>
-                        </SheetClose>
-                        <SheetClose asChild>
-                          <Link
-                            to="/cart"
-                            className="text-royal-black hover:text-gray-800 font-medium transition-colors duration-200 py-3 px-4 rounded-lg hover:bg-white/80 border border-transparent hover:border-royal-black/20 flex items-center"
-                          >
-                            <ShoppingBag className="mr-3 h-4 w-4" />
-                            Cart
-                            {cart && cart.item_count > 0 && (
-                              <Badge className="ml-auto bg-royal-black text-white">
-                                {cart.item_count}
-                              </Badge>
-                            )}
-                          </Link>
-                        </SheetClose>
                         <SheetClose asChild>
                           <Link
                             to="/profile"

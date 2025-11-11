@@ -69,12 +69,6 @@ const Callback: React.FC = () => {
         <motion.div {...fadeInUp}>
           <Card className="card-elegant text-center p-8">
             <CardContent className="pt-6">
-              {/* Logo */}
-              <div className="flex justify-center mb-6">
-                <div className="p-4 rounded-full bg-gradient-primary">
-                  <Gift className="h-12 w-12 text-white" />
-                </div>
-              </div>
 
               {status === 'loading' && (
                 <>

@@ -56,20 +56,21 @@ const NewsletterUnsubscribe = () => {
 
   if (state.success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center sm:px-6 lg:px-8">
-
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <Card>
-            <CardContent className="py-6">
-            {/* <CheckCircle className="h-6 w-6 text-green-600" /> */}
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center p-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-sm sm:max-w-md">
+          <Card className="card-elegant">
+            <CardContent className="py-4 sm:py-6 text-center">
               <div className="text-center">
-                <p className="mt-2 text-center text-sm text-gray-600">
+                <p className="mt-2 text-sm sm:text-base text-gray-600 leading-relaxed">
                   You have been successfully unsubscribed from our newsletter.
                 </p>
-                <p className="text-xs text-gray-500 mb-6">
-                  Email: <span className="font-medium">{email}</span>
+                <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6 mt-2">
+                  Email: <span className="font-medium break-all">{email}</span>
                 </p>
-                <Button onClick={handleGoHome} className="w-full">
+                <Button
+                  onClick={handleGoHome}
+                  className="w-full h-10 sm:h-12 text-sm sm:text-base btn-primary"
+                >
                   Return to Homepage
                 </Button>
               </div>
@@ -81,20 +82,19 @@ const NewsletterUnsubscribe = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center sm:px-6 lg:px-8">
-
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center">Confirm Unsubscription</CardTitle>
-            <CardDescription className="text-center">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center p-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-sm sm:max-w-md">
+        <Card className="card-elegant">
+          <CardHeader className="text-center pb-3 sm:pb-4">
+            <CardTitle className="text-lg sm:text-xl">Confirm Unsubscription</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
               Enter your email address to unsubscribe from our newsletter
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <div>
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email" className="text-sm font-medium">Email address</Label>
                 <Input
                   id="email"
                   name="email"
@@ -104,31 +104,31 @@ const NewsletterUnsubscribe = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address"
-                  className="mt-1"
+                  className="mt-1.5 h-10 sm:h-12 text-sm sm:text-base"
                 />
               </div>
 
               {state.error && (
                 <div className="flex items-center space-x-2 text-red-600">
-                  <XCircle className="h-4 w-4" />
-                  <span className="text-sm">{state.error}</span>
+                  <XCircle className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm">{state.error}</span>
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <Button
                   onClick={handleUnsubscribe}
                   disabled={state.loading || !email}
-                  className="w-full"
+                  className="w-full h-10 sm:h-12 text-sm sm:text-base"
                   variant="destructive"
                 >
                   {state.loading ? 'Unsubscribing...' : 'Unsubscribe'}
                 </Button>
-                
+
                 <Button
                   onClick={handleGoHome}
                   variant="outline"
-                  className="w-full"
+                  className="w-full h-10 sm:h-12 text-sm sm:text-base"
                 >
                   Cancel
                 </Button>

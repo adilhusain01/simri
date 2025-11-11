@@ -48,6 +48,7 @@ const Checkout: React.FC = () => {
 
   // State
   const [loading, setLoading] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [addressesLoading, setAddressesLoading] = useState(false);
   const [selectedShippingAddress, setSelectedShippingAddress] = useState<string>('');
@@ -266,6 +267,8 @@ const Checkout: React.FC = () => {
         image: '/logo.png',
         handler: async (response: any) => {
           try {
+            setPaymentProcessing(true);
+
             // Verify payment with backend
             await paymentService.verifyPayment({
               order_id: order.order_id,
@@ -276,10 +279,15 @@ const Checkout: React.FC = () => {
 
             toast.success('Payment successful! Order placed.');
             await clearCart();
-            navigate({ to: `/orders` });
+
+            // Small delay to show success message before navigation
+            setTimeout(() => {
+              navigate({ to: `/orders` });
+            }, 500);
           } catch (error) {
             console.error('Payment verification failed:', error);
             toast.error('Payment verification failed. Please contact support.');
+            setPaymentProcessing(false);
           }
         },
         modal: {
@@ -331,7 +339,39 @@ const Checkout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
+      {/* Payment Processing Overlay */}
+      {paymentProcessing && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-2xl p-8 sm:p-12 max-w-md mx-4 text-center shadow-2xl"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6"
+            >
+              <LoadingSpinner size="lg" />
+            </motion.div>
+
+            <h3 className="font-heading text-xl sm:text-2xl font-bold text-royal-black mb-3">
+              Processing Payment
+            </h3>
+            <p className="text-sm sm:text-base text-gray-600 mb-4">
+              Please wait while we confirm your payment and create your order...
+            </p>
+
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-2 h-2 bg-royal-gold rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-royal-gold rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-2 h-2 bg-royal-gold rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="max-w-6xl mx-auto">
 
@@ -454,16 +494,6 @@ const Checkout: React.FC = () => {
                             Add New Address
                           </Button>
 
-                          <div className="flex flex-col sm:flex-row justify-end pt-4 gap-2">
-                            <Button
-                              onClick={() => setStep(2)}
-                              disabled={!selectedShippingAddress}
-                              className="btn-primary w-full sm:w-auto text-sm lg:text-base"
-                            >
-                              Continue to Payment
-                              <ArrowRight className="h-4 w-4 ml-2" />
-                            </Button>
-                          </div>
                         </>
                       )}
                     </CardContent>
@@ -511,22 +541,6 @@ const Checkout: React.FC = () => {
                         </span>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row justify-between pt-4 gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={() => setStep(1)}
-                          className="w-full sm:w-auto text-sm lg:text-base"
-                        >
-                          Back to Address
-                        </Button>
-                        <Button
-                          onClick={() => setStep(3)}
-                          className="btn-primary w-full sm:w-auto text-sm lg:text-base"
-                        >
-                          Review Order
-                          <ArrowRight className="h-4 w-4 ml-2" />
-                        </Button>
-                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -601,29 +615,6 @@ const Checkout: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row justify-between pt-4 gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={() => setStep(2)}
-                          className="w-full sm:w-auto text-sm lg:text-base"
-                        >
-                          Back to Payment
-                        </Button>
-                        <Button
-                          onClick={handlePlaceOrder}
-                          disabled={loading}
-                          className="btn-primary w-full sm:w-auto text-sm lg:text-base"
-                        >
-                          {loading ? (
-                            <LoadingSpinner size="sm" />
-                          ) : (
-                            <>
-                              <Lock className="h-4 w-4 mr-2" />
-                              Place Order
-                            </>
-                          )}
-                        </Button>
-                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -718,6 +709,67 @@ const Checkout: React.FC = () => {
                     <div className="flex justify-between font-bold text-sm lg:text-lg">
                       <span>Total</span>
                       <span className="text-royal-black">₹{total.toLocaleString()}</span>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="pt-4 border-t mt-4">
+                      {step === 1 && (
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            onClick={() => setStep(2)}
+                            disabled={!selectedShippingAddress}
+                            className="btn-primary w-full text-sm lg:text-base"
+                          >
+                            Continue to Payment
+                            <ArrowRight className="h-4 w-4 ml-2" />
+                          </Button>
+                        </div>
+                      )}
+
+                      {step === 2 && (
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            onClick={() => setStep(3)}
+                            className="btn-primary w-full text-sm lg:text-base"
+                          >
+                            Review Order
+                            <ArrowRight className="h-4 w-4 ml-2" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setStep(1)}
+                            className="w-full text-sm lg:text-base"
+                          >
+                            Back to Address
+                          </Button>
+                        </div>
+                      )}
+
+                      {step === 3 && (
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            onClick={handlePlaceOrder}
+                            disabled={loading}
+                            className="btn-primary w-full text-sm lg:text-base"
+                          >
+                            {loading ? (
+                              <LoadingSpinner size="sm" />
+                            ) : (
+                              <>
+                                <Lock className="h-4 w-4 mr-2" />
+                                Place Order
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setStep(2)}
+                            className="w-full text-sm lg:text-base"
+                          >
+                            Back to Payment
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

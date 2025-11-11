@@ -55,46 +55,46 @@ const EmailVerification: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-sm sm:max-w-md">
         <motion.div {...fadeInUp}>
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="font-heading text-3xl font-bold text-royal-black mb-2">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="font-heading text-2xl sm:text-3xl font-bold text-royal-black mb-2">
               Email Verification
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600">
               Verifying your email address
             </p>
           </div>
 
           {/* Verification Card */}
           <Card className="card-elegant">
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="font-heading text-xl text-royal-black">
+            <CardHeader className="text-center pb-3 sm:pb-4">
+              <CardTitle className="font-heading text-lg sm:text-xl text-royal-black">
                 {verificationStatus === 'verifying' && 'Verifying...'}
                 {verificationStatus === 'success' && 'Verification Complete'}
                 {verificationStatus === 'error' && 'Verification Failed'}
               </CardTitle>
             </CardHeader>
-            
+
             <CardContent className="text-center">
               {/* Status Icon */}
-              <div className="mb-6">
+              <div className="mb-4 sm:mb-6">
                 {verificationStatus === 'verifying' && (
-                  <RefreshCw className="h-16 w-16 mx-auto text-royal-gold animate-spin" />
+                  <RefreshCw className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-royal-gold animate-spin" />
                 )}
                 {verificationStatus === 'success' && (
-                  <CheckCircle className="h-16 w-16 mx-auto text-green-600" />
+                  <CheckCircle className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-green-600" />
                 )}
                 {verificationStatus === 'error' && (
-                  <XCircle className="h-16 w-16 mx-auto text-red-600" />
+                  <XCircle className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-red-600" />
                 )}
               </div>
 
               {/* Message */}
-              <div className="mb-6">
-                <p className={`text-lg ${
+              <div className="mb-4 sm:mb-6">
+                <p className={`text-sm sm:text-lg ${
                   verificationStatus === 'success' ? 'text-green-700' :
                   verificationStatus === 'error' ? 'text-red-700' : 'text-gray-600'
                 }`}>
@@ -103,10 +103,10 @@ const EmailVerification: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {verificationStatus === 'success' && (
                   <Link to="/auth/login" search={{ redirect: '/' }}>
-                    <Button className="w-full btn-primary">
+                    <Button className="w-full btn-primary h-10 sm:h-12 text-sm sm:text-base">
                       Continue to Login
                     </Button>
                   </Link>
@@ -116,12 +116,12 @@ const EmailVerification: React.FC = () => {
                   <>
                     <Button
                       onClick={handleResendVerification}
-                      className="w-full btn-primary mb-3"
+                      className="w-full btn-primary h-10 sm:h-12 text-sm sm:text-base mb-3"
                     >
                       Get New Verification Email
                     </Button>
                     <Link to="/auth/login" search={{ redirect: '/' }}>
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" className="w-full h-10 sm:h-12 text-sm sm:text-base">
                         Back to Login
                       </Button>
                     </Link>
