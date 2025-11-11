@@ -273,55 +273,6 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-white">
-        <div className="container mx-auto px-6 sm:px-8 lg:px-8">
-          <motion.div
-            variants={stagger}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="text-center mb-12 sm:mb-16"
-          >
-            <motion.h2 variants={fadeInUp} className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-royal-black mb-4 sm:mb-6">
-              Why Choose Simri?
-            </motion.h2>
-            <motion.p variants={fadeInUp} className="text-base sm:text-lg lg:text-xl text-gray-800 max-w-2xl mx-auto leading-relaxed">
-              We're committed to making your gift-giving experience extraordinary with our premium service and attention to detail.
-            </motion.p>
-          </motion.div>
-
-          <motion.div
-            variants={stagger}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8"
-          >
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <motion.div key={index} variants={fadeInUp}>
-                  <Card className="card-elegant text-center p-4 sm:p-6 h-full hover:shadow-xl transition-all duration-300">
-                    <CardContent className="pt-4 sm:pt-6 flex flex-col h-full">
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-royal-gold rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                        <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-royal-black" />
-                      </div>
-                      <h3 className="font-heading text-lg sm:text-xl font-semibold text-royal-black mb-2 sm:mb-3">
-                        {feature.title}
-                      </h3>
-                      <p className="text-sm sm:text-base text-gray-800 leading-relaxed flex-grow">
-                        {feature.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </div>
-      </section>
-
       {/* Categories Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
         <div className="container mx-auto px-6 sm:px-8 lg:px-8">
@@ -402,6 +353,55 @@ const Home: React.FC = () => {
                 );
               })
             )}
+          </motion.div>
+        </div>
+      </section>
+
+            {/* Features Section */}
+      <section className="py-12 sm:py-16 lg:py-20 bg-white">
+        <div className="container mx-auto px-6 sm:px-8 lg:px-8">
+          <motion.div
+            variants={stagger}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="text-center mb-12 sm:mb-16"
+          >
+            <motion.h2 variants={fadeInUp} className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-royal-black mb-4 sm:mb-6">
+              Why Choose Simri?
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-base sm:text-lg lg:text-xl text-gray-800 max-w-2xl mx-auto leading-relaxed">
+              We're committed to making your gift-giving experience extraordinary with our premium service and attention to detail.
+            </motion.p>
+          </motion.div>
+
+          <motion.div
+            variants={stagger}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8"
+          >
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <motion.div key={index} variants={fadeInUp}>
+                  <Card className="card-elegant text-center p-4 sm:p-6 h-full hover:shadow-xl transition-all duration-300">
+                    <CardContent className="pt-4 sm:pt-6 flex flex-col h-full">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-royal-gold rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                        <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-royal-black" />
+                      </div>
+                      <h3 className="font-heading text-lg sm:text-xl font-semibold text-royal-black mb-2 sm:mb-3">
+                        {feature.title}
+                      </h3>
+                      <p className="text-sm sm:text-base text-gray-800 leading-relaxed flex-grow">
+                        {feature.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
       </section>
