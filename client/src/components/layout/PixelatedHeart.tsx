@@ -29,7 +29,7 @@ const PixelatedHeart = () => {
 
   // Royal gold to black gradient shades
   const royalShades = [
-    '#EDBC5A', // royal gold
+    '#E2BA6F', // royal gold
     '#D4A347', // darker gold
     '#BB8A34', // bronze-gold
     '#A27121', // dark bronze

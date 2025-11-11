@@ -75,7 +75,7 @@ export function truncateText(text: string, length: number): string {
 // Generate random color for charts
 export function generateColor(index: number): string {
   const colors = [
-    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EDBC5A',
+    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#E2BA6F',
     '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1'
   ]
   return colors[index % colors.length]

@@ -16,7 +16,7 @@ export default {
         'admin-green': '#10B981',
         'admin-red': '#EF4444',
         'admin-yellow': '#F59E0B',
-        'royal-gold': '#EDBC5A',
+        'royal-gold': '#E2BA6F',
         'royal-black': '#020202',
         'ivory-white': 'var(--ivory-white)',
         

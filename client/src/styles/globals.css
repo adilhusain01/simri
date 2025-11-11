@@ -6,7 +6,7 @@
 /* CSS Custom Properties for royal theme */
 :root {
   /* Primary royal theme colors */
-  --royal-gold: #EDBC5A;
+  --royal-gold: #E2BA6F;
   --royal-black: #020202;
 
   /* Supporting grays */
@@ -15,16 +15,16 @@
 
   /* Semantic colors using royal theme */
   --primary: #020202;
-  --secondary: #EDBC5A;
-  --accent: #EDBC5A;
+  --secondary: ##E2BA6F;
+  --accent: #E2BA6F;
   --muted: #f9fafb;
 
   /* Ensure background colors work */
   --tw-bg-opacity: 1;
 
   /* Gradients */
-  --royal-gradient: linear-gradient(135deg, #EDBC5A 0%, #020202 100%);
-  --gold-gradient: linear-gradient(135deg, #EDBC5A 0%, #f9fafb 100%);
+  --royal-gradient: linear-gradient(135deg, #E2BA6F 0%, #020202 100%);
+  --gold-gradient: linear-gradient(135deg, #E2BA6F 0%, #f9fafb 100%);
 
   /* Legacy colors (for compatibility) */
   --lavender-mist: #BFA2DB;
@@ -60,11 +60,11 @@ h1, h2, h3, h4, h5, h6 {
 /* Custom utility classes */
 
 .bg-royal-gold {
-  background-color: #EDBC5A !important;
+  background-color: #E2BA6F !important;
 }
 
 .text-royal-gold {
-  color: #EDBC5A !important;
+  color: #E2BA6F !important;
 }
 
 .bg-royal-black {
@@ -76,7 +76,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .border-royal-gold {
-  border-color: #EDBC5A !important;
+  border-color: #E2BA6F !important;
 }
 
 .border-royal-black {

@@ -13,7 +13,6 @@ const Footer: React.FC = () => {
     ],
     support: [
       { name: 'Contact Us', href: '/contact' },
-      { name: 'Track Order', href: '/track' },
       { name: 'Returns', href: '/returns' },
     ],
     legal: [

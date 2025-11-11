@@ -16,7 +16,7 @@ export default {
     extend: {
       colors: {
         // Royal theme colors (both CSS variables and direct values)
-        'royal-gold': '#EDBC5A',
+        'royal-gold': '#E2BA6F',
         'royal-black': '#020202',
 
         // Gray scale
@@ -40,26 +40,26 @@ export default {
           900: '#020202',
         },
         secondary: {
-          DEFAULT: '#EDBC5A',
+          DEFAULT: '#E2BA6F',
           50: '#fffbf0',
           100: '#fef3c7',
           200: '#fde68a',
           300: '#fcd34d',
-          400: '#EDBC5A',
-          500: '#edbc5a',
+          400: '#E2BA6F',
+          500: '#e2ba6f',
           600: '#d97706',
           700: '#b45309',
           800: '#92400e',
           900: '#78350f',
         },
         accent: {
-          DEFAULT: '#EDBC5A',
+          DEFAULT: '#E2BA6F',
           50: '#fffbf0',
           100: '#fef3c7',
           200: '#fde68a',
           300: '#fcd34d',
-          400: '#EDBC5A',
-          500: '#edbc5a',
+          400: '#E2BA6F',
+          500: '#e2ba6f',
           600: '#d97706',
           700: '#b45309',
           800: '#92400e',
