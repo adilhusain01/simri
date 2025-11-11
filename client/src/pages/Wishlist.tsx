@@ -175,39 +175,43 @@ const Wishlist: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="max-w-7xl mx-auto">
-          
+
           {/* Header */}
-          <motion.div 
-            className="flex items-center gap-4 mb-8"
+          <motion.div
+            className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-6 lg:mb-8"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="flex-1">
-              <h1 className="font-heading text-3xl font-bold text-royal-black">
+              <h1 className="font-heading text-2xl sm:text-3xl font-bold text-royal-black">
                 My Wishlist
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-sm sm:text-base text-gray-600 mt-1">
                 {wishlist?.items?.length ? `${wishlist.items.length} items saved for later` : 'Your wishlist is empty'}
               </p>
             </div>
-            
+
             {wishlist?.items && wishlist.items.length > 0 && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-start sm:self-auto">
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('grid')}
+                  className="text-xs sm:text-sm"
                 >
                   <Grid className="h-4 w-4" />
+                  <span className="ml-1 sm:hidden">Grid</span>
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('list')}
+                  className="text-xs sm:text-sm"
                 >
                   <List className="h-4 w-4" />
+                  <span className="ml-1 sm:hidden">List</span>
                 </Button>
               </div>
             )}
@@ -215,15 +219,15 @@ const Wishlist: React.FC = () => {
 
           {/* Empty Wishlist */}
           {(!wishlist?.items || wishlist.items.length === 0) && (
-            <motion.div 
-              className="text-center py-16"
+            <motion.div
+              className="text-center py-12 lg:py-16"
               {...fadeInUp}
             >
-              <Heart className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="font-heading text-xl font-semibold text-gray-600 mb-2">
+              <Heart className="h-12 lg:h-16 w-12 lg:w-16 mx-auto text-gray-400 mb-4" />
+              <h3 className="font-heading text-lg lg:text-xl font-semibold text-gray-600 mb-2">
                 Your wishlist is empty
               </h3>
-              <p className="text-gray-500 mb-6">
+              <p className="text-sm lg:text-base text-gray-500 mb-6 max-w-md mx-auto">
                 Save items you love for later by clicking the heart icon
               </p>
               <Link to="/products" search={{
@@ -305,10 +309,10 @@ const Wishlist: React.FC = () => {
               </motion.div>
 
               {/* Items Grid/List */}
-              <motion.div 
-                className={viewMode === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-                  : "space-y-4"
+              <motion.div
+                className={viewMode === 'grid'
+                  ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6"
+                  : "space-y-3 lg:space-y-4"
                 }
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -449,13 +453,13 @@ const WishlistItemCard: React.FC<{
   }
 
   return (
-    <Card className="card-elegant group hover-lift overflow-hidden relative p-0">
-      <div className="absolute top-2 left-2 z-10">
+    <Card className="card-elegant group hover-lift overflow-hidden relative p-0 h-full flex flex-col">
+      <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10">
         <input
           type="checkbox"
           checked={isSelected}
           onChange={onSelect}
-          className="w-4 h-4 text-royal-gold border-white bg-white/80 rounded focus:ring-royal-gold shadow-sm"
+          className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-royal-gold border-white bg-white/80 rounded focus:ring-royal-gold shadow-sm"
         />
       </div>
       
@@ -471,26 +475,28 @@ const WishlistItemCard: React.FC<{
           />
         </div>
         {product.discount_price && (
-          <Badge className="absolute top-2 right-2 bg-red-500 text-white">
+          <Badge className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white text-xs px-1 sm:px-2 py-0.5">
             {Math.round((1 - parseFloat(product.discount_price) / parseFloat(product.price)) * 100)}% OFF
           </Badge>
         )}
         <Button
           variant="ghost"
           size="sm"
-          className="absolute bottom-2 right-2 bg-white/80 hover:bg-white"
+          className="absolute bottom-1 sm:bottom-2 right-1 sm:right-2 bg-white/80 hover:bg-white p-1.5 sm:p-2"
           onClick={onRemove}
         >
-          <Trash2 className="h-4 w-4 text-red-600" />
+          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
         </Button>
       </div>
       
-      <CardContent className="p-4">
-        <Badge variant="secondary" className="text-xs mb-2">
+      <CardContent className="p-2 sm:p-3 lg:p-4 flex flex-col flex-grow">
+        <Badge variant="secondary" className="text-xs mb-2 w-fit">
           {product.category_name}
         </Badge>
-        <h3 className="font-heading text-base font-semibold text-royal-black mb-2 line-clamp-2">
-          {product.name}
+        <h3 className="font-heading text-xs sm:text-sm lg:text-base font-semibold text-royal-black mb-2 line-clamp-2 flex-grow">
+          <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-royal-gold transition-colors">
+            {product.name}
+          </Link>
         </h3>
         
         {(product.averageRating || product.totalReviews) && (
@@ -502,26 +508,26 @@ const WishlistItemCard: React.FC<{
           </div>
         )}
 
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-1 sm:gap-2 mb-3">
           {product.discount_price ? (
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-bold text-royal-black">
+            <>
+              <span className="text-sm sm:text-base lg:text-lg font-bold text-royal-black">
                 ₹{parseFloat(product.discount_price).toLocaleString()}
               </span>
-              <span className="text-sm text-gray-500 line-through">
+              <span className="text-xs sm:text-sm text-gray-500 line-through">
                 ₹{parseFloat(product.price).toLocaleString()}
               </span>
-            </div>
+            </>
           ) : (
-            <span className="text-lg font-bold text-royal-black">
+            <span className="text-sm sm:text-base lg:text-lg font-bold text-royal-black">
               ₹{parseFloat(product.price).toLocaleString()}
             </span>
           )}
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-1 sm:space-y-2 mt-auto">
           <Button
-            className="w-full btn-primary"
+            className="w-full btn-primary text-xs sm:text-sm"
             size="sm"
             onClick={onMoveToCart}
             disabled={product.stock_quantity === 0}
@@ -530,19 +536,21 @@ const WishlistItemCard: React.FC<{
               'Out of Stock'
             ) : (
               <>
-                <ShoppingBag className="h-4 w-4 mr-2" />
-                Move to Cart
+                <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Move to Cart</span>
+                <span className="sm:hidden">Move</span>
               </>
             )}
           </Button>
           <Button
             variant="outline"
-            className="w-full"
+            className="w-full text-xs sm:text-sm"
             size="sm"
             onClick={onAddToCart}
             disabled={product.stock_quantity === 0}
           >
-            Add to Cart
+            <span className="hidden sm:inline">Add to Cart</span>
+            <span className="sm:hidden">Add</span>
           </Button>
         </div>
       </CardContent>

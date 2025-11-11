@@ -368,33 +368,52 @@ const Header: React.FC = () => {
       {/* Mobile Search Overlay */}
       <AnimatePresence>
         {isSearchOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="lg:hidden absolute top-16 left-0 right-0 bg-white border-b shadow-lg p-4 z-50"
-          >
-            <form onSubmit={handleSearch} className="relative">
-              <Input
-                type="search"
-                placeholder="Search for perfect gifts..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-12 py-3 text-lg bg-white border-gray-300 focus:border-gray-400 focus:ring-gray-400"
-                autoFocus
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                onClick={() => setIsSearchOpen(false)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </form>
-          </motion.div>
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="lg:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+              onClick={() => setIsSearchOpen(false)}
+            />
+
+            {/* Search Modal */}
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className="lg:hidden fixed top-20 left-4 right-4 bg-white rounded-lg shadow-xl border z-50 max-w-md mx-auto"
+            >
+              <div className="p-4">
+                <form onSubmit={handleSearch} className="relative">
+                  <Input
+                    type="search"
+                    placeholder="Search for perfect gifts..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-12 py-3 text-base sm:text-lg bg-white border-gray-300 focus:border-royal-gold focus:ring-royal-gold rounded-lg"
+                    autoFocus
+                  />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    onClick={() => setIsSearchOpen(false)}
+                  >
+                    <X className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </Button>
+                </form>
+
+                {/* Quick Search Suggestions */}
+                <div className="mt-3 text-xs text-gray-500">
+                  <p>Try searching for: "gifts", "birthday", "anniversary"</p>
+                </div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </header>

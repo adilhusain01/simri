@@ -336,25 +336,25 @@ const Profile: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="max-w-4xl mx-auto">
 
-          <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="addresses">Addresses</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews</TabsTrigger>
-              <TabsTrigger value="security">Security</TabsTrigger>
+          <Tabs defaultValue="profile" className="space-y-4 sm:space-y-6">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1">
+              <TabsTrigger value="profile" className="text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-royal-black data-[state=active]:shadow-sm">Profile</TabsTrigger>
+              <TabsTrigger value="addresses" className="text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-royal-black data-[state=active]:shadow-sm">Addresses</TabsTrigger>
+              <TabsTrigger value="reviews" className="text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-royal-black data-[state=active]:shadow-sm">Reviews</TabsTrigger>
+              <TabsTrigger value="security" className="text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-royal-black data-[state=active]:shadow-sm">Security</TabsTrigger>
             </TabsList>
 
             {/* Profile Tab */}
             <TabsContent value="profile">
               <motion.div {...fadeInUp}>
                 <Card className="card-elegant">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <User className="h-5 w-5" />
+                  <CardHeader className="pb-3 sm:pb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 sm:justify-between">
+                      <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                        <User className="h-4 w-4 sm:h-5 sm:w-5" />
                         Profile Information
                       </CardTitle>
                       <Button
@@ -369,38 +369,39 @@ const Profile: React.FC = () => {
                           }
                           setEditMode(!editMode);
                         }}
+                        className="self-start sm:self-auto text-xs sm:text-sm"
                       >
-                        {editMode ? <X className="h-4 w-4 mr-1" /> : <Edit className="h-4 w-4 mr-1" />}
+                        {editMode ? <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1" /> : <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />}
                         {editMode ? 'Cancel' : 'Edit'}
                       </Button>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  <CardContent className="space-y-4 sm:space-y-6 pt-0">
                     {/* Avatar Section */}
-                    <div className="flex items-start gap-6">
+                    <div className="flex items-start gap-3 sm:gap-4 lg:gap-6">
                       <div className="flex-shrink-0">
                         {user.avatar ? (
                           <img
                             src={user.avatar}
                             alt={user.name}
-                            className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-gray-200"
                           />
                         ) : (
-                          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-royal-gold to-royal-black flex items-center justify-center text-white font-semibold text-xl border-2 border-gray-200">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-royal-gold to-royal-black flex items-center justify-center text-white font-semibold text-base sm:text-xl border-2 border-gray-200">
                             {user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                           </div>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-heading text-xl font-semibold text-royal-black">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-heading text-lg sm:text-xl font-semibold text-royal-black truncate">
                           {user.name}
                         </h3>
-                        <p className="text-gray-600">{user.email}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant={user.is_verified ? 'default' : 'secondary'}>
+                        <p className="text-gray-600 text-sm sm:text-base truncate">{user.email}</p>
+                        <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-2">
+                          <Badge variant={user.is_verified ? 'default' : 'secondary'} className="text-xs">
                             {user.is_verified ? 'Verified' : 'Unverified'}
                           </Badge>
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="text-xs">
                             {user.role}
                           </Badge>
                         </div>
@@ -409,27 +410,27 @@ const Profile: React.FC = () => {
 
                     {/* Profile Form */}
                     <form onSubmit={handleProfileUpdate} className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700">
+                          <label className="text-xs sm:text-sm font-medium text-gray-700">
                             Full Name
                           </label>
                           <Input
                             value={profileForm.name}
                             onChange={(e) => setProfileForm(prev => ({ ...prev, name: e.target.value }))}
                             disabled={!editMode}
-                            className={!editMode ? 'bg-gray-50' : ''}
+                            className={`text-sm ${!editMode ? 'bg-gray-50' : ''}`}
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700">
+                          <label className="text-xs sm:text-sm font-medium text-gray-700">
                             Email Address
                           </label>
                           <Input
                             type="email"
                             value={profileForm.email}
                             disabled={true}
-                            className="bg-gray-50"
+                            className="bg-gray-50 text-sm"
                             title="Email cannot be changed here. Use the dedicated email change section for verified updates."
                           />
                           <p className="text-xs text-gray-500">
@@ -460,10 +461,10 @@ const Profile: React.FC = () => {
             <TabsContent value="addresses">
               <motion.div {...fadeInUp}>
                 <Card className="card-elegant">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <MapPin className="h-5 w-5" />
+                  <CardHeader className="pb-3 sm:pb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 sm:justify-between">
+                      <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                        <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
                         Saved Addresses
                       </CardTitle>
                       <Button
@@ -473,10 +474,11 @@ const Profile: React.FC = () => {
                           setEditingAddress(null);
                           setShowAddressDialog(true);
                         }}
-                        className="btn-primary"
+                        className="btn-primary text-xs sm:text-sm self-start sm:self-auto"
                       >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Address
+                        <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Add Address</span>
+                        <span className="sm:hidden">Add</span>
                       </Button>
                     </div>
                   </CardHeader>
@@ -493,17 +495,17 @@ const Profile: React.FC = () => {
                         <p className="text-sm text-gray-500">Add an address for faster checkout</p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         {addresses.map((address) => (
-                          <Card key={address.id} className="border-2 hover:border-royal-gold">
-                            <CardContent className="p-4">
+                          <Card key={address.id} className="border-2 hover:border-royal-gold transition-colors">
+                            <CardContent className="p-3 sm:p-4">
                               <div className="flex justify-between items-start mb-3">
-                                <div className="flex items-center gap-2">
-                                  <Badge variant={address.type === 'shipping' ? 'default' : 'secondary'}>
+                                <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                                  <Badge variant={address.type === 'shipping' ? 'default' : 'secondary'} className="text-xs">
                                     {address.type}
                                   </Badge>
                                   {(address.is_default || address.isDefault) && (
-                                    <Badge variant="outline">Default</Badge>
+                                    <Badge variant="outline" className="text-xs">Default</Badge>
                                   )}
                                 </div>
                                 <div className="flex gap-1">
@@ -511,16 +513,17 @@ const Profile: React.FC = () => {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => openEditAddress(address)}
+                                    className="p-1.5 sm:p-2"
                                   >
-                                    <Edit className="h-3 w-3" />
+                                    <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                                   </Button>
                                   <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDeleteAddress(address.id)}
-                                    className="text-red-600 hover:text-red-700"
+                                    className="text-red-600 hover:text-red-700 p-1.5 sm:p-2"
                                   >
-                                    <Trash2 className="h-3 w-3" />
+                                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                                   </Button>
                                 </div>
                               </div>
@@ -559,13 +562,13 @@ const Profile: React.FC = () => {
             <TabsContent value="reviews">
               <motion.div {...fadeInUp}>
                 <Card className="card-elegant">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MessageSquare className="h-5 w-5" />
+                  <CardHeader className="pb-3 sm:pb-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                      <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" />
                       My Reviews
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-0">
                     {reviewsLoading ? (
                       <div className="flex items-center justify-center py-8">
                         <LoadingSpinner size="md" />
@@ -578,26 +581,26 @@ const Profile: React.FC = () => {
                         <p className="text-sm text-gray-500">Start shopping to leave your first review!</p>
                       </div>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="space-y-3 sm:space-y-4">
                         {reviews?.map((review) => (
-                          <Card key={review.id} className="border-2 hover:border-royal-gold">
-                            <CardContent className="p-4">
+                          <Card key={review.id} className="border-2 hover:border-royal-gold transition-colors">
+                            <CardContent className="p-3 sm:p-4">
                               <div className="flex justify-between items-start mb-3">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-2">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
                                     <div className="flex items-center gap-1">
                                       {renderStars(review.rating)}
                                     </div>
-                                    <span className="text-sm text-gray-500">
+                                    <span className="text-xs sm:text-sm text-gray-500">
                                       {new Date(review.created_at || review.createdAt || '').toLocaleDateString()}
                                     </span>
                                   </div>
                                   {review.title && (
-                                    <h4 className="font-medium text-gray-900 mb-1">{review.title}</h4>
+                                    <h4 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">{review.title}</h4>
                                   )}
-                                  <p className="text-gray-700 mb-2">{review.comment}</p>
+                                  <p className="text-gray-700 mb-2 text-sm sm:text-base">{review.comment}</p>
                                   {(review.product_name) && (
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-xs sm:text-sm text-gray-500 truncate">
                                       Product: <span className="font-medium">{review.product_name}</span>
                                     </p>
                                   )}
@@ -607,18 +610,18 @@ const Profile: React.FC = () => {
                                     </Badge>
                                   )}
                                 </div>
-                                <div className="flex gap-1">
+                                <div className="flex gap-1 flex-shrink-0 ml-2">
                                   <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDeleteReview(review.id)}
                                     disabled={deletingReviewId === review.id}
-                                    className="text-red-600 hover:text-red-700"
+                                    className="text-red-600 hover:text-red-700 p-1.5 sm:p-2"
                                   >
                                     {deletingReviewId === review.id ? (
                                       <LoadingSpinner size="sm" />
                                     ) : (
-                                      <Trash2 className="h-3 w-3" />
+                                      <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                                     )}
                                   </Button>
                                 </div>
@@ -675,18 +678,18 @@ const Profile: React.FC = () => {
             <TabsContent value="security">
               <motion.div {...fadeInUp}>
                 <Card className="card-elegant">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Shield className="h-5 w-5" />
+                  <CardHeader className="pb-3 sm:pb-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                      <Shield className="h-4 w-4 sm:h-5 sm:w-5" />
                       Security Settings
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <h4 className="font-medium">Password</h4>
-                          <p className="text-sm text-gray-600">
+                  <CardContent className="space-y-4 sm:space-y-6 pt-0">
+                    <div className="space-y-3 sm:space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg gap-2 sm:gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm sm:text-base">Password</h4>
+                          <p className="text-xs sm:text-sm text-gray-600">
                             Last changed: Never
                           </p>
                         </div>
@@ -694,31 +697,32 @@ const Profile: React.FC = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => setShowPasswordDialog(true)}
+                          className="text-xs sm:text-sm self-start sm:self-auto"
                         >
                           Change Password
                         </Button>
                       </div>
-                      
-                      <div className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <h4 className="font-medium">Two-Factor Authentication</h4>
-                          <p className="text-sm text-gray-600">
+
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg gap-2 sm:gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm sm:text-base">Two-Factor Authentication</h4>
+                          <p className="text-xs sm:text-sm text-gray-600">
                             Add an extra layer of security to your account
                           </p>
                         </div>
-                        <Button variant="outline" size="sm" disabled>
+                        <Button variant="outline" size="sm" disabled className="text-xs sm:text-sm self-start sm:self-auto">
                           Coming Soon
                         </Button>
                       </div>
 
-                      <div className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <h4 className="font-medium">Login Sessions</h4>
-                          <p className="text-sm text-gray-600">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg gap-2 sm:gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm sm:text-base">Login Sessions</h4>
+                          <p className="text-xs sm:text-sm text-gray-600">
                             Manage your active sessions
                           </p>
                         </div>
-                        <Button variant="outline" size="sm" disabled>
+                        <Button variant="outline" size="sm" disabled className="text-xs sm:text-sm self-start sm:self-auto">
                           View Sessions
                         </Button>
                       </div>
@@ -731,10 +735,10 @@ const Profile: React.FC = () => {
 
           {/* Password Change Dialog */}
           <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-sm sm:max-w-md mx-4">
               <DialogHeader>
-                <DialogTitle>Change Password</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-base sm:text-lg">Change Password</DialogTitle>
+                <DialogDescription className="text-sm">
                   Enter your current password and choose a new one.
                 </DialogDescription>
               </DialogHeader>
@@ -813,42 +817,42 @@ const Profile: React.FC = () => {
 
           {/* Address Dialog */}
           <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-sm sm:max-w-md mx-4 max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>
+                <DialogTitle className="text-base sm:text-lg">
                   {editingAddress ? 'Edit Address' : 'Add New Address'}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleAddressSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+              <form onSubmit={handleAddressSubmit} className="space-y-3 sm:space-y-4">
+                <div className="space-y-2">
+                  <label className="text-xs sm:text-sm font-medium">Type</label>
+                  <select
+                    value={addressForm.type}
+                    onChange={(e) => setAddressForm(prev => ({ ...prev, type: e.target.value as 'shipping' | 'billing' }))}
+                    className="w-full p-2 border rounded-md text-sm"
+                  >
+                    <option value="shipping">Shipping</option>
+                    <option value="billing">Billing</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Type</label>
-                    <select
-                      value={addressForm.type}
-                      onChange={(e) => setAddressForm(prev => ({ ...prev, type: e.target.value as 'shipping' | 'billing' }))}
-                      className="w-full p-2 border rounded-md"
-                    >
-                      <option value="shipping">Shipping</option>
-                      <option value="billing">Billing</option>
-                    </select>
+                    <label className="text-xs sm:text-sm font-medium">First Name</label>
+                    <Input
+                      value={addressForm.first_name}
+                      onChange={(e) => setAddressForm(prev => ({ ...prev, first_name: e.target.value }))}
+                      required
+                      className="text-sm"
+                    />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">First Name</label>
-                      <Input
-                        value={addressForm.first_name}
-                        onChange={(e) => setAddressForm(prev => ({ ...prev, first_name: e.target.value }))}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Last Name</label>
-                      <Input
-                        value={addressForm.last_name}
-                        onChange={(e) => setAddressForm(prev => ({ ...prev, last_name: e.target.value }))}
-                        required
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <label className="text-xs sm:text-sm font-medium">Last Name</label>
+                    <Input
+                      value={addressForm.last_name}
+                      onChange={(e) => setAddressForm(prev => ({ ...prev, last_name: e.target.value }))}
+                      required
+                      className="text-sm"
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
