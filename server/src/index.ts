@@ -40,15 +40,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Trust proxy for deployment behind reverse proxy (Vercel, etc.)
-app.set('trust proxy', 1);
-
 // Security middleware
 app.use(helmet());
 app.use(cors({
   origin: [
     process.env.CLIENT_URL || 'http://localhost:3000',
-    'https://simri-beta.vercel.app', // Production frontend
     'http://localhost:3001', // Dashboard
     'http://localhost:3002', // Dashboard fallback
   ],
@@ -80,9 +76,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
 
