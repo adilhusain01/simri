@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
-import { Gift, CheckCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { Card, CardContent } from '../../components/ui/card';
 import { toast } from 'sonner';

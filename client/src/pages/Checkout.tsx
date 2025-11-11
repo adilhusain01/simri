@@ -16,7 +16,6 @@ import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import LoadingSpinner from '../components/ui/loading';
-import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
 import { Label } from '../components/ui/label';
 import {
   Dialog,
@@ -54,7 +53,7 @@ const Checkout: React.FC = () => {
   const [selectedShippingAddress, setSelectedShippingAddress] = useState<string>('');
   const [selectedBillingAddress, setSelectedBillingAddress] = useState<string>('');
   const [useSameAddress] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState('razorpay');
+  const [paymentMethod] = useState('razorpay');
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [step, setStep] = useState(1); // 1: Address, 2: Payment, 3: Review
