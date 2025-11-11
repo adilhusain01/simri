@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 
 const Callback: React.FC = () => {
   const navigate = useNavigate();
-  const { isLoading } = useAuthStore();
+  const { isLoading, initialize } = useAuthStore();
   const [status, setStatus] = React.useState<'loading' | 'success' | 'error'>('loading');
 
   useEffect(() => {
@@ -28,7 +28,8 @@ const Callback: React.FC = () => {
         }
 
         if (success === 'true') {
-          // OAuth was successful, user is already authenticated on the backend
+          // OAuth was successful, now sync the frontend state with backend session
+          await initialize();
           setStatus('success');
           toast.success('Successfully signed in with Google!');
 
@@ -55,7 +56,7 @@ const Callback: React.FC = () => {
     };
 
     processCallback();
-  }, [navigate]);
+  }, [navigate, initialize]);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
