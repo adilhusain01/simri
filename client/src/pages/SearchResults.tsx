@@ -291,7 +291,7 @@ const SearchResults: React.FC = () => {
               </DropdownMenu>
 
               {/* Mobile Filters */}
-              <Sheet>
+              {/* <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="outline" className="lg:hidden text-xs sm:text-sm">
                     <SlidersHorizontal className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -301,11 +301,11 @@ const SearchResults: React.FC = () => {
                 <SheetContent side="left" className="w-80">
                   <div className="py-4">
                     <h3 className="font-heading text-lg font-semibold mb-4">Filters</h3>
-                    {/* Filter content */}
+          
                     <p className="text-gray-500">Advanced filters coming soon...</p>
                   </div>
                 </SheetContent>
-              </Sheet>
+              </Sheet> */}
             </div>
 
             {/* Quick filters */}

@@ -275,7 +275,7 @@ const Products: React.FC = () => {
                 </DropdownMenu>
 
                 {/* Mobile Filters */}
-                <Sheet>
+                {/* <Sheet>
                   <SheetTrigger asChild>
                     <Button variant="outline" className="lg:hidden">
                       <SlidersHorizontal className="h-4 w-4 mr-2" />
@@ -285,11 +285,11 @@ const Products: React.FC = () => {
                   <SheetContent side="left" className="w-full sm:w-80 bg-white">
                     <div className="py-4">
                       <h3 className="font-heading text-lg font-semibold mb-4">Filters</h3>
-                      {/* Filter content would go here */}
+                      
                       <p className="text-gray-500 text-sm">Advanced filters coming soon...</p>
                     </div>
                   </SheetContent>
-                </Sheet>
+                </Sheet> */}
               </div>
             </div>
 
