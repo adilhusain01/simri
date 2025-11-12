@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from '@tanstack/react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -11,6 +11,8 @@ import {
   LogOut,
   Package,
   Settings,
+  ChevronDown,
+  Store,
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import simriLogo from '../../assets/simri_black.png';
@@ -28,17 +30,44 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from '../ui/sheet';
 import { useAuthStore } from '../../stores/authStore';
 import { useCartStore } from '../../stores/cartStore';
 import { useWishlistStore } from '../../stores/wishlistStore';
+import { productService } from '../../services/api';
+import type { Category } from '../../types';
 
 const Header: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [showMobileCategories, setShowMobileCategories] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { cart } = useCartStore();
   const { wishlist } = useWishlistStore();
+
+  // Fetch categories for shop dropdown
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+        const fetchedCategories = await productService.getCategories();
+        // Filter for root categories (no parent_id) and limit to 8 for dropdown
+        const rootCategories = fetchedCategories
+          .filter(category => !category.parent_id && category.is_active)
+          .slice(0, 8);
+        setCategories(rootCategories);
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+        setCategories([]);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,6 +122,80 @@ const Header: React.FC = () => {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-royal-black group-hover:w-full transition-all duration-300" />
               </Link>
             ))}
+
+            {/* Shop Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="text-royal-black hover:text-black font-medium transition-colors duration-200 relative group p-0 h-auto bg-transparent hover:bg-transparent">
+                  Shop
+                  <ChevronDown className="ml-1 h-4 w-4" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-royal-black group-hover:w-full transition-all duration-300" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-white" align="start">
+                {categoriesLoading ? (
+                  <div className="p-2">
+                    <div className="animate-pulse space-y-2">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="h-8 bg-gray-200 rounded" />
+                      ))}
+                    </div>
+                  </div>
+                ) : categories.length === 0 ? (
+                  <div className="p-4 text-center text-gray-500">
+                    No categories available
+                  </div>
+                ) : (
+                  <>
+                    {categories.map((category) => (
+                      <DropdownMenuItem key={category.id} asChild>
+                        <Link
+                          to="/products"
+                          search={{
+                            category: category.name,
+                            q: '',
+                            sortBy: 'relevance',
+                            minPrice: undefined,
+                            maxPrice: undefined,
+                            inStock: false,
+                            featured: false
+                          }}
+                          className="flex items-center px-3 py-2 hover:bg-gray-50 transition-colors"
+                        >
+                          {category.image_url && (
+                            <img
+                              src={category.image_url}
+                              alt={category.name}
+                              className="w-6 h-6 rounded-full mr-3 object-cover"
+                            />
+                          )}
+                          <span className="text-sm font-medium">{category.name}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/products"
+                        search={{
+                          category: '',
+                          q: '',
+                          sortBy: 'relevance',
+                          minPrice: undefined,
+                          maxPrice: undefined,
+                          inStock: false,
+                          featured: false
+                        }}
+                        className="flex items-center px-3 py-2 hover:bg-gray-50 transition-colors font-medium text-royal-black"
+                      >
+                        <Store className="w-4 h-4 mr-3" />
+                        View All Products
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
 
           {/* Search Bar */}
@@ -251,6 +354,94 @@ const Header: React.FC = () => {
                         </Link>
                       </SheetClose>
                     ))}
+
+                    {/* Mobile Shop Section */}
+                    <div className="space-y-2">
+                      <Button
+                        variant="ghost"
+                        onClick={() => setShowMobileCategories(!showMobileCategories)}
+                        className="w-full justify-between text-royal-black hover:text-gray-800 font-medium transition-colors duration-200 py-3 px-4 rounded-lg hover:bg-white/80 border border-transparent hover:border-royal-black/20"
+                      >
+                        <div className="flex items-center">
+                          <Store className="mr-3 h-4 w-4" />
+                          Shop
+                        </div>
+                        <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${showMobileCategories ? 'rotate-180' : ''}`} />
+                      </Button>
+
+                      <AnimatePresence>
+                        {showMobileCategories && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="ml-4 space-y-1">
+                              {categoriesLoading ? (
+                                <div className="space-y-2">
+                                  {Array.from({ length: 4 }).map((_, i) => (
+                                    <div key={i} className="h-8 bg-white/50 rounded animate-pulse" />
+                                  ))}
+                                </div>
+                              ) : categories.length === 0 ? (
+                                <div className="py-2 px-4 text-gray-500 text-sm">
+                                  No categories available
+                                </div>
+                              ) : (
+                                <>
+                                  {categories.map((category) => (
+                                    <SheetClose key={category.id} asChild>
+                                      <Link
+                                        to="/products"
+                                        search={{
+                                          category: category.name,
+                                          q: '',
+                                          sortBy: 'relevance',
+                                          minPrice: undefined,
+                                          maxPrice: undefined,
+                                          inStock: false,
+                                          featured: false
+                                        }}
+                                        className="flex items-center text-royal-black hover:text-gray-800 transition-colors duration-200 py-2 px-3 rounded-lg hover:bg-white/60 border border-transparent hover:border-royal-black/10"
+                                      >
+                                        {category.image_url && (
+                                          <img
+                                            src={category.image_url}
+                                            alt={category.name}
+                                            className="w-5 h-5 rounded-full mr-2 object-cover"
+                                          />
+                                        )}
+                                        <span className="text-sm">{category.name}</span>
+                                      </Link>
+                                    </SheetClose>
+                                  ))}
+                                  <SheetClose asChild>
+                                    <Link
+                                      to="/products"
+                                      search={{
+                                        category: '',
+                                        q: '',
+                                        sortBy: 'relevance',
+                                        minPrice: undefined,
+                                        maxPrice: undefined,
+                                        inStock: false,
+                                        featured: false
+                                      }}
+                                      className="flex items-center text-royal-black hover:text-gray-800 transition-colors duration-200 py-2 px-3 rounded-lg hover:bg-white/60 border border-transparent hover:border-royal-black/10 font-medium"
+                                    >
+                                      <Store className="w-4 h-4 mr-2" />
+                                      <span className="text-sm">View All Products</span>
+                                    </Link>
+                                  </SheetClose>
+                                </>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
 
                     {/* Additional Quick Links for Authenticated Users */}
                     {isAuthenticated && (
