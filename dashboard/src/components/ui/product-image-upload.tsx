@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Upload, X, Star, StarOff, GripVertical, AlertCircle, Check } from 'lucide-react';
+import { Upload, X, Star, StarOff, GripVertical, AlertCircle } from 'lucide-react';
 import { Button } from './button';
 import { Card, CardContent } from './card';
 import { uploadService } from '../../services/api';
@@ -58,7 +58,7 @@ const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
     }
   }, []);
 
-  const uploadToServer = useCallback(async (files: File[]): Promise<string[]> => {
+  const uploadToServer = useCallback(async (files: File[]): Promise<{original: string, thumb: string, medium: string, large: string}[]> => {
     return await uploadService.uploadProductImages(files);
   }, []);
 
@@ -77,15 +77,14 @@ const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
 
     for (const file of fileArray) {
       // Validate file
-      try {
-        await validateFile(file.name, file.size, file.type);
-      } catch (error: any) {
-        toast.error(`${file.name}: ${error.message || 'File validation failed'}`);
+      const validationError = await validateFile(file);
+      if (validationError) {
+        toast.error(`${file.name}: ${validationError}`);
         continue;
       }
 
       // Create image entry
-      const imageId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const imageId = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
       const newImage: ProductImage = {
         id: imageId,
         file,
@@ -221,7 +220,7 @@ const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
     e.dataTransfer.effectAllowed = 'move';
   }, []);
 
-  const handleImageDragOver = useCallback((e: React.DragEvent, index: number) => {
+  const handleImageDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   }, []);
@@ -353,7 +352,7 @@ const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
                 key={image.id}
                 draggable={!disabled}
                 onDragStart={(e) => handleImageDragStart(e, index)}
-                onDragOver={(e) => handleImageDragOver(e, index)}
+                onDragOver={(e) => handleImageDragOver(e)}
                 onDrop={(e) => handleImageDrop(e, index)}
                 className={`relative group border-2 rounded-lg overflow-hidden ${
                   image.isPrimary 

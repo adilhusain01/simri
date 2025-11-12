@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Package, X, Upload } from 'lucide-react';
+import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Package } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductImageUpload from '@/components/ui/product-image-upload';
 
@@ -42,7 +42,7 @@ import {
 
 import { productService, categoryService, uploadService } from '@/services/api';
 import { formatCurrency, formatDate, getStatusColor } from '@/lib/utils';
-import type { Product, Category } from '@/types';
+import type { Product } from '@/types';
 import Pagination from '@/components/ui/pagination';
 
 // Utility function to generate slug from name
@@ -72,9 +72,18 @@ const extractImageUrls = (images: any[]): string[] => {
 };
 
 interface ProductImageData {
-  url: string;
+  url: string | {original: string, thumb: string, medium: string, large: string};
   isPrimary: boolean;
 }
+
+
+// Helper function to get the final URL for form submission
+const getFinalUrl = (url: string | {original: string, thumb: string, medium: string, large: string}): string => {
+  if (typeof url === 'string') {
+    return url;
+  }
+  return url.original;
+};
 
 interface ProductDimensions {
   length: number;
@@ -171,7 +180,7 @@ export default function Products() {
 
   const products = data?.data?.products || [];
   const categories = categoriesData || [];
-  const pagination = data?.data?.pagination;
+  const pagination = data?.pagination;
   const totalItems = pagination?.total || 0;
   const totalPages = pagination?.totalPages || 1;
 
@@ -309,9 +318,9 @@ export default function Products() {
           // Find any blob URLs in current metadata (these are new images that need real URLs)
           const updatedMetadata = currentImageMetadata.map(imgMeta => {
             // If this is a blob URL, it's a new image that needs to be replaced with uploaded URL
-            if (imgMeta.url.startsWith('blob:')) {
+            if (typeof imgMeta.url === 'string' && imgMeta.url.startsWith('blob:')) {
               // Find the corresponding uploaded URL (match by index in the files array)
-              const blobIndex = currentImageMetadata.filter(m => m.url.startsWith('blob:')).indexOf(imgMeta);
+              const blobIndex = currentImageMetadata.filter(m => typeof m.url === 'string' && m.url.startsWith('blob:')).indexOf(imgMeta);
               if (blobIndex >= 0 && blobIndex < uploadedImageUrls.length) {
                 return {
                   ...imgMeta,
@@ -323,8 +332,8 @@ export default function Products() {
           });
           
           // Add any remaining uploaded URLs that weren't matched (shouldn't happen, but safety net)
-          const usedUrls = updatedMetadata.map(m => m.url);
-          const unusedUrls = uploadedImageUrls.filter(url => !usedUrls.includes(url));
+          const usedUrls = updatedMetadata.map(m => getFinalUrl(m.url));
+          const unusedUrls = uploadedImageUrls.filter(url => !usedUrls.includes(getFinalUrl(url)));
           const additionalMetadata: ProductImageData[] = unusedUrls.map(url => ({
             url,
             isPrimary: false,
@@ -348,7 +357,7 @@ export default function Products() {
       });
       
       // Extract just the URLs in the correct order for the server
-      finalFormData.images = orderedImages.map(img => img.url);
+      finalFormData.images = orderedImages.map(img => getFinalUrl(img.url));
       
       // Clean up dimensions - only send if all three values are provided
       if (finalFormData.dimensions) {
@@ -858,7 +867,7 @@ export default function Products() {
                   setFormData(prev => ({
                     ...prev,
                     imageMetadata: imageData,
-                    images: imageData.map(img => img.url),
+                    images: imageData.map(img => getFinalUrl(img.url)),
                   }));
                 }}
                 maxFiles={8}

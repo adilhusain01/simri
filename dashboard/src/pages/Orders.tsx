@@ -85,7 +85,7 @@ const getStatusColor = (status: string): string => {
 };
 
 const getStatusIcon = (status: string) => {
-  const icons: Record<string, JSX.Element> = {
+  const icons: Record<string, React.JSX.Element> = {
     pending: <Clock className="h-3 w-3" />,
     confirmed: <CheckCircle className="h-3 w-3" />,
     processing: <Package className="h-3 w-3" />,
@@ -203,7 +203,7 @@ export default function Orders() {
     setIsOrderDetailsOpen(true);
   };
 
-  const handleOrderDetailsStatusUpdate = (orderId: string, newStatus: string, notes?: string) => {
+  const handleOrderDetailsStatusUpdate = (orderId: string, newStatus: string, _notes?: string) => {
     updateOrderMutation.mutate({ orderId, status: newStatus });
     setIsOrderDetailsOpen(false);
   };

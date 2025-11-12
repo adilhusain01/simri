@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { 
   ShoppingCart, 
   Package, 
-  Users, 
   DollarSign,
   TrendingUp,
   TrendingDown,

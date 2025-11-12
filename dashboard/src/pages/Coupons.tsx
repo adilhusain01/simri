@@ -3,14 +3,12 @@ import { motion } from 'framer-motion';
 import {
   Plus,
   Search,
-  Filter,
   MoreVertical,
   Edit,
   Trash2,
   Eye,
   ToggleLeft,
   ToggleRight,
-  Download,
   Calendar,
   Percent,
   DollarSign,
@@ -19,7 +17,6 @@ import {
   Gift,
   Clock,
   CheckCircle,
-  XCircle,
   X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -38,7 +35,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   Select,

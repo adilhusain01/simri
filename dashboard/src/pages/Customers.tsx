@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect} from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
@@ -6,10 +6,8 @@ import {
   UserCheck,
   UserX,
   Search,
-  Filter,
   MoreHorizontal,
   Mail,
-  Phone,
   Calendar,
   Shield,
   Download
@@ -57,7 +55,7 @@ const Customers: React.FC = () => {
   }, [searchQuery]);
 
   // Fetch customers with filters
-  const { data: customersData, isLoading: customersLoading, refetch } = useQuery({
+  const { data: customersData, isLoading: customersLoading } = useQuery({
     queryKey: ['customers', currentPage, pageLimit, roleFilter, debouncedSearch],
     queryFn: () => adminService.getUsers({
       limit: pageLimit,

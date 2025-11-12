@@ -392,12 +392,8 @@ export default function Categories() {
   const rootCategories = categories.filter(cat => !cat.parent_id);
   
   // Get subcategories for each parent
-  const getSubcategories = (parentId: string) => 
+  const getSubcategories = (parentId: string) =>
     categories.filter(cat => cat.parent_id === parentId);
-
-  // Get count of active subcategories that will be affected
-  const getActiveSubcategoriesCount = (parentId: string) => 
-    categories.filter(cat => cat.parent_id === parentId && cat.is_active).length;
 
   // Get available parent categories (excluding current category when editing)
   const getAvailableParents = () => {

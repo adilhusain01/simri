@@ -9,11 +9,11 @@ export default function Header() {
         </div>
 
         <div className="px-2 font-bold">
-          <Link to="/demo/store">Store</Link>
+          <Link to="/dashboard/products">Products</Link>
         </div>
 
         <div className="px-2 font-bold">
-          <Link to="/demo/tanstack-query">TanStack Query</Link>
+          <Link to="/dashboard/orders">Orders</Link>
         </div>
       </nav>
     </header>

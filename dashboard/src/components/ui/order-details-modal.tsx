@@ -1,22 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  X, 
-  Package, 
-  Truck, 
-  MapPin, 
-  CreditCard, 
-  User, 
-  Calendar, 
-  FileText,
+import {
+  X,
+  Package,
+  Truck,
+  MapPin,
+  CreditCard,
+  User,
   Printer,
   Mail,
-  Phone,
   CheckCircle,
   Clock,
-  AlertCircle,
-  Copy,
-  ExternalLink
+  Copy
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -74,7 +69,6 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   isOpen,
   onClose,
   onStatusUpdate,
-  onRefund,
 }) => {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState(order?.status || '');
