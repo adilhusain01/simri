@@ -292,6 +292,34 @@ CREATE TABLE coupon_usage (
     UNIQUE(coupon_id, user_id, order_id)
 );
 
+-- Create inventory_history table for tracking stock changes
+CREATE TABLE inventory_history (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    product_id UUID REFERENCES products(id) ON DELETE SET NULL,
+    change_type VARCHAR(20) NOT NULL,
+    quantity_change INTEGER NOT NULL,
+    previous_quantity INTEGER NOT NULL,
+    new_quantity INTEGER NOT NULL,
+    notes TEXT,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    order_id UUID REFERENCES orders(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create stock_reservations table for managing inventory during checkout
+CREATE TABLE stock_reservations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    reserved_until TIMESTAMP WITH TIME ZONE NOT NULL,
+    session_id VARCHAR(255),
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    order_id UUID REFERENCES orders(id) ON DELETE SET NULL,
+    status VARCHAR(20) DEFAULT 'active',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create indexes for better performance
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_google_id ON users(google_id);
@@ -326,6 +354,21 @@ CREATE INDEX idx_coupon_usage_user_id ON coupon_usage(user_id);
 CREATE INDEX idx_coupon_usage_used_at ON coupon_usage(used_at);
 CREATE INDEX idx_coupon_usage_coupon_user ON coupon_usage(coupon_id, user_id);
 
+-- Inventory history indexes
+CREATE INDEX idx_inventory_history_product_id ON inventory_history(product_id);
+CREATE INDEX idx_inventory_history_change_type ON inventory_history(change_type);
+CREATE INDEX idx_inventory_history_created_at ON inventory_history(created_at);
+CREATE INDEX idx_inventory_history_user_id ON inventory_history(user_id);
+CREATE INDEX idx_inventory_history_order_id ON inventory_history(order_id);
+
+-- Stock reservations indexes
+CREATE INDEX idx_stock_reservations_product_id ON stock_reservations(product_id);
+CREATE INDEX idx_stock_reservations_reserved_until ON stock_reservations(reserved_until);
+CREATE INDEX idx_stock_reservations_session_id ON stock_reservations(session_id);
+CREATE INDEX idx_stock_reservations_user_id ON stock_reservations(user_id);
+CREATE INDEX idx_stock_reservations_status ON stock_reservations(status);
+CREATE INDEX idx_stock_reservations_order_id ON stock_reservations(order_id);
+
 -- Create triggers for updated_at timestamps
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -347,3 +390,4 @@ CREATE TRIGGER update_coupons_updated_at BEFORE UPDATE ON coupons FOR EACH ROW E
 CREATE TRIGGER update_newsletter_subscribers_updated_at BEFORE UPDATE ON newsletter_subscribers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_cart_abandonment_tracking_updated_at BEFORE UPDATE ON cart_abandonment_tracking FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_purchase_patterns_updated_at BEFORE UPDATE ON product_purchase_patterns FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_stock_reservations_updated_at BEFORE UPDATE ON stock_reservations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
