@@ -161,8 +161,8 @@ const Newsletter: React.FC = () => {
       {/* Page Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold">Newsletter Management</h1>
-          <p className="text-muted-foreground">Manage your newsletter subscribers and analyze engagement</p>
+          <h1 className="text-3xl font-bold font-heading text-royal-black">Newsletter Management</h1>
+          <p className="text-muted-foreground font-body">Manage your newsletter subscribers and analyze engagement</p>
         </div>
         <div className="flex gap-2">
           <DropdownMenu>
@@ -192,13 +192,15 @@ const Newsletter: React.FC = () => {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
       >
         <motion.div variants={fadeInUp}>
-          <Card>
+          <Card className="card-elegant hover-lift">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
-                <Users className="h-5 w-5 text-blue-600" />
+                <div className="h-10 w-10 rounded-full bg-royal-gold/10 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-royal-gold" />
+                </div>
                 <div>
-                  <p className="text-2xl font-bold">{stats?.total_subscribers || 0}</p>
-                  <p className="text-sm text-muted-foreground">Total Subscribers</p>
+                  <p className="text-2xl font-bold font-heading text-royal-black">{stats?.total_subscribers || 0}</p>
+                  <p className="text-sm text-muted-foreground font-body">Total Subscribers</p>
                 </div>
               </div>
             </CardContent>
@@ -206,13 +208,15 @@ const Newsletter: React.FC = () => {
         </motion.div>
 
         <motion.div variants={fadeInUp}>
-          <Card>
+          <Card className="card-elegant hover-lift">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
-                <UserCheck className="h-5 w-5 text-green-600" />
+                <div className="h-10 w-10 rounded-full bg-admin-green/10 flex items-center justify-center">
+                  <UserCheck className="h-5 w-5 text-admin-green" />
+                </div>
                 <div>
-                  <p className="text-2xl font-bold">{stats?.active_subscribers || 0}</p>
-                  <p className="text-sm text-muted-foreground">Active Subscribers</p>
+                  <p className="text-2xl font-bold font-heading text-admin-green">{stats?.active_subscribers || 0}</p>
+                  <p className="text-sm text-muted-foreground font-body">Active Subscribers</p>
                 </div>
               </div>
             </CardContent>
@@ -220,13 +224,15 @@ const Newsletter: React.FC = () => {
         </motion.div>
 
         <motion.div variants={fadeInUp}>
-          <Card>
+          <Card className="card-elegant hover-lift">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
-                <TrendingUp className="h-5 w-5 text-royal-black" />
+                <div className="h-10 w-10 rounded-full bg-royal-black/10 flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-royal-black" />
+                </div>
                 <div>
-                  <p className="text-2xl font-bold">{stats?.new_subscribers_30d || 0}</p>
-                  <p className="text-sm text-muted-foreground">New (30 days)</p>
+                  <p className="text-2xl font-bold font-heading text-royal-black">{stats?.new_subscribers_30d || 0}</p>
+                  <p className="text-sm text-muted-foreground font-body">New (30 days)</p>
                 </div>
               </div>
             </CardContent>
@@ -234,13 +240,15 @@ const Newsletter: React.FC = () => {
         </motion.div>
 
         <motion.div variants={fadeInUp}>
-          <Card>
+          <Card className="card-elegant hover-lift">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
-                <UserX className="h-5 w-5 text-red-600" />
+                <div className="h-10 w-10 rounded-full bg-admin-red/10 flex items-center justify-center">
+                  <UserX className="h-5 w-5 text-admin-red" />
+                </div>
                 <div>
-                  <p className="text-2xl font-bold">{stats?.inactive_subscribers || 0}</p>
-                  <p className="text-sm text-muted-foreground">Inactive Subscribers</p>
+                  <p className="text-2xl font-bold font-heading text-admin-red">{stats?.inactive_subscribers || 0}</p>
+                  <p className="text-sm text-muted-foreground font-body">Inactive Subscribers</p>
                 </div>
               </div>
             </CardContent>

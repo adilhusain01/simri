@@ -408,22 +408,22 @@ export default function Products() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Products</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold font-heading text-royal-black">Products</h1>
+          <p className="text-muted-foreground font-body">
             Manage your product catalog ({totalItems} total products)
           </p>
         </div>
-        <Button onClick={handleAdd}>
+        <Button onClick={handleAdd} className="btn-primary">
           <Plus className="mr-2 h-4 w-4" />
           Add Product
         </Button>
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="card-elegant hover-lift">
         <CardHeader>
-          <CardTitle>Search & Filter</CardTitle>
-          <CardDescription>
+          <CardTitle className="font-heading text-royal-black">Search & Filter</CardTitle>
+          <CardDescription className="font-body">
             Find specific products or filter by status
           </CardDescription>
         </CardHeader>
@@ -463,10 +463,10 @@ export default function Products() {
       </Card>
 
       {/* Products Table */}
-      <Card>
+      <Card className="card-elegant hover-lift">
         <CardHeader>
-          <CardTitle>Products ({products.length})</CardTitle>
-          <CardDescription>
+          <CardTitle className="font-heading text-royal-black">Products ({products.length})</CardTitle>
+          <CardDescription className="font-body">
             Complete list of your products
           </CardDescription>
         </CardHeader>
@@ -481,16 +481,18 @@ export default function Products() {
             </div>
           ) : error ? (
             <div className="text-center py-8">
-              <p className="text-red-600">Error loading products</p>
-              <Button variant="outline" onClick={() => window.location.reload()}>
+              <p className="text-admin-red font-body">Error loading products</p>
+              <Button variant="outline" onClick={() => window.location.reload()} className="font-body">
                 Retry
               </Button>
             </div>
           ) : products.length === 0 ? (
             <div className="text-center py-8">
-              <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No products found</p>
-              <Button className="mt-4" onClick={handleAdd}>
+              <div className="h-16 w-16 rounded-full bg-royal-gold/10 flex items-center justify-center mx-auto mb-4">
+                <Package className="h-8 w-8 text-royal-gold" />
+              </div>
+              <p className="text-muted-foreground font-body">No products found</p>
+              <Button className="mt-4 btn-primary font-body" onClick={handleAdd}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Your First Product
               </Button>
@@ -529,8 +531,8 @@ export default function Products() {
                           )}
                         </div>
                         <div>
-                          <p className="font-medium">{product.name}</p>
-                          <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                          <p className="font-medium font-body text-royal-black">{product.name}</p>
+                          <p className="text-sm text-muted-foreground truncate max-w-[200px] font-body">
                             {product.short_description || product.description}
                           </p>
                         </div>
@@ -548,9 +550,9 @@ export default function Products() {
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{formatCurrency(product.price)}</p>
+                        <p className="font-medium font-heading text-royal-black">{formatCurrency(product.price)}</p>
                         {product.discount_price && (
-                          <p className="text-sm text-muted-foreground line-through">
+                          <p className="text-sm text-muted-foreground line-through font-body">
                             {formatCurrency(product.discount_price)}
                           </p>
                         )}
@@ -581,7 +583,7 @@ export default function Products() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
+                      <div className="text-sm font-body">
                         {formatDate(product.created_at)}
                       </div>
                     </TableCell>
@@ -635,12 +637,12 @@ export default function Products() {
           resetForm();
         }
       }}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-ivory-white">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="font-heading text-royal-black">
               {selectedProduct ? 'Edit Product' : 'Add New Product'}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="font-body">
               {selectedProduct ? 'Update product information' : 'Create a new product for your catalog'}
             </DialogDescription>
           </DialogHeader>
@@ -649,7 +651,7 @@ export default function Products() {
             {/* Basic Information */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Product Name *</Label>
+                <Label htmlFor="name" className="font-body text-royal-black">Product Name *</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -658,7 +660,7 @@ export default function Products() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="sku">SKU *</Label>
+                <Label htmlFor="sku" className="font-body text-royal-black">SKU *</Label>
                 <Input
                   id="sku"
                   value={formData.sku}
@@ -669,7 +671,7 @@ export default function Products() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="short_description">Short Description</Label>
+              <Label htmlFor="short_description" className="font-body text-royal-black">Short Description</Label>
               <Input
                 id="short_description"
                 value={formData.short_description}
@@ -679,7 +681,7 @@ export default function Products() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
+              <Label htmlFor="description" className="font-body text-royal-black">Description *</Label>
               <Textarea
                 id="description"
                 value={formData.description}
@@ -692,7 +694,7 @@ export default function Products() {
             {/* Category and Pricing */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="category" className="font-body text-royal-black">Category</Label>
                 <Select
                   value={formData.category_id}
                   onValueChange={(value) => setFormData({ ...formData, category_id: value })}
@@ -710,7 +712,7 @@ export default function Products() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="weight">Weight (kg)</Label>
+                <Label htmlFor="weight" className="font-body text-royal-black">Weight (kg)</Label>
                 <Input
                   id="weight"
                   type="number"
@@ -724,10 +726,10 @@ export default function Products() {
 
             {/* Dimensions */}
             <div className="space-y-2">
-              <Label>Dimensions (cm)</Label>
+              <Label className="font-body text-royal-black">Dimensions (cm)</Label>
               <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-1">
-                  <Label htmlFor="length" className="text-xs text-gray-600">Length</Label>
+                  <Label htmlFor="length" className="text-xs text-gray-600 font-body">Length</Label>
                   <Input
                     id="length"
                     type="number"
@@ -746,7 +748,7 @@ export default function Products() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="width" className="text-xs text-gray-600">Width</Label>
+                  <Label htmlFor="width" className="text-xs text-gray-600 font-body">Width</Label>
                   <Input
                     id="width"
                     type="number"
@@ -765,7 +767,7 @@ export default function Products() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="height" className="text-xs text-gray-600">Height</Label>
+                  <Label htmlFor="height" className="text-xs text-gray-600 font-body">Height</Label>
                   <Input
                     id="height"
                     type="number"
@@ -784,12 +786,12 @@ export default function Products() {
                   />
                 </div>
               </div>
-              <p className="text-xs text-gray-500">Enter dimensions in centimeters (used for shipping calculations)</p>
+              <p className="text-xs text-gray-500 font-body">Enter dimensions in centimeters (used for shipping calculations)</p>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="price">Price (₹) *</Label>
+                <Label htmlFor="price" className="font-body text-royal-black">Price (₹) *</Label>
                 <Input
                   id="price"
                   type="number"
@@ -799,7 +801,7 @@ export default function Products() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="discount_price">Discount Price (₹)</Label>
+                <Label htmlFor="discount_price" className="font-body text-royal-black">Discount Price (₹)</Label>
                 <Input
                   id="discount_price"
                   type="number"
@@ -809,7 +811,7 @@ export default function Products() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="stock_quantity">Stock Quantity *</Label>
+                <Label htmlFor="stock_quantity" className="font-body text-royal-black">Stock Quantity *</Label>
                 <Input
                   id="stock_quantity"
                   type="number"
@@ -823,7 +825,7 @@ export default function Products() {
             {/* SEO and Settings */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="meta_title">Meta Title</Label>
+                <Label htmlFor="meta_title" className="font-body text-royal-black">Meta Title</Label>
                 <Input
                   id="meta_title"
                   value={formData.meta_title || ''}
@@ -832,7 +834,7 @@ export default function Products() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="tags">Tags (comma separated)</Label>
+                <Label htmlFor="tags" className="font-body text-royal-black">Tags (comma separated)</Label>
                 <Textarea
                   id="tags"
                   value={formData.tags.join(', ')}
@@ -844,7 +846,7 @@ export default function Products() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="meta_description">Meta Description</Label>
+              <Label htmlFor="meta_description" className="font-body text-royal-black">Meta Description</Label>
               <Textarea
                 id="meta_description"
                 value={formData.meta_description || ''}
@@ -856,7 +858,7 @@ export default function Products() {
 
             {/* Product Images */}
             <div className="space-y-2">
-              <Label>Product Images</Label>
+              <Label className="font-body text-royal-black">Product Images</Label>
               <ProductImageUpload
                 initialImages={formData.images}
                 onFilesSelected={(files) => {
@@ -886,7 +888,7 @@ export default function Products() {
                   onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                   className="rounded"
                 />
-                <span className="text-sm">Active</span>
+                <span className="text-sm font-body text-royal-black">Active</span>
               </label>
               <label className="flex items-center space-x-2">
                 <input
@@ -895,7 +897,7 @@ export default function Products() {
                   onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
                   className="rounded"
                 />
-                <span className="text-sm">Featured</span>
+                <span className="text-sm font-body text-royal-black">Featured</span>
               </label>
             </div>
           </div>
@@ -908,12 +910,14 @@ export default function Products() {
                 setShowEditModal(false);
                 resetForm();
               }}
+              className="font-body"
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleSubmit}
               disabled={createMutation.isPending || updateMutation.isPending || isUploading}
+              className="btn-primary font-body"
             >
               {createMutation.isPending || updateMutation.isPending || isUploading ? (
                 <div className="flex items-center">
@@ -930,21 +934,22 @@ export default function Products() {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-        <DialogContent className="bg-background">
+        <DialogContent className="bg-ivory-white">
           <DialogHeader>
-            <DialogTitle>Delete Product</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="font-heading text-royal-black">Delete Product</DialogTitle>
+            <DialogDescription className="font-body">
               Are you sure you want to delete "{selectedProduct?.name}"? This action cannot be undone and will also delete all related reviews and data.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
+            <Button variant="outline" onClick={() => setShowDeleteModal(false)} className="font-body">
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={confirmDelete}
               disabled={deleteMutation.isPending}
+              className="font-body"
             >
               {deleteMutation.isPending ? (
                 <div className="flex items-center">

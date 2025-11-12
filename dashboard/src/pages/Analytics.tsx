@@ -226,8 +226,8 @@ export default function Analytics() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Analytics</h1>
-          <p className="text-muted-foreground">Business insights and reports</p>
+          <h1 className="text-3xl font-bold font-heading text-royal-black">Analytics</h1>
+          <p className="text-muted-foreground font-body">Business insights and reports</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
@@ -247,8 +247,8 @@ export default function Analytics() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Analytics</h1>
-          <p className="text-muted-foreground">Business insights and reports</p>
+          <h1 className="text-3xl font-bold font-heading text-royal-black">Analytics</h1>
+          <p className="text-muted-foreground font-body">Business insights and reports</p>
         </div>
         <Card>
           <CardContent className="p-6">
@@ -269,8 +269,8 @@ export default function Analytics() {
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Analytics</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-3xl font-bold font-heading text-royal-black">Analytics</h1>
+            <p className="text-muted-foreground font-body">
               Business insights and reports for your gift store
             </p>
           </div>
@@ -335,14 +335,16 @@ export default function Analytics() {
 
       {/* Revenue & Sales Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-                <p className="text-2xl font-bold">{formatCurrency(analytics.revenue.total_revenue)}</p>
+                <p className="text-sm font-medium text-muted-foreground font-body">Total Revenue</p>
+                <p className="text-2xl font-bold font-heading text-royal-black">{formatCurrency(analytics.revenue.total_revenue)}</p>
               </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
+              <div className="h-12 w-12 rounded-full bg-admin-green/10 flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-admin-green" />
+              </div>
             </div>
             <div className="mt-2">
               {getGrowthBadge(analytics.revenue.revenue_growth)}
@@ -350,14 +352,16 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Orders</p>
-                <p className="text-2xl font-bold">{analytics.revenue.total_orders}</p>
+                <p className="text-sm font-medium text-muted-foreground font-body">Total Orders</p>
+                <p className="text-2xl font-bold font-heading text-royal-black">{analytics.revenue.total_orders}</p>
               </div>
-              <ShoppingCart className="h-8 w-8 text-blue-600" />
+              <div className="h-12 w-12 rounded-full bg-admin-blue/10 flex items-center justify-center">
+                <ShoppingCart className="h-6 w-6 text-admin-blue" />
+              </div>
             </div>
             <div className="mt-2">
               {getGrowthBadge(analytics.revenue.orders_growth)}
@@ -365,14 +369,16 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Avg Order Value</p>
-                <p className="text-2xl font-bold">{formatCurrency(analytics.revenue.avg_order_value)}</p>
+                <p className="text-sm font-medium text-muted-foreground font-body">Avg Order Value</p>
+                <p className="text-2xl font-bold font-heading text-royal-black">{formatCurrency(analytics.revenue.avg_order_value)}</p>
               </div>
-              <TrendingUp className="h-8 w-8 text-royal-black" />
+              <div className="h-12 w-12 rounded-full bg-royal-black/10 flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-royal-black" />
+              </div>
             </div>
             <div className="mt-2">
               {getGrowthBadge(analytics.revenue.aov_growth)}
@@ -380,14 +386,16 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Customers</p>
-                <p className="text-2xl font-bold">{analytics.customers.total_customers}</p>
+                <p className="text-sm font-medium text-muted-foreground font-body">Total Customers</p>
+                <p className="text-2xl font-bold font-heading text-royal-black">{analytics.customers.total_customers}</p>
               </div>
-              <Users className="h-8 w-8 text-indigo-600" />
+              <div className="h-12 w-12 rounded-full bg-royal-gold/10 flex items-center justify-center">
+                <Users className="h-6 w-6 text-royal-gold" />
+              </div>
             </div>
             <div className="mt-2">
               {includeComparison ? 
@@ -403,10 +411,10 @@ export default function Analytics() {
 
       {/* Customer Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 font-heading text-royal-black">
+              <Users className="h-5 w-5 text-royal-gold" />
               Customer Insights
             </CardTitle>
           </CardHeader>
@@ -432,10 +440,10 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 font-heading text-royal-black">
+              <CreditCard className="h-5 w-5 text-royal-gold" />
               Conversion Analytics
             </CardTitle>
           </CardHeader>

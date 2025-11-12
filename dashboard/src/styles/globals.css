@@ -1,36 +1,53 @@
-/* Import Inter font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* Import Google Fonts - Royal Theme */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
-/* CSS Custom Properties */
+/* CSS Custom Properties for Royal Admin Theme */
 :root {
-  --radius: 0.5rem;
-  
-  /* Dashboard colors */
-  --admin-blue: #3B82F6;
-  --admin-blue-dark: #1E40AF;
-  --admin-gray: #6B7280;
-  --admin-gray-light: #F9FAFB;
-  --admin-gray-dark: #374151;
+  --radius: 0.75rem;
+
+  /* Primary royal theme colors */
+  --royal-gold: #E2BA6F;
+  --royal-black: #020202;
+
+  /* Supporting grays */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-800: #1f2937;
+
+  /* Semantic colors using royal theme */
+  --primary: #020202;
+  --secondary: #E2BA6F;
+  --accent: #E2BA6F;
+  --muted: #f9fafb;
+
+  /* Admin status colors */
   --admin-green: #10B981;
   --admin-red: #EF4444;
   --admin-yellow: #F59E0B;
-  --royal-gold: #E2BA6F;
-  --royal-black: #020202;
+  --admin-blue: #3B82F6;
+
+  /* Gradients */
+  --royal-gradient: linear-gradient(135deg, #E2BA6F 0%, #020202 100%);
+  --gold-gradient: linear-gradient(135deg, #E2BA6F 0%, #f9fafb 100%);
+
+  /* Legacy compatibility */
   --ivory-white: #FDFDF6;
 }
 
 /* Base styles */
 * {
-  border-color: hsl(214.3 31.8% 91.4%);
+  border-color: #e5e7eb;
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: hsl(0 0% 100%);
-  color: hsl(222.2 84% 4.9%);
-  font-feature-settings: "rlig" 1, "calt" 1;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  background-color: var(--gray-50);
+  color: var(--royal-black);
 }
 
 .bg-ivory-white {
@@ -63,11 +80,60 @@ body {
   }
 }
 
-/* Typography */
+/* Typography - Royal Theme */
 h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
   font-weight: 600;
   line-height: 1.2;
-  letter-spacing: -0.025em;
+  color: var(--royal-black);
+}
+
+.font-heading {
+  font-family: 'Playfair Display', serif;
+}
+
+.font-body {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Royal theme utility classes */
+.bg-royal-gold {
+  background-color: var(--royal-gold) !important;
+}
+
+.text-royal-gold {
+  color: var(--royal-gold) !important;
+}
+
+.bg-royal-black {
+  background-color: var(--royal-black) !important;
+}
+
+.text-royal-black {
+  color: var(--royal-black) !important;
+}
+
+.border-royal-gold {
+  border-color: var(--royal-gold) !important;
+}
+
+.border-royal-black {
+  border-color: var(--royal-black) !important;
+}
+
+.bg-gradient-royal {
+  background: var(--royal-gradient);
+}
+
+.bg-gradient-gold {
+  background: var(--gold-gradient);
+}
+
+.text-gradient-royal {
+  background: var(--royal-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Custom scrollbar */
@@ -120,17 +186,55 @@ h1, h2, h3, h4, h5, h6 {
   animation: slideIn 0.3s ease-out;
 }
 
-/* Dashboard specific styles */
-.dashboard-card {
+/* Dashboard specific styles - Royal Theme */
+.dashboard-card, .card-elegant {
   background: white;
-  border: 1px solid hsl(214.3 31.8% 91.4%);
-  border-radius: var(--radius);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  transition: all 0.2s ease-in-out;
+  border: 1px solid var(--gray-200);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(31, 41, 55, 0.1), 0 2px 4px -1px rgba(31, 41, 55, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.dashboard-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+.dashboard-card:hover, .card-elegant:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(31, 41, 55, 0.1), 0 10px 10px -5px rgba(31, 41, 55, 0.04);
+}
+
+/* Hover lift effect */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(31, 41, 55, 0.1), 0 10px 10px -5px rgba(31, 41, 55, 0.04);
+}
+
+/* Royal button styles */
+.btn-primary {
+  background: var(--royal-black);
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border-radius: var(--radius);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(2, 2, 2, 0.3);
+}
+
+.btn-secondary {
+  background: var(--royal-gold);
+  color: var(--royal-black);
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border-radius: var(--radius);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(226, 186, 111, 0.3);
 }
 
 /* Status indicators */

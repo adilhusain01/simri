@@ -125,7 +125,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-ivory-white/95 backdrop-blur supports-[backdrop-filter]:bg-ivory-white/90 shadow-elegant">
         <div className="container flex h-16 items-center justify-between px-4">
           {/* Mobile Menu Button */}
           <Button
@@ -156,30 +156,30 @@ export function Header() {
                 onChange={(e) => handleSearch(e.target.value)}
                 onKeyDown={handleSearchKeyDown}
                 placeholder="Search products, orders, customers..."
-                className="w-full rounded-lg border border-input bg-background pl-10 pr-4 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm font-body focus:border-royal-gold focus:outline-none focus:ring-2 focus:ring-royal-gold/20 focus:ring-offset-2 transition-all"
               />
 
               {/* Search Results Dropdown */}
               {isSearchOpen && searchResults && (
-                <div className="absolute top-full mt-1 w-full bg-background border border-input rounded-lg shadow-lg max-h-96 overflow-y-auto z-10">
+                <div className="absolute top-full mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-elegant max-h-96 overflow-y-auto z-10">
                   {isSearching ? (
-                    <div className="p-4 text-center text-sm text-muted-foreground">Searching...</div>
+                    <div className="p-4 text-center text-sm text-muted-foreground font-body">Searching...</div>
                   ) : (
                     <div className="p-2">
                       {/* Products */}
                       {searchResults.products.length > 0 && (
                         <div className="mb-2">
-                          <p className="text-xs font-semibold text-muted-foreground px-2 py-1">Products</p>
+                          <p className="text-xs font-semibold text-royal-black px-2 py-1 font-body">Products</p>
                           {searchResults.products.map((product) => (
                             <div
                               key={product.id}
-                              className="flex items-center space-x-2 px-2 py-2 rounded hover:bg-muted cursor-pointer"
+                              className="flex items-center space-x-2 px-2 py-2 rounded hover:bg-royal-gold/10 cursor-pointer transition-colors"
                               onClick={() => navigateToResult('product', product.id)}
                             >
-                              <Package className="h-4 w-4 text-muted-foreground" />
+                              <Package className="h-4 w-4 text-royal-gold" />
                               <div>
-                                <p className="text-sm font-medium">{product.name}</p>
-                                <p className="text-xs text-muted-foreground">₹{product.price}</p>
+                                <p className="text-sm font-medium font-body text-royal-black">{product.name}</p>
+                                <p className="text-xs text-muted-foreground font-body">₹{product.price}</p>
                               </div>
                             </div>
                           ))}
@@ -189,17 +189,17 @@ export function Header() {
                       {/* Orders */}
                       {searchResults.orders.length > 0 && (
                         <div className="mb-2">
-                          <p className="text-xs font-semibold text-muted-foreground px-2 py-1">Orders</p>
+                          <p className="text-xs font-semibold text-royal-black px-2 py-1 font-body">Orders</p>
                           {searchResults.orders.map((order) => (
                             <div
                               key={order.id}
-                              className="flex items-center space-x-2 px-2 py-2 rounded hover:bg-muted cursor-pointer"
+                              className="flex items-center space-x-2 px-2 py-2 rounded hover:bg-royal-gold/10 cursor-pointer transition-colors"
                               onClick={() => navigateToResult('order', order.id)}
                             >
-                              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                              <ShoppingCart className="h-4 w-4 text-royal-gold" />
                               <div>
-                                <p className="text-sm font-medium">#{order.order_number}</p>
-                                <p className="text-xs text-muted-foreground">₹{order.total_amount}</p>
+                                <p className="text-sm font-medium font-body text-royal-black">#{order.order_number}</p>
+                                <p className="text-xs text-muted-foreground font-body">₹{order.total_amount}</p>
                               </div>
                             </div>
                           ))}
@@ -209,17 +209,17 @@ export function Header() {
                       {/* Users */}
                       {searchResults.users.length > 0 && (
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground px-2 py-1">Customers</p>
+                          <p className="text-xs font-semibold text-royal-black px-2 py-1 font-body">Customers</p>
                           {searchResults.users.map((user) => (
                             <div
                               key={user.id}
-                              className="flex items-center space-x-2 px-2 py-2 rounded hover:bg-muted cursor-pointer"
+                              className="flex items-center space-x-2 px-2 py-2 rounded hover:bg-royal-gold/10 cursor-pointer transition-colors"
                               onClick={() => navigateToResult('user', user.id)}
                             >
-                              <Users className="h-4 w-4 text-muted-foreground" />
+                              <Users className="h-4 w-4 text-royal-gold" />
                               <div>
-                                <p className="text-sm font-medium">{user.name}</p>
-                                <p className="text-xs text-muted-foreground">{user.email}</p>
+                                <p className="text-sm font-medium font-body text-royal-black">{user.name}</p>
+                                <p className="text-xs text-muted-foreground font-body">{user.email}</p>
                               </div>
                             </div>
                           ))}
@@ -290,34 +290,34 @@ export function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center space-x-2">
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <User className="h-4 w-4" />
+                  <div className="h-8 w-8 rounded-full bg-royal-gold/20 flex items-center justify-center">
+                    <User className="h-4 w-4 text-royal-black" />
                   </div>
                   <div className="text-left hidden sm:block">
-                    <p className="text-sm font-medium">{user?.name || 'Admin'}</p>
-                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    <p className="text-sm font-medium font-body text-royal-black">{user?.name || 'Admin'}</p>
+                    <p className="text-xs text-muted-foreground font-body">{user?.email}</p>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.name || 'Admin'}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
-                    <p className="text-xs leading-none text-muted-foreground capitalize">Role: {user?.role || 'admin'}</p>
+                    <p className="text-sm font-medium leading-none font-body text-royal-black">{user?.name || 'Admin'}</p>
+                    <p className="text-xs leading-none text-muted-foreground font-body">{user?.email}</p>
+                    <p className="text-xs leading-none text-muted-foreground font-body capitalize">Role: {user?.role || 'admin'}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
+                <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer font-body">
+                  <User className="mr-2 h-4 w-4 text-royal-gold" />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSettingsClick} className="cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
+                <DropdownMenuItem onClick={handleSettingsClick} className="cursor-pointer font-body">
+                  <Settings className="mr-2 h-4 w-4 text-royal-gold" />
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
+                <DropdownMenuItem onClick={handleLogout} className="text-admin-red cursor-pointer font-body">
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </DropdownMenuItem>
@@ -330,8 +330,8 @@ export function Header() {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
-          <div className="fixed top-16 left-0 right-0 bg-background border-b shadow-lg p-4">
+          <div className="fixed inset-0 bg-royal-black/20 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+          <div className="fixed top-16 left-0 right-0 bg-ivory-white border-b border-gray-200 shadow-elegant p-4">
             {/* Mobile Search */}
             <div className="mb-4">
               <div className="relative">
@@ -341,23 +341,23 @@ export function Header() {
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
                   placeholder="Search products, orders, customers..."
-                  className="w-full rounded-lg border border-input bg-background pl-10 pr-4 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm font-body focus:border-royal-gold focus:outline-none focus:ring-2 focus:ring-royal-gold/20 focus:ring-offset-2 transition-all"
                 />
               </div>
             </div>
 
             {/* Quick Actions */}
             <div className="space-y-2">
-              <Button variant="ghost" className="w-full justify-start" onClick={() => { navigate({ to: '/dashboard/products' }); setIsMobileMenuOpen(false); }}>
-                <Package className="mr-2 h-4 w-4" />
+              <Button variant="ghost" className="w-full justify-start font-body hover:bg-royal-gold/10 hover:text-royal-black" onClick={() => { navigate({ to: '/dashboard/products' }); setIsMobileMenuOpen(false); }}>
+                <Package className="mr-2 h-4 w-4 text-royal-gold" />
                 Products
               </Button>
-              <Button variant="ghost" className="w-full justify-start" onClick={() => { navigate({ to: '/dashboard/orders' }); setIsMobileMenuOpen(false); }}>
-                <ShoppingCart className="mr-2 h-4 w-4" />
+              <Button variant="ghost" className="w-full justify-start font-body hover:bg-royal-gold/10 hover:text-royal-black" onClick={() => { navigate({ to: '/dashboard/orders' }); setIsMobileMenuOpen(false); }}>
+                <ShoppingCart className="mr-2 h-4 w-4 text-royal-gold" />
                 Orders
               </Button>
-              <Button variant="ghost" className="w-full justify-start" onClick={() => { navigate({ to: '/dashboard/customers' }); setIsMobileMenuOpen(false); }}>
-                <Users className="mr-2 h-4 w-4" />
+              <Button variant="ghost" className="w-full justify-start font-body hover:bg-royal-gold/10 hover:text-royal-black" onClick={() => { navigate({ to: '/dashboard/customers' }); setIsMobileMenuOpen(false); }}>
+                <Users className="mr-2 h-4 w-4 text-royal-gold" />
                 Customers
               </Button>
             </div>

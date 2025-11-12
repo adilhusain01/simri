@@ -412,8 +412,8 @@ const Coupons: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Coupons</h1>
-          <p className="text-muted-foreground">Manage discount coupons and promotional offers</p>
+          <h1 className="text-3xl font-bold tracking-tight font-heading text-royal-black">Coupons</h1>
+          <p className="text-muted-foreground font-body">Manage discount coupons and promotional offers</p>
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
@@ -424,50 +424,58 @@ const Coupons: React.FC = () => {
       {/* Statistics Cards */}
       {stats && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
+          <Card className="card-elegant hover-lift">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Coupons</CardTitle>
-              <Gift className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium font-body text-royal-black">Total Coupons</CardTitle>
+              <div className="h-10 w-10 rounded-full bg-royal-gold/10 flex items-center justify-center">
+                <Gift className="h-4 w-4 text-royal-gold" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.total_coupons}</div>
+              <div className="text-2xl font-bold font-heading text-royal-black">{stats.total_coupons}</div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="card-elegant hover-lift">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Coupons</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium font-body text-royal-black">Active Coupons</CardTitle>
+              <div className="h-10 w-10 rounded-full bg-admin-green/10 flex items-center justify-center">
+                <CheckCircle className="h-4 w-4 text-admin-green" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.active_coupons}</div>
+              <div className="text-2xl font-bold font-heading text-admin-green">{stats.active_coupons}</div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="card-elegant hover-lift">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Discount Given</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium font-body text-royal-black">Total Discount Given</CardTitle>
+              <div className="h-10 w-10 rounded-full bg-admin-blue/10 flex items-center justify-center">
+                <TrendingUp className="h-4 w-4 text-admin-blue" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(stats.total_discount_given)}</div>
+              <div className="text-2xl font-bold font-heading text-royal-black">{formatCurrency(stats.total_discount_given)}</div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="card-elegant hover-lift">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Orders with Coupons</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium font-body text-royal-black">Orders with Coupons</CardTitle>
+              <div className="h-10 w-10 rounded-full bg-royal-black/10 flex items-center justify-center">
+                <Users className="h-4 w-4 text-royal-black" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.total_orders_with_coupons}</div>
+              <div className="text-2xl font-bold font-heading text-royal-black">{stats.total_orders_with_coupons}</div>
             </CardContent>
           </Card>
         </div>
       )}
 
       {/* Filters and Search */}
-      <Card>
+      <Card className="card-elegant hover-lift">
         <CardContent className="p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-1 gap-4">

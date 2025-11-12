@@ -412,8 +412,8 @@ export default function Categories() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Categories</h1>
-          <p className="text-muted-foreground">Organize your products with categories</p>
+          <h1 className="text-3xl font-bold font-heading text-royal-black">Categories</h1>
+          <p className="text-muted-foreground font-body">Organize your products with categories</p>
         </div>
         <Card>
           <CardContent className="p-6">
@@ -430,8 +430,8 @@ export default function Categories() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Categories</h1>
-          <p className="text-muted-foreground">Organize your products with categories</p>
+          <h1 className="text-3xl font-bold font-heading text-royal-black">Categories</h1>
+          <p className="text-muted-foreground font-body">Organize your products with categories</p>
         </div>
         <Card>
           <CardContent className="p-6">
@@ -448,8 +448,8 @@ export default function Categories() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Categories</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold font-heading text-royal-black">Categories</h1>
+          <p className="text-muted-foreground font-body">
             Organize your products with categories
           </p>
         </div>
@@ -490,13 +490,15 @@ export default function Categories() {
 
       {/* Categories Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardContent className="p-6">
             <div className="flex items-center space-x-2">
-              <FolderTree className="h-5 w-5 text-blue-600" />
+              <div className="h-10 w-10 rounded-full bg-royal-gold/10 flex items-center justify-center">
+                <FolderTree className="h-5 w-5 text-royal-gold" />
+              </div>
               <div>
-                <p className="text-2xl font-bold">{categories.length}</p>
-                <p className="text-sm text-muted-foreground">Total Categories</p>
+                <p className="text-2xl font-bold font-heading text-royal-black">{categories.length}</p>
+                <p className="text-sm text-muted-foreground font-body">Total Categories</p>
               </div>
             </div>
           </CardContent>

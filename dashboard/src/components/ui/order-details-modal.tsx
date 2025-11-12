@@ -124,14 +124,14 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-ivory-white">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
-              <DialogTitle className="text-xl font-bold">
+              <DialogTitle className="text-lg font-semibold font-heading text-royal-black">
                 Order #{order.order_number}
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-sm font-body text-gray-600">
                 Placed on {formatDate(order.created_at)}
               </DialogDescription>
             </div>
@@ -141,6 +141,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => setShowStatusUpdate(!showStatusUpdate)}
+                className="font-body"
               >
                 Update Status
               </Button>
@@ -150,11 +151,11 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
         {/* Status Update Panel */}
         {showStatusUpdate && (
-          <Card className="border-blue-200 bg-blue-50">
+          <Card className="border-royal-gold/30 bg-royal-gold/5 card-elegant">
             <CardContent className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">New Status</label>
+                  <label className="block text-sm font-medium mb-2 font-body text-royal-black">New Status</label>
                   <Select value={newStatus} onValueChange={setNewStatus}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
@@ -173,7 +174,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Notes (Optional)</label>
+                  <label className="block text-sm font-medium mb-2 font-body text-royal-black">Notes (Optional)</label>
                   <Textarea
                     value={statusNotes}
                     onChange={(e) => setStatusNotes(e.target.value)}
@@ -187,6 +188,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   onClick={handleStatusUpdate}
                   disabled={isUpdatingStatus || !newStatus}
                   size="sm"
+                  className="btn-primary font-body"
                 >
                   {isUpdatingStatus ? 'Updating...' : 'Update Status'}
                 </Button>
@@ -194,6 +196,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   variant="outline"
                   onClick={() => setShowStatusUpdate(false)}
                   size="sm"
+                  className="font-body"
                 >
                   Cancel
                 </Button>
@@ -206,10 +209,10 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           {/* Order Summary */}
           <div className="lg:col-span-2 space-y-6">
             {/* Order Items */}
-            <Card>
+            <Card className="card-elegant hover-lift">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Package className="mr-2 h-5 w-5" />
+                <CardTitle className="flex items-center text-base font-semibold font-heading text-royal-black">
+                  <Package className="mr-2 h-4 w-4 text-royal-gold" />
                   Order Items ({orderItems.length})
                 </CardTitle>
               </CardHeader>
@@ -245,20 +248,20 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                           />
                         </div>
                         <div className="flex-grow">
-                          <h4 className="font-medium text-gray-900">{item.product_name}</h4>
-                          <p className="text-sm text-gray-500">SKU: {item.product_sku}</p>
-                          <p className="text-sm text-gray-500">
+                          <h4 className="text-sm font-medium text-royal-black font-body">{item.product_name}</h4>
+                          <p className="text-xs text-gray-500 font-body">SKU: {item.product_sku}</p>
+                          <p className="text-xs text-gray-500 font-body">
                             {item.quantity} × {formatCurrency(item.unit_price)}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">{formatCurrency(item.total_price)}</p>
+                          <p className="text-sm font-medium font-heading text-royal-black">{formatCurrency(item.total_price)}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-gray-500 font-body">
                     No items found for this order
                   </div>
                 )}
@@ -266,10 +269,10 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </Card>
 
             {/* Order Timeline */}
-            <Card>
+            <Card className="card-elegant hover-lift">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Clock className="mr-2 h-5 w-5" />
+                <CardTitle className="flex items-center text-base font-semibold font-heading text-royal-black">
+                  <Clock className="mr-2 h-4 w-4 text-royal-gold" />
                   Order Timeline
                 </CardTitle>
               </CardHeader>
@@ -280,8 +283,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       <CheckCircle className="h-4 w-4 text-green-600" />
                     </div>
                     <div className="flex-grow">
-                      <p className="font-medium">Order Placed</p>
-                      <p className="text-sm text-gray-500">{formatDate(order.created_at)}</p>
+                      <p className="text-sm font-medium font-body text-royal-black">Order Placed</p>
+                      <p className="text-xs text-gray-500 font-body">{formatDate(order.created_at)}</p>
                     </div>
                   </div>
                   
@@ -291,8 +294,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                         <CheckCircle className="h-4 w-4 text-blue-600" />
                       </div>
                       <div className="flex-grow">
-                        <p className="font-medium">Order Confirmed</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm font-medium font-body text-royal-black">Order Confirmed</p>
+                        <p className="text-xs text-gray-500 font-body">
                           {formatDate(order.updated_at || order.created_at)}
                         </p>
                       </div>
@@ -305,8 +308,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                         <Truck className="h-4 w-4 text-indigo-600" />
                       </div>
                       <div className="flex-grow">
-                        <p className="font-medium">Order Shipped</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm font-medium font-body text-royal-black">Order Shipped</p>
+                        <p className="text-xs text-gray-500 font-body">
                           Tracking: {order.tracking_number || 'TRK123456789'}
                         </p>
                       </div>
@@ -319,8 +322,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                         <CheckCircle className="h-4 w-4 text-green-600" />
                       </div>
                       <div className="flex-grow">
-                        <p className="font-medium">Order Delivered</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm font-medium font-body text-royal-black">Order Delivered</p>
+                        <p className="text-xs text-gray-500 font-body">
                           {formatDate(order.delivered_at || order.updated_at || order.created_at)}
                         </p>
                       </div>
@@ -333,8 +336,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                         <X className="h-4 w-4 text-red-600" />
                       </div>
                       <div className="flex-grow">
-                        <p className="font-medium">Order Cancelled</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm font-medium font-body text-royal-black">Order Cancelled</p>
+                        <p className="text-xs text-gray-500 font-body">
                           {order.cancellation_reason || 'No reason provided'}
                         </p>
                       </div>
@@ -348,18 +351,18 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           {/* Customer & Payment Info */}
           <div className="space-y-6">
             {/* Customer Information */}
-            <Card>
+            <Card className="card-elegant hover-lift">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <User className="mr-2 h-5 w-5" />
+                <CardTitle className="flex items-center text-base font-semibold font-heading text-royal-black">
+                  <User className="mr-2 h-4 w-4 text-royal-gold" />
                   Customer
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="font-medium">{order.user_name || 'Guest Customer'}</p>
+                  <p className="text-sm font-medium font-body text-royal-black">{order.user_name || 'Guest Customer'}</p>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500">{order.user_email}</p>
+                    <p className="text-sm text-gray-500 font-body">{order.user_email}</p>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -374,7 +377,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={handleEmailCustomer}
-                    className="flex-1"
+                    className="flex-1 font-body"
                   >
                     <Mail className="mr-2 h-3 w-3" />
                     Email
@@ -383,7 +386,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={handlePrintInvoice}
-                    className="flex-1"
+                    className="flex-1 font-body"
                   >
                     <Printer className="mr-2 h-3 w-3" />
                     Invoice
@@ -393,15 +396,15 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </Card>
 
             {/* Shipping Address */}
-            <Card>
+            <Card className="card-elegant hover-lift">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <MapPin className="mr-2 h-5 w-5" />
+                <CardTitle className="flex items-center text-base font-semibold font-heading text-royal-black">
+                  <MapPin className="mr-2 h-4 w-4 text-royal-gold" />
                   Shipping Address
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm space-y-1">
+                <div className="text-sm space-y-1 font-body">
                   {order.shipping_address ? (
                     typeof order.shipping_address === 'string' ? (
                       <p>{order.shipping_address}</p>
@@ -415,27 +418,27 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       </div>
                     )
                   ) : (
-                    <p className="text-gray-500">No shipping address</p>
+                    <p className="text-gray-500 font-body">No shipping address</p>
                   )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Payment Information */}
-            <Card>
+            <Card className="card-elegant hover-lift">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <CreditCard className="mr-2 h-5 w-5" />
+                <CardTitle className="flex items-center text-base font-semibold font-heading text-royal-black">
+                  <CreditCard className="mr-2 h-4 w-4 text-royal-gold" />
                   Payment
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Payment Method:</span>
+                  <span className="text-sm font-body">Payment Method:</span>
                   <Badge variant="outline">{order.payment_method || 'Razorpay'}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Payment Status:</span>
+                  <span className="text-sm font-body">Payment Status:</span>
                   <Badge className={
                     order.payment_status === 'paid' 
                       ? 'bg-green-100 text-green-800'
@@ -448,7 +451,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 </div>
                 {currentOrder?.payment_id && (
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Payment ID:</span>
+                    <span className="text-sm font-body">Payment ID:</span>
                     <div className="flex items-center">
                       <code className="text-xs bg-gray-100 px-2 py-1 rounded">
                         {currentOrder.payment_id.substring(0, 12)}...
@@ -467,37 +470,37 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </Card>
 
             {/* Order Summary */}
-            <Card>
+            <Card className="card-elegant hover-lift">
               <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
+                <CardTitle className="text-base font-semibold font-heading text-royal-black">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Subtotal:</span>
-                  <span>{formatCurrency((order.total_amount || 0) - (order.tax_amount || 0) - (order.shipping_amount || 0))}</span>
+                  <span className="font-body">Subtotal:</span>
+                  <span className="font-body">{formatCurrency((order.total_amount || 0) - (order.tax_amount || 0) - (order.shipping_amount || 0))}</span>
                 </div>
                 {order.shipping_amount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span>Shipping:</span>
-                    <span>{formatCurrency(order.shipping_amount)}</span>
+                    <span className="font-body">Shipping:</span>
+                    <span className="font-body">{formatCurrency(order.shipping_amount)}</span>
                   </div>
                 )}
                 {order.tax_amount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span>Tax:</span>
-                    <span>{formatCurrency(order.tax_amount)}</span>
+                    <span className="font-body">Tax:</span>
+                    <span className="font-body">{formatCurrency(order.tax_amount)}</span>
                   </div>
                 )}
                 {order.discount_amount > 0 && (
-                  <div className="flex justify-between text-sm text-green-600">
-                    <span>Discount:</span>
-                    <span>-{formatCurrency(order.discount_amount)}</span>
+                  <div className="flex justify-between text-sm text-admin-green">
+                    <span className="font-body">Discount:</span>
+                    <span className="font-body">-{formatCurrency(order.discount_amount)}</span>
                   </div>
                 )}
                 <hr className="my-2" />
-                <div className="flex justify-between font-medium">
-                  <span>Total:</span>
-                  <span>{formatCurrency(order.total_amount)}</span>
+                <div className="flex justify-between font-semibold">
+                  <span className="text-sm font-heading text-royal-black">Total:</span>
+                  <span className="text-base font-heading text-royal-black">{formatCurrency(order.total_amount)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -505,7 +508,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} className="font-body">
             Close
           </Button>
         </DialogFooter>

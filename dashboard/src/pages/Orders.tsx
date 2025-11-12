@@ -326,8 +326,8 @@ export default function Orders() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Orders</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold font-heading text-royal-black">Orders</h1>
+          <p className="text-muted-foreground font-body">
             Manage customer orders and tracking ({totalItems} total orders)
           </p>
         </div>
@@ -344,10 +344,10 @@ export default function Orders() {
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="card-elegant hover-lift">
         <CardHeader>
-          <CardTitle>Search & Filter</CardTitle>
-          <CardDescription>
+          <CardTitle className="font-heading text-royal-black">Search & Filter</CardTitle>
+          <CardDescription className="font-body">
             Find specific orders or filter by status and payment
           </CardDescription>
         </CardHeader>
@@ -451,10 +451,10 @@ export default function Orders() {
       </Card>
 
       {/* Orders Table */}
-      <Card>
+      <Card className="card-elegant hover-lift">
         <CardHeader>
-          <CardTitle>Orders List</CardTitle>
-          <CardDescription>
+          <CardTitle className="font-heading text-royal-black">Orders List</CardTitle>
+          <CardDescription className="font-body">
             Complete list of customer orders
           </CardDescription>
         </CardHeader>
@@ -469,15 +469,17 @@ export default function Orders() {
             </div>
           ) : error ? (
             <div className="text-center py-8">
-              <p className="text-red-600">Error loading orders</p>
-              <Button variant="outline" onClick={() => refetch()}>
+              <p className="text-admin-red font-body">Error loading orders</p>
+              <Button variant="outline" onClick={() => refetch()} className="font-body">
                 Retry
               </Button>
             </div>
           ) : orders.length === 0 ? (
             <div className="text-center py-8">
-              <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No orders found</p>
+              <div className="h-16 w-16 rounded-full bg-royal-gold/10 flex items-center justify-center mx-auto mb-4">
+                <Package className="h-8 w-8 text-royal-gold" />
+              </div>
+              <p className="text-muted-foreground font-body">No orders found</p>
             </div>
           ) : (
             <Table>
@@ -537,14 +539,14 @@ export default function Orders() {
                       />
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">#{order.order_number}</div>
+                      <div className="font-medium font-body text-royal-black">#{order.order_number}</div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <User className="h-4 w-4 text-gray-400" />
                         <div>
-                          <p className="font-medium">{order.user_name || 'Guest'}</p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="font-medium font-body text-royal-black">{order.user_name || 'Guest'}</p>
+                          <p className="text-sm text-muted-foreground font-body">
                             {order.user_email}
                           </p>
                         </div>
@@ -556,7 +558,7 @@ export default function Orders() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">
+                      <div className="font-medium font-heading text-royal-black">
                         {formatCurrency(order.total_amount)}
                       </div>
                     </TableCell>
@@ -577,7 +579,7 @@ export default function Orders() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
+                      <div className="text-sm font-body">
                         <div>{formatDate(order.created_at)}</div>
                       </div>
                     </TableCell>

@@ -158,8 +158,8 @@ const Customers: React.FC = () => {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Customer Management</h1>
-          <p className="text-muted-foreground">Manage customer accounts and information</p>
+          <h1 className="text-3xl font-bold font-heading text-royal-black">Customer Management</h1>
+          <p className="text-muted-foreground font-body">Manage customer accounts and information</p>
         </div>
         <LoadingSpinner />
       </div>
@@ -171,8 +171,8 @@ const Customers: React.FC = () => {
       {/* Page Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold">Customer Management</h1>
-          <p className="text-muted-foreground">Manage customer accounts and information</p>
+          <h1 className="text-3xl font-bold font-heading text-royal-black">Customer Management</h1>
+          <p className="text-muted-foreground font-body">Manage customer accounts and information</p>
         </div>
         <Button variant="outline" onClick={handleExportAll}>
           <Download className="h-4 w-4 mr-2" />
@@ -188,13 +188,15 @@ const Customers: React.FC = () => {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
       >
         <motion.div variants={fadeInUp}>
-          <Card>
+          <Card className="card-elegant hover-lift">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
-                <Users className="h-5 w-5 text-blue-600" />
+                <div className="h-10 w-10 rounded-full bg-royal-gold/10 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-royal-gold" />
+                </div>
                 <div>
-                  <p className="text-2xl font-bold">{customerStats.total}</p>
-                  <p className="text-sm text-muted-foreground">Total Customers</p>
+                  <p className="text-2xl font-bold font-heading text-royal-black">{customerStats.total}</p>
+                  <p className="text-sm text-muted-foreground font-body">Total Customers</p>
                 </div>
               </div>
             </CardContent>
@@ -202,13 +204,15 @@ const Customers: React.FC = () => {
         </motion.div>
 
         <motion.div variants={fadeInUp}>
-          <Card>
+          <Card className="card-elegant hover-lift">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
-                <UserCheck className="h-5 w-5 text-green-600" />
+                <div className="h-10 w-10 rounded-full bg-admin-green/10 flex items-center justify-center">
+                  <UserCheck className="h-5 w-5 text-admin-green" />
+                </div>
                 <div>
-                  <p className="text-2xl font-bold">{customerStats.verified}</p>
-                  <p className="text-sm text-muted-foreground">Verified</p>
+                  <p className="text-2xl font-bold font-heading text-royal-black">{customerStats.verified}</p>
+                  <p className="text-sm text-muted-foreground font-body">Verified</p>
                 </div>
               </div>
             </CardContent>
@@ -216,13 +220,15 @@ const Customers: React.FC = () => {
         </motion.div>
 
         <motion.div variants={fadeInUp}>
-          <Card>
+          <Card className="card-elegant hover-lift">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
-                <UserX className="h-5 w-5 text-orange-600" />
+                <div className="h-10 w-10 rounded-full bg-admin-yellow/10 flex items-center justify-center">
+                  <UserX className="h-5 w-5 text-admin-yellow" />
+                </div>
                 <div>
-                  <p className="text-2xl font-bold">{customerStats.unverified}</p>
-                  <p className="text-sm text-muted-foreground">Unverified</p>
+                  <p className="text-2xl font-bold font-heading text-royal-black">{customerStats.unverified}</p>
+                  <p className="text-sm text-muted-foreground font-body">Unverified</p>
                 </div>
               </div>
             </CardContent>
@@ -230,13 +236,15 @@ const Customers: React.FC = () => {
         </motion.div>
 
         <motion.div variants={fadeInUp}>
-          <Card>
+          <Card className="card-elegant hover-lift">
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
-                <Shield className="h-5 w-5 text-royal-black" />
+                <div className="h-10 w-10 rounded-full bg-royal-black/10 flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-royal-black" />
+                </div>
                 <div>
-                  <p className="text-2xl font-bold">{customerStats.admins}</p>
-                  <p className="text-sm text-muted-foreground">Admins</p>
+                  <p className="text-2xl font-bold font-heading text-royal-black">{customerStats.admins}</p>
+                  <p className="text-sm text-muted-foreground font-body">Admins</p>
                 </div>
               </div>
             </CardContent>
@@ -246,10 +254,10 @@ const Customers: React.FC = () => {
 
       {/* Customer Management */}
       <motion.div {...fadeInUp}>
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardHeader>
-            <CardTitle>Customers</CardTitle>
-            <CardDescription>View and manage all customer accounts</CardDescription>
+            <CardTitle className="font-heading text-royal-black">Customers</CardTitle>
+            <CardDescription className="font-body">View and manage all customer accounts</CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters and Search */}
