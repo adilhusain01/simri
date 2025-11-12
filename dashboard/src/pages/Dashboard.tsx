@@ -11,7 +11,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency, formatNumber } from '@/lib/utils';
-import { adminService } from '@/services/api';
+import { adminService, productService } from '@/services/api';
 
 interface StatCard {
   title: string;
@@ -22,37 +22,108 @@ interface StatCard {
 }
 
 export default function Dashboard() {
-  const { data: analytics, isLoading } = useQuery({
-    queryKey: ['analytics', 30],
-    queryFn: () => adminService.getAnalytics(30),
+  // Get comprehensive analytics with comparison data
+  const { data: comprehensiveAnalytics, isLoading: isAnalyticsLoading } = useQuery({
+    queryKey: ['comprehensive-analytics'],
+    queryFn: () => {
+      const endDate = new Date();
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const comparisonEndDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000); // Day before start
+      const comparisonStartDate = new Date(comparisonEndDate.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days before that
+
+      return adminService.getComprehensiveAnalytics({
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0],
+        comparisonStartDate: comparisonStartDate.toISOString().split('T')[0],
+        comparisonEndDate: comparisonEndDate.toISOString().split('T')[0],
+        includeComparison: true
+      });
+    },
   });
+
+  // Fallback to legacy analytics if comprehensive fails
+  const { data: legacyAnalytics, isLoading: isLegacyLoading } = useQuery({
+    queryKey: ['legacy-analytics', 30],
+    queryFn: () => adminService.getAnalytics(30),
+    enabled: !comprehensiveAnalytics && !isAnalyticsLoading, // Only run if comprehensive fails
+  });
+
+  // Get recent orders for recent activity
+  const { data: recentOrdersData, isLoading: isOrdersLoading } = useQuery({
+    queryKey: ['recent-orders'],
+    queryFn: () => adminService.getOrders({ limit: 5, offset: 0 }),
+  });
+
+  // Get total product count - get more products to ensure we get proper pagination
+  const { data: productsData, isLoading: isProductsLoading } = useQuery({
+    queryKey: ['products-count'],
+    queryFn: () => productService.getAll({ limit: 10, offset: 0 }),
+  });
+
+  const isLoading = isAnalyticsLoading || isLegacyLoading || isOrdersLoading || isProductsLoading;
+
+  // Use comprehensive analytics if available, otherwise fallback to legacy
+  const analytics = comprehensiveAnalytics || legacyAnalytics;
+
+  // Helper function to calculate percentage change
+  const calculatePercentageChange = (current: number, previous: number): { change: string; changeType: 'increase' | 'decrease' } => {
+    if (!previous || previous === 0) {
+      return {
+        change: current > 0 ? 'New' : 'No data',
+        changeType: 'increase'
+      };
+    }
+    const percentChange = ((current - previous) / previous) * 100;
+    const change = percentChange > 0 ? `+${percentChange.toFixed(1)}%` : `${percentChange.toFixed(1)}%`;
+    return {
+      change,
+      changeType: percentChange >= 0 ? 'increase' : 'decrease'
+    };
+  };
+
+  // Calculate dynamic stats with real comparison data from actual server response structure
+  const analyticsData = analytics as any;
+  const revenueComparison = calculatePercentageChange(
+    analyticsData?.revenue?.total_revenue || analyticsData?.total_revenue || 0,
+    analyticsData?.revenue?.previous_period_revenue || 0
+  );
+
+  const ordersComparison = calculatePercentageChange(
+    analyticsData?.revenue?.total_orders || analyticsData?.total_orders || 0,
+    analyticsData?.revenue?.previous_period_orders || 0
+  );
+
+  const aovComparison = calculatePercentageChange(
+    analyticsData?.revenue?.avg_order_value || analyticsData?.average_order_value || 0,
+    analyticsData?.revenue?.previous_period_aov || 0
+  );
 
   const stats: StatCard[] = [
     {
       title: 'Total Revenue',
-      value: formatCurrency(analytics?.total_revenue || 0),
-      change: '+12.5%',
-      changeType: 'increase',
+      value: formatCurrency(analyticsData?.revenue?.total_revenue || analyticsData?.total_revenue || 0),
+      change: revenueComparison.change,
+      changeType: revenueComparison.changeType,
       icon: DollarSign,
     },
     {
       title: 'Total Orders',
-      value: formatNumber(analytics?.total_orders || 0),
-      change: '+8.2%',
-      changeType: 'increase',
+      value: formatNumber(analyticsData?.revenue?.total_orders || analyticsData?.total_orders || 0),
+      change: ordersComparison.change,
+      changeType: ordersComparison.changeType,
       icon: ShoppingCart,
     },
     {
       title: 'Average Order Value',
-      value: formatCurrency(analytics?.average_order_value || 0),
-      change: '-2.1%',
-      changeType: 'decrease',
+      value: formatCurrency(analyticsData?.revenue?.avg_order_value || analyticsData?.average_order_value || 0),
+      change: aovComparison.change,
+      changeType: aovComparison.changeType,
       icon: Activity,
     },
     {
       title: 'Products',
-      value: '1,247',
-      change: '+23',
+      value: formatNumber(productsData?.pagination?.total || productsData?.total || 0),
+      change: `${productsData?.data?.products?.length || 0} active`,
       changeType: 'increase',
       icon: Package,
     },
@@ -141,29 +212,45 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                      <ShoppingCart className="h-4 w-4 text-primary" />
+              {recentOrdersData?.data && recentOrdersData.data.length > 0 ? (
+                recentOrdersData.data.slice(0, 5).map((order) => (
+                  <div key={order.id} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                        <ShoppingCart className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Order #{order.order_number}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {order.user_email || `Customer ${order.user_id}`}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">Order #{1000 + i}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Customer {i + 1}
+                    <div className="text-right">
+                      <p className="text-sm font-medium">
+                        {formatCurrency(order.total_amount)}
                       </p>
+                      <Badge
+                        variant={
+                          order.status === 'confirmed' ? 'default' :
+                          order.status === 'pending' ? 'secondary' :
+                          order.status === 'processing' ? 'outline' :
+                          order.status === 'shipped' ? 'outline' :
+                          order.status === 'delivered' ? 'default' :
+                          order.status === 'cancelled' ? 'destructive' : 'default'
+                        }
+                        className="text-xs"
+                      >
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </Badge>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">
-                      {formatCurrency(Math.random() * 1000 + 100)}
-                    </p>
-                    <Badge variant="success" className="text-xs">
-                      Completed
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No recent orders available
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -178,7 +265,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {analytics?.topProducts?.slice(0, 5).map((product, i) => (
+              {analyticsData?.topProducts?.slice(0, 5).map((product: any, i: number) => (
                 <div key={i} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="h-9 w-9 rounded-lg bg-secondary/50 flex items-center justify-center">
@@ -186,7 +273,7 @@ export default function Dashboard() {
                     </div>
                     <div>
                       <p className="text-sm font-medium truncate max-w-[150px]">
-                        {product.product_name}
+                        {product.name || product.product_name}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {product.total_sold} sold
@@ -219,17 +306,36 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {analytics?.ordersByStatus?.map((status) => (
-              <div key={status.status} className="text-center">
-                <div className="text-2xl font-bold">{status.count}</div>
-                <div className="text-sm text-muted-foreground capitalize">
-                  {status.status.replace('_', ' ')}
+            {((analyticsData?.orderStatus || analyticsData?.ordersByStatus)?.length > 0) ? (
+              (analyticsData?.orderStatus || analyticsData?.ordersByStatus)?.map((status: any) => (
+                <div key={status.status} className="text-center">
+                  <div className="text-2xl font-bold">{status.count}</div>
+                  <div className="text-sm text-muted-foreground capitalize">
+                    {status.status.replace('_', ' ')}
+                  </div>
                 </div>
-              </div>
-            )) || (
-              <p className="col-span-full text-sm text-muted-foreground">
-                No order status data available
-              </p>
+              ))
+            ) : (
+              // Fallback: Calculate from recent orders if analytics doesn't have status data
+              recentOrdersData?.data ? (
+                Object.entries(
+                  recentOrdersData.data.reduce((acc: any, order: any) => {
+                    acc[order.status] = (acc[order.status] || 0) + 1;
+                    return acc;
+                  }, {})
+                ).map(([status, count]) => (
+                  <div key={status} className="text-center">
+                    <div className="text-2xl font-bold">{count as number}</div>
+                    <div className="text-sm text-muted-foreground capitalize">
+                      {status.replace('_', ' ')}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="col-span-full text-sm text-muted-foreground">
+                  No order status data available
+                </p>
+              )
             )}
           </div>
         </CardContent>
