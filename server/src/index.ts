@@ -49,6 +49,7 @@ app.use(cors({
   origin: [
     process.env.CLIENT_URL || 'http://localhost:3000',
     'https://simri-beta.adilhusain.xyz', // Production frontend
+    'https://simri-dashboard.adilhusain.xyz', // Production dashboard
     'http://localhost:3001', // Dashboard
     'http://localhost:3002', // Dashboard fallback
   ],

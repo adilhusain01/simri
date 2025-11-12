@@ -1,5 +1,7 @@
 {
-  "name": "dashboard",
+  "name": "simri-dashboard",
+  "version": "1.0.0",
+  "description": "Admin dashboard for Simri Gift Store - e-commerce management system",
   "private": true,
   "type": "module",
   "scripts": {
