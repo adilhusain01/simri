@@ -274,13 +274,13 @@ const Customers: React.FC = () => {
                 </div>
               </div>
               <Select value={roleFilter} onValueChange={(value: 'all' | 'customer' | 'admin') => setRoleFilter(value)}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by role" />
+                <SelectTrigger className="w-48 border-gray-300 bg-white font-body focus:border-royal-gold focus:ring-royal-gold/20">
+                  <SelectValue placeholder="Filter by role" className="font-body" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="customer">Customers Only</SelectItem>
-                  <SelectItem value="admin">Admins Only</SelectItem>
+                <SelectContent className="bg-white border-gray-200 shadow-elegant">
+                  <SelectItem value="all" className="font-body hover:bg-royal-gold/10 focus:bg-royal-gold/10">All Roles</SelectItem>
+                  <SelectItem value="customer" className="font-body hover:bg-royal-gold/10 focus:bg-royal-gold/10">Customers Only</SelectItem>
+                  <SelectItem value="admin" className="font-body hover:bg-royal-gold/10 focus:bg-royal-gold/10">Admins Only</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -290,9 +290,11 @@ const Customers: React.FC = () => {
               <LoadingSpinner />
             ) : filteredCustomers.length === 0 ? (
               <div className="text-center py-8">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-600 mb-2">No customers found</h3>
-                <p className="text-gray-500">
+                <div className="h-16 w-16 rounded-full bg-royal-gold/10 flex items-center justify-center mx-auto mb-4">
+                  <Users className="h-8 w-8 text-royal-gold" />
+                </div>
+                <h3 className="font-semibold text-royal-black mb-2 font-body">No customers found</h3>
+                <p className="text-gray-500 font-body">
                   {searchQuery ? 'Try adjusting your search terms' : 'No customers registered yet'}
                 </p>
               </div>
@@ -301,7 +303,7 @@ const Customers: React.FC = () => {
                 {filteredCustomers.map((customer) => (
                   <div
                     key={customer.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-royal-gold/5 transition-colors"
                   >
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-royal-gold rounded-full flex items-center justify-center text-white font-semibold">
@@ -309,16 +311,16 @@ const Customers: React.FC = () => {
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
-                          <p className="font-medium">{customer.name}</p>
+                          <p className="font-medium font-body text-royal-black">{customer.name}</p>
                           {customer.role === 'admin' && (
                             <Shield className="h-4 w-4 text-royal-black" />
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground flex items-center">
+                        <p className="text-sm text-muted-foreground flex items-center font-body">
                           <Mail className="h-3 w-3 mr-1" />
                           {customer.email}
                         </p>
-                        <p className="text-xs text-muted-foreground flex items-center">
+                        <p className="text-xs text-muted-foreground flex items-center font-body">
                           <Calendar className="h-3 w-3 mr-1" />
                           Joined {new Date(customer.created_at).toLocaleDateString()}
                         </p>

@@ -534,12 +534,12 @@ const Coupons: React.FC = () => {
 
       {/* Bulk Actions */}
       {selectedCoupons.length > 0 && (
-        <Card>
+        <Card className="card-elegant">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm">
-                <span className="font-medium">{selectedCoupons.length}</span>
-                <span className="text-muted-foreground">coupons selected</span>
+                <span className="font-medium font-body text-royal-black">{selectedCoupons.length}</span>
+                <span className="text-muted-foreground font-body">coupons selected</span>
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -588,15 +588,19 @@ const Coupons: React.FC = () => {
       )}
 
       {/* Coupons Table */}
-      <Card>
+      <Card className="card-elegant">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
           ) : coupons.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground">
-              No coupons found
+            <div className="text-center py-16">
+              <div className="h-16 w-16 rounded-full bg-royal-gold/10 flex items-center justify-center mx-auto mb-4">
+                <Gift className="h-8 w-8 text-royal-gold" />
+              </div>
+              <h3 className="text-lg font-heading font-medium text-royal-black mb-2">No coupons found</h3>
+              <p className="text-muted-foreground font-body">Create your first coupon to get started</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -610,14 +614,14 @@ const Coupons: React.FC = () => {
                         aria-label="Select all coupons"
                       />
                     </th>
-                    <th className="p-4 font-medium">Code</th>
-                    <th className="p-4 font-medium">Name</th>
-                    <th className="p-4 font-medium">Type</th>
-                    <th className="p-4 font-medium">Value</th>
-                    <th className="p-4 font-medium">Usage</th>
-                    <th className="p-4 font-medium">Status</th>
-                    <th className="p-4 font-medium">Validity</th>
-                    <th className="p-4 font-medium">Actions</th>
+                    <th className="p-4 font-medium font-body text-royal-black">Code</th>
+                    <th className="p-4 font-medium font-body text-royal-black">Name</th>
+                    <th className="p-4 font-medium font-body text-royal-black">Type</th>
+                    <th className="p-4 font-medium font-body text-royal-black">Value</th>
+                    <th className="p-4 font-medium font-body text-royal-black">Usage</th>
+                    <th className="p-4 font-medium font-body text-royal-black">Status</th>
+                    <th className="p-4 font-medium font-body text-royal-black">Validity</th>
+                    <th className="p-4 font-medium font-body text-royal-black">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -636,12 +640,12 @@ const Coupons: React.FC = () => {
                         />
                       </td>
                       <td className="p-4">
-                        <div className="font-mono font-medium">{coupon.code}</div>
+                        <div className="font-mono font-medium text-royal-black">{coupon.code}</div>
                       </td>
                       <td className="p-4">
-                        <div className="font-medium">{coupon.name}</div>
+                        <div className="font-medium font-body text-royal-black">{coupon.name}</div>
                         {coupon.description && (
-                          <div className="text-sm text-muted-foreground truncate max-w-[200px]">
+                          <div className="text-sm text-muted-foreground truncate max-w-[200px] font-body">
                             {coupon.description}
                           </div>
                         )}
@@ -653,32 +657,32 @@ const Coupons: React.FC = () => {
                           ) : (
                             <DollarSign className="h-3 w-3" />
                           )}
-                          <span className="capitalize">{coupon.type}</span>
+                          <span className="capitalize font-body">{coupon.type}</span>
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="font-medium">
-                          {coupon.type === 'percentage' 
+                        <div className="font-medium font-body text-royal-black">
+                          {coupon.type === 'percentage'
                             ? `${coupon.value}%`
                             : formatCurrency(coupon.value)
                           }
                         </div>
                         {coupon.maximum_discount_amount && coupon.type === 'percentage' && (
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-xs text-muted-foreground font-body">
                             Max: {formatCurrency(coupon.maximum_discount_amount)}
                           </div>
                         )}
                         {coupon.minimum_order_amount && (
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-xs text-muted-foreground font-body">
                             Min: {formatCurrency(coupon.minimum_order_amount)}
                           </div>
                         )}
                       </td>
                       <td className="p-4">
-                        <div className="text-sm">
+                        <div className="text-sm font-body">
                           {coupon.used_count} total uses
                           {coupon.usage_limit && (
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs text-muted-foreground font-body">
                               {coupon.usage_limit} uses per user
                             </div>
                           )}
@@ -690,19 +694,19 @@ const Coupons: React.FC = () => {
                       <td className="p-4">
                         <div className="text-sm">
                           {coupon.valid_from && (
-                            <div className="flex items-center gap-1 text-muted-foreground">
+                            <div className="flex items-center gap-1 text-muted-foreground font-body">
                               <Calendar className="h-3 w-3" />
                               From {formatDate(coupon.valid_from)}
                             </div>
                           )}
                           {coupon.valid_until && (
-                            <div className="flex items-center gap-1 text-muted-foreground">
+                            <div className="flex items-center gap-1 text-muted-foreground font-body">
                               <Clock className="h-3 w-3" />
                               Until {formatDate(coupon.valid_until)}
                             </div>
                           )}
                           {!coupon.valid_from && !coupon.valid_until && (
-                            <span className="text-muted-foreground">No expiry</span>
+                            <span className="text-muted-foreground font-body">No expiry</span>
                           )}
                         </div>
                       </td>
@@ -713,7 +717,7 @@ const Coupons: React.FC = () => {
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="end" className="bg-white border-gray-200 shadow-elegant">
                             <DropdownMenuItem onClick={() => handleViewStats(coupon)}>
                               <Eye className="mr-2 h-4 w-4" />
                               View Stats
@@ -758,7 +762,7 @@ const Coupons: React.FC = () => {
       {totalCount > 0 && (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>Items per page:</span>
+            <span className="font-body">Items per page:</span>
             <Select value={itemsPerPage.toString()} onValueChange={(value) => {
               setItemsPerPage(Number(value));
               setCurrentPage(1);
@@ -775,7 +779,7 @@ const Coupons: React.FC = () => {
             </Select>
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground font-body">
             Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount} items
           </div>
 
@@ -823,10 +827,10 @@ const Coupons: React.FC = () => {
 
       {/* Create Coupon Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-ivory-white">
           <DialogHeader>
-            <DialogTitle>Create New Coupon</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="font-heading text-royal-black">Create New Coupon</DialogTitle>
+            <DialogDescription className="font-body">
               Create a new discount coupon for your store
             </DialogDescription>
           </DialogHeader>
@@ -835,7 +839,7 @@ const Coupons: React.FC = () => {
             {/* Basic Information */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="code">Coupon Code *</Label>
+                <Label htmlFor="code" className="font-body text-royal-black">Coupon Code *</Label>
                 <Input
                   id="code"
                   placeholder="e.g. WELCOME10"
@@ -843,13 +847,13 @@ const Coupons: React.FC = () => {
                   onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                   className="font-mono"
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground font-body">
                   Use uppercase letters and numbers only
                 </p>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="name">Coupon Name *</Label>
+                <Label htmlFor="name" className="font-body text-royal-black">Coupon Name *</Label>
                 <Input
                   id="name"
                   placeholder="e.g. Welcome Discount"
@@ -860,7 +864,7 @@ const Coupons: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="font-body text-royal-black">Description</Label>
               <Textarea
                 id="description"
                 placeholder="Brief description of the coupon..."
@@ -872,7 +876,7 @@ const Coupons: React.FC = () => {
 
             {/* Discount Configuration */}
             <div className="space-y-4">
-              <Label>Discount Type *</Label>
+              <Label className="font-body text-royal-black">Discount Type *</Label>
               <RadioGroup 
                 value={form.type} 
                 onValueChange={(value) => setForm({ ...form, type: value as 'percentage' | 'fixed', value: 0 })}
@@ -897,7 +901,7 @@ const Coupons: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="value">
+                <Label htmlFor="value" className="font-body text-royal-black">
                   {form.type === 'percentage' ? 'Percentage Value *' : 'Fixed Amount *'}
                 </Label>
                 <div className="relative">
@@ -919,7 +923,7 @@ const Coupons: React.FC = () => {
 
               {form.type === 'percentage' && (
                 <div className="space-y-2">
-                  <Label htmlFor="max_discount">Maximum Discount Amount</Label>
+                  <Label htmlFor="max_discount" className="font-body text-royal-black">Maximum Discount Amount</Label>
                   <div className="relative">
                     <Input
                       id="max_discount"
@@ -944,7 +948,7 @@ const Coupons: React.FC = () => {
             {/* Usage Limits */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="min_order">Minimum Order Amount</Label>
+                <Label htmlFor="min_order" className="font-body text-royal-black">Minimum Order Amount</Label>
                 <div className="relative">
                   <Input
                     id="min_order"
@@ -962,7 +966,7 @@ const Coupons: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="usage_limit">Usage Limit (Per User)</Label>
+                <Label htmlFor="usage_limit" className="font-body text-royal-black">Usage Limit (Per User)</Label>
                 <Input
                   id="usage_limit"
                   type="number"
@@ -981,7 +985,7 @@ const Coupons: React.FC = () => {
             {/* Validity Dates */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="valid_from">Valid From</Label>
+                <Label htmlFor="valid_from" className="font-body text-royal-black">Valid From</Label>
                 <Input
                   id="valid_from"
                   type="date"
@@ -994,7 +998,7 @@ const Coupons: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="valid_until">Valid Until</Label>
+                <Label htmlFor="valid_until" className="font-body text-royal-black">Valid Until</Label>
                 <Input
                   id="valid_until"
                   type="date"
@@ -1011,7 +1015,7 @@ const Coupons: React.FC = () => {
             {/* Preview */}
             {form.code && form.name && form.value > 0 && (
               <div className="bg-muted p-4 rounded-lg">
-                <Label className="text-sm font-medium">Preview</Label>
+                <Label className="text-sm font-medium font-body text-royal-black">Preview</Label>
                 <div className="mt-2 space-y-1">
                   <div className="font-mono font-bold text-lg">{form.code}</div>
                   <div className="font-medium">{form.name}</div>
@@ -1061,10 +1065,10 @@ const Coupons: React.FC = () => {
 
       {/* Edit Coupon Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-ivory-white">
           <DialogHeader>
-            <DialogTitle>Edit Coupon</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="font-heading text-royal-black">Edit Coupon</DialogTitle>
+            <DialogDescription className="font-body">
               Edit coupon details. Note: Coupon code cannot be changed.
             </DialogDescription>
           </DialogHeader>
@@ -1074,7 +1078,7 @@ const Coupons: React.FC = () => {
               {/* Basic Information */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit_code">Coupon Code</Label>
+                  <Label htmlFor="edit_code" className="font-body text-royal-black">Coupon Code</Label>
                   <Input
                     id="edit_code"
                     value={form.code}
@@ -1087,7 +1091,7 @@ const Coupons: React.FC = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="edit_name">Coupon Name *</Label>
+                  <Label htmlFor="edit_name" className="font-body text-royal-black">Coupon Name *</Label>
                   <Input
                     id="edit_name"
                     placeholder="e.g. Welcome Discount"
@@ -1098,7 +1102,7 @@ const Coupons: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="edit_description">Description</Label>
+                <Label htmlFor="edit_description" className="font-body text-royal-black">Description</Label>
                 <Textarea
                   id="edit_description"
                   placeholder="Brief description of the coupon..."
@@ -1110,7 +1114,7 @@ const Coupons: React.FC = () => {
 
               {/* Discount Configuration - Type cannot be changed */}
               <div className="space-y-4">
-                <Label>Discount Type</Label>
+                <Label className="font-body text-royal-black">Discount Type</Label>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted p-3 rounded">
                   {form.type === 'percentage' ? (
                     <>
@@ -1129,7 +1133,7 @@ const Coupons: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit_value">
+                  <Label htmlFor="edit_value" className="font-body text-royal-black">
                     {form.type === 'percentage' ? 'Percentage Value *' : 'Fixed Amount *'}
                   </Label>
                   <div className="relative">
@@ -1151,7 +1155,7 @@ const Coupons: React.FC = () => {
 
                 {form.type === 'percentage' && (
                   <div className="space-y-2">
-                    <Label htmlFor="edit_max_discount">Maximum Discount Amount</Label>
+                    <Label htmlFor="edit_max_discount" className="font-body text-royal-black">Maximum Discount Amount</Label>
                     <div className="relative">
                       <Input
                         id="edit_max_discount"
@@ -1176,7 +1180,7 @@ const Coupons: React.FC = () => {
               {/* Usage Limits */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit_min_order">Minimum Order Amount</Label>
+                  <Label htmlFor="edit_min_order" className="font-body text-royal-black">Minimum Order Amount</Label>
                   <div className="relative">
                     <Input
                       id="edit_min_order"
@@ -1194,7 +1198,7 @@ const Coupons: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="edit_usage_limit">Usage Limit (Per User)</Label>
+                  <Label htmlFor="edit_usage_limit" className="font-body text-royal-black">Usage Limit (Per User)</Label>
                   <Input
                     id="edit_usage_limit"
                     type="number"
@@ -1213,7 +1217,7 @@ const Coupons: React.FC = () => {
               {/* Validity Dates */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit_valid_from">Valid From</Label>
+                  <Label htmlFor="edit_valid_from" className="font-body text-royal-black">Valid From</Label>
                   <Input
                     id="edit_valid_from"
                     type="date"
@@ -1226,7 +1230,7 @@ const Coupons: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="edit_valid_until">Valid Until</Label>
+                  <Label htmlFor="edit_valid_until" className="font-body text-royal-black">Valid Until</Label>
                   <Input
                     id="edit_valid_until"
                     type="date"
@@ -1242,7 +1246,7 @@ const Coupons: React.FC = () => {
 
               {/* Current Status */}
               <div className="bg-muted p-4 rounded-lg">
-                <Label className="text-sm font-medium">Current Status</Label>
+                <Label className="text-sm font-medium font-body text-royal-black">Current Status</Label>
                 <div className="mt-2 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Status:</span>
@@ -1268,7 +1272,7 @@ const Coupons: React.FC = () => {
               {/* Preview */}
               {form.name && form.value > 0 && (
                 <div className="bg-muted p-4 rounded-lg">
-                  <Label className="text-sm font-medium">Updated Preview</Label>
+                  <Label className="text-sm font-medium font-body text-royal-black">Updated Preview</Label>
                   <div className="mt-2 space-y-1">
                     <div className="font-mono font-bold text-lg">{form.code}</div>
                     <div className="font-medium">{form.name}</div>
@@ -1320,10 +1324,10 @@ const Coupons: React.FC = () => {
 
       {/* Stats Dialog */}
       <Dialog open={isStatsDialogOpen} onOpenChange={setIsStatsDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-ivory-white">
           <DialogHeader>
-            <DialogTitle>Coupon Statistics</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="font-heading text-royal-black">Coupon Statistics</DialogTitle>
+            <DialogDescription className="font-body">
               Detailed usage analytics and performance metrics
             </DialogDescription>
           </DialogHeader>
@@ -1331,13 +1335,13 @@ const Coupons: React.FC = () => {
           {viewingStats && (
             <div className="space-y-6">
               {/* Coupon Overview */}
-              <div className="bg-muted p-4 rounded-lg">
+              <div className="bg-royal-gold/5 p-4 rounded-lg border border-royal-gold/20">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="font-mono font-bold text-xl">{viewingStats.code}</div>
-                    <div className="font-medium text-lg">{viewingStats.name}</div>
+                    <div className="font-mono font-bold text-lg text-royal-black">{viewingStats.code}</div>
+                    <div className="font-medium text-base font-body text-royal-black">{viewingStats.name}</div>
                     {viewingStats.description && (
-                      <div className="text-sm text-muted-foreground mt-1">
+                      <div className="text-sm text-muted-foreground mt-1 font-body">
                         {viewingStats.description}
                       </div>
                     )}
@@ -1362,28 +1366,32 @@ const Coupons: React.FC = () => {
 
               {/* Key Metrics */}
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
+                <Card className="card-elegant">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium font-body text-royal-black">Total Orders</CardTitle>
+                    <div className="h-8 w-8 rounded-full bg-royal-gold/10 flex items-center justify-center">
+                      <Users className="h-4 w-4 text-royal-gold" />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{viewingStats.total_orders_with_coupon || 0}</div>
-                    <p className="text-xs text-muted-foreground">
+                    <div className="text-2xl font-bold font-heading text-royal-black">{viewingStats.total_orders_with_coupon || 0}</div>
+                    <p className="text-xs text-muted-foreground font-body">
                       Orders using this coupon
                     </p>
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="card-elegant">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Times Used</CardTitle>
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium font-body text-royal-black">Times Used</CardTitle>
+                    <div className="h-8 w-8 rounded-full bg-admin-blue/10 flex items-center justify-center">
+                      <TrendingUp className="h-4 w-4 text-admin-blue" />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{viewingStats.used_count}</div>
-                    <p className="text-xs text-muted-foreground">
-                      {viewingStats.usage_limit 
+                    <div className="text-2xl font-bold font-heading text-royal-black">{viewingStats.used_count}</div>
+                    <p className="text-xs text-muted-foreground font-body">
+                      {viewingStats.usage_limit
                         ? `total uses (${viewingStats.usage_limit} per user limit)`
                         : 'No usage limit per user'
                       }
@@ -1391,31 +1399,35 @@ const Coupons: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="card-elegant">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Discount</CardTitle>
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium font-body text-royal-black">Total Discount</CardTitle>
+                    <div className="h-8 w-8 rounded-full bg-admin-green/10 flex items-center justify-center">
+                      <DollarSign className="h-4 w-4 text-admin-green" />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold font-heading text-royal-black">
                       {formatCurrency(viewingStats.total_discount_given || 0)}
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground font-body">
                       Total discount provided
                     </p>
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="card-elegant">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Order Value</CardTitle>
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium font-body text-royal-black">Order Value</CardTitle>
+                    <div className="h-8 w-8 rounded-full bg-royal-gold/10 flex items-center justify-center">
+                      <TrendingUp className="h-4 w-4 text-royal-gold" />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold font-heading text-royal-black">
                       {formatCurrency(viewingStats.total_order_value || 0)}
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground font-body">
                       Total value of orders
                     </p>
                   </CardContent>
@@ -1431,12 +1443,12 @@ const Coupons: React.FC = () => {
                   <CardContent>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-sm">
-                        <span>Each user can use:</span>
-                        <span className="font-medium">{viewingStats.usage_limit} times</span>
+                        <span className="font-body">Each user can use:</span>
+                        <span className="font-medium font-body">{viewingStats.usage_limit} times</span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span>Total uses so far:</span>
-                        <span className="font-medium">{viewingStats.used_count}</span>
+                        <span className="font-body">Total uses so far:</span>
+                        <span className="font-medium font-body">{viewingStats.used_count}</span>
                       </div>
                       <div className="text-center text-sm text-muted-foreground">
                         💡 This coupon is available for all users up to {viewingStats.usage_limit} uses each
@@ -1455,27 +1467,27 @@ const Coupons: React.FC = () => {
                   <CardContent>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Average Order Value</span>
-                        <span className="font-medium">
-                          {viewingStats.total_orders_with_coupon > 0 
+                        <span className="text-sm font-body">Average Order Value</span>
+                        <span className="font-medium font-body">
+                          {viewingStats.total_orders_with_coupon > 0
                             ? formatCurrency(viewingStats.total_order_value / viewingStats.total_orders_with_coupon)
                             : formatCurrency(0)
                           }
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Average Discount</span>
-                        <span className="font-medium">
-                          {viewingStats.used_count > 0 
+                        <span className="text-sm font-body">Average Discount</span>
+                        <span className="font-medium font-body">
+                          {viewingStats.used_count > 0
                             ? formatCurrency(viewingStats.total_discount_given / viewingStats.used_count)
                             : formatCurrency(0)
                           }
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Revenue Impact</span>
-                        <span className="font-medium">
-                          {viewingStats.total_order_value > 0 
+                        <span className="text-sm font-body">Revenue Impact</span>
+                        <span className="font-medium font-body">
+                          {viewingStats.total_order_value > 0
                             ? `${Math.round((viewingStats.total_discount_given / viewingStats.total_order_value) * 100)}%`
                             : '0%'
                           }
@@ -1492,23 +1504,23 @@ const Coupons: React.FC = () => {
                   <CardContent>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Created</span>
-                        <span className="font-medium">{formatDate(viewingStats.created_at)}</span>
+                        <span className="text-sm font-body">Created</span>
+                        <span className="font-medium font-body">{formatDate(viewingStats.created_at)}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Valid From</span>
-                        <span className="font-medium">
+                        <span className="text-sm font-body">Valid From</span>
+                        <span className="font-medium font-body">
                           {viewingStats.valid_from ? formatDate(viewingStats.valid_from) : 'Immediate'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Valid Until</span>
-                        <span className="font-medium">
+                        <span className="text-sm font-body">Valid Until</span>
+                        <span className="font-medium font-body">
                           {viewingStats.valid_until ? formatDate(viewingStats.valid_until) : 'No expiry'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm">Status</span>
+                        <span className="text-sm font-body">Status</span>
                         {getStatusBadge(getCouponStatus(viewingStats))}
                       </div>
                     </div>
@@ -1523,14 +1535,14 @@ const Coupons: React.FC = () => {
                     <CardTitle className="text-base">Summary</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm text-muted-foreground">
-                      This coupon has been successfully used <strong>{viewingStats.used_count}</strong> times 
-                      across <strong>{viewingStats.total_orders_with_coupon}</strong> orders, 
-                      providing a total discount of <strong>{formatCurrency(viewingStats.total_discount_given)}</strong> 
+                    <div className="text-sm text-muted-foreground font-body">
+                      This coupon has been successfully used <strong>{viewingStats.used_count}</strong> times
+                      across <strong>{viewingStats.total_orders_with_coupon}</strong> orders,
+                      providing a total discount of <strong>{formatCurrency(viewingStats.total_discount_given)}</strong>
                       on orders worth <strong>{formatCurrency(viewingStats.total_order_value)}</strong>.
-                      
+
                       {viewingStats.usage_limit && (
-                        <span className="block mt-2 text-blue-600">
+                        <span className="block mt-2 text-admin-blue font-body">
                           💡 Each user can use this coupon up to {viewingStats.usage_limit} times.
                         </span>
                       )}
@@ -1541,9 +1553,11 @@ const Coupons: React.FC = () => {
                 <Card>
                   <CardContent className="text-center py-8">
                     <div className="text-muted-foreground">
-                      <Gift className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>This coupon hasn't been used yet.</p>
-                      <p className="text-sm mt-2">Statistics will appear once customers start using this coupon.</p>
+                      <div className="h-16 w-16 rounded-full bg-royal-gold/10 flex items-center justify-center mx-auto mb-4">
+                        <Gift className="h-8 w-8 text-royal-gold opacity-50" />
+                      </div>
+                      <p className="font-body">This coupon hasn't been used yet.</p>
+                      <p className="text-sm mt-2 font-body">Statistics will appear once customers start using this coupon.</p>
                     </div>
                   </CardContent>
                 </Card>

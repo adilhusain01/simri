@@ -231,10 +231,10 @@ export default function Analytics() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
+            <Card key={i} className="animate-pulse card-elegant">
               <CardContent className="p-6">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-royal-gold/20 rounded w-3/4 mb-2"></div>
+                <div className="h-8 bg-royal-gold/20 rounded w-1/2"></div>
               </CardContent>
             </Card>
           ))}
@@ -250,10 +250,10 @@ export default function Analytics() {
           <h1 className="text-3xl font-bold font-heading text-royal-black">Analytics</h1>
           <p className="text-muted-foreground font-body">Business insights and reports</p>
         </div>
-        <Card>
+        <Card className="card-elegant">
           <CardContent className="p-6">
-            <p className="text-red-600">Error: {error}</p>
-            <Button onClick={() => loadAnalytics(selectedPeriod)} className="mt-4">
+            <p className="text-admin-red font-body">Error: {error}</p>
+            <Button onClick={() => loadAnalytics(selectedPeriod)} className="mt-4 font-body">
               Retry
             </Button>
           </CardContent>
@@ -290,7 +290,7 @@ export default function Analytics() {
                   }
                 }}
               />
-              <Label htmlFor="use-custom-range" className="text-sm">
+              <Label htmlFor="use-custom-range" className="text-sm font-body">
                 Custom date range
               </Label>
             </div>
@@ -325,7 +325,7 @@ export default function Analytics() {
                 checked={includeComparison}
                 onCheckedChange={setIncludeComparison}
               />
-              <Label htmlFor="include-comparison" className="text-sm">
+              <Label htmlFor="include-comparison" className="text-sm font-body">
                 Compare to previous period
               </Label>
             </div>
@@ -421,20 +421,20 @@ export default function Analytics() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">New Customers</span>
-                <span className="text-lg font-bold text-green-600">{analytics.customers.new_customers}</span>
+                <span className="text-sm font-medium font-body">New Customers</span>
+                <span className="text-lg font-bold font-heading text-admin-green">{analytics.customers.new_customers}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Returning Customers</span>
-                <span className="text-lg font-bold text-blue-600">{analytics.customers.returning_customers}</span>
+                <span className="text-sm font-medium font-body">Returning Customers</span>
+                <span className="text-lg font-bold font-heading text-admin-blue">{analytics.customers.returning_customers}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Avg Customer Lifetime Value</span>
-                <span className="text-lg font-bold">{formatCurrency(analytics.customers.avg_customer_lifetime_value)}</span>
+                <span className="text-sm font-medium font-body">Avg Customer Lifetime Value</span>
+                <span className="text-lg font-bold font-heading text-royal-black">{formatCurrency(analytics.customers.avg_customer_lifetime_value)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Repeat Purchase Rate</span>
-                <span className="text-lg font-bold text-royal-black">{analytics.customers.repeat_purchase_rate.toFixed(1)}%</span>
+                <span className="text-sm font-medium font-body">Repeat Purchase Rate</span>
+                <span className="text-lg font-bold font-heading text-royal-black">{analytics.customers.repeat_purchase_rate.toFixed(1)}%</span>
               </div>
             </div>
           </CardContent>
@@ -450,16 +450,16 @@ export default function Analytics() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Payment Success Rate</span>
-                <span className="text-lg font-bold text-green-600">{analytics.conversion.payment_success_rate.toFixed(1)}%</span>
+                <span className="text-sm font-medium font-body">Payment Success Rate</span>
+                <span className="text-lg font-bold font-heading text-admin-green">{analytics.conversion.payment_success_rate.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Delivery Rate</span>
-                <span className="text-lg font-bold text-blue-600">{analytics.conversion.delivery_rate.toFixed(1)}%</span>
+                <span className="text-sm font-medium font-body">Delivery Rate</span>
+                <span className="text-lg font-bold font-heading text-admin-blue">{analytics.conversion.delivery_rate.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Cancellation Rate</span>
-                <span className="text-lg font-bold text-red-600">{analytics.conversion.cancellation_rate.toFixed(1)}%</span>
+                <span className="text-sm font-medium font-body">Cancellation Rate</span>
+                <span className="text-lg font-bold font-heading text-admin-red">{analytics.conversion.cancellation_rate.toFixed(1)}%</span>
               </div>
             </div>
           </CardContent>
@@ -468,10 +468,10 @@ export default function Analytics() {
 
       {/* Top Products & Categories */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 font-heading text-royal-black">
+              <Package className="h-5 w-5 text-royal-gold" />
               Top Selling Products
             </CardTitle>
           </CardHeader>
@@ -480,17 +480,17 @@ export default function Analytics() {
               {analytics.topProducts.slice(0, 5).map((product, index) => (
                 <div key={product.product_id} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="w-8 h-8 bg-royal-gold/10 rounded-full flex items-center justify-center text-sm font-bold font-heading text-royal-gold">
                       {index + 1}
                     </div>
                     <div>
-                      <p className="font-medium text-sm">{product.name}</p>
-                      <p className="text-xs text-muted-foreground">{product.category_name}</p>
+                      <p className="font-medium text-sm font-body text-royal-black">{product.name}</p>
+                      <p className="text-xs text-muted-foreground font-body">{product.category_name}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-sm">{product.total_sold} sold</p>
-                    <p className="text-xs text-muted-foreground">{formatCurrency(product.revenue)}</p>
+                    <p className="font-bold text-sm font-body text-royal-black">{product.total_sold} sold</p>
+                    <p className="text-xs text-muted-foreground font-body">{formatCurrency(product.revenue)}</p>
                   </div>
                 </div>
               ))}
@@ -498,10 +498,10 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Heart className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 font-heading text-royal-black">
+              <Heart className="h-5 w-5 text-royal-gold" />
               Top Categories
             </CardTitle>
           </CardHeader>
@@ -510,17 +510,17 @@ export default function Analytics() {
               {analytics.categories.slice(0, 5).map((category, index) => (
                 <div key={category.category_id} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="w-8 h-8 bg-royal-gold/10 rounded-full flex items-center justify-center text-sm font-bold font-heading text-royal-gold">
                       {index + 1}
                     </div>
                     <div>
-                      <p className="font-medium text-sm">{category.category_name}</p>
-                      <p className="text-xs text-muted-foreground">{category.product_count} products</p>
+                      <p className="font-medium text-sm font-body text-royal-black">{category.category_name}</p>
+                      <p className="text-xs text-muted-foreground font-body">{category.product_count} products</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-sm">{formatCurrency(category.total_revenue)}</p>
-                    <p className="text-xs text-muted-foreground">{category.total_orders} orders</p>
+                    <p className="font-bold text-sm font-body text-royal-black">{formatCurrency(category.total_revenue)}</p>
+                    <p className="text-xs text-muted-foreground font-body">{category.total_orders} orders</p>
                   </div>
                 </div>
               ))}
@@ -531,35 +531,35 @@ export default function Analytics() {
 
       {/* Cart Abandonment, Marketing & GA */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 font-heading text-royal-black">
+              <ShoppingCart className="h-5 w-5 text-royal-gold" />
               Cart Abandonment Insights
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Abandonment Rate</span>
-                <span className="text-lg font-bold text-red-600">{analytics.cartAbandonment.abandonment_rate.toFixed(1)}%</span>
+                <span className="text-sm font-medium font-body">Abandonment Rate</span>
+                <span className="text-lg font-bold font-heading text-admin-red">{analytics.cartAbandonment.abandonment_rate.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Recovery Rate</span>
-                <span className="text-lg font-bold text-green-600">{analytics.cartAbandonment.recovery_rate.toFixed(1)}%</span>
+                <span className="text-sm font-medium font-body">Recovery Rate</span>
+                <span className="text-lg font-bold font-heading text-admin-green">{analytics.cartAbandonment.recovery_rate.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Potential Lost Revenue</span>
-                <span className="text-lg font-bold text-orange-600">{formatCurrency(analytics.cartAbandonment.potential_lost_revenue)}</span>
+                <span className="text-sm font-medium font-body">Potential Lost Revenue</span>
+                <span className="text-lg font-bold font-heading text-admin-yellow">{formatCurrency(analytics.cartAbandonment.potential_lost_revenue)}</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 font-heading text-royal-black">
+              <TrendingUp className="h-5 w-5 text-royal-gold" />
               Marketing Performance
             </CardTitle>
           </CardHeader>
@@ -568,12 +568,12 @@ export default function Analytics() {
               {analytics.marketing.slice(0, 3).map((coupon) => (
                 <div key={coupon.coupon_code} className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-sm">{coupon.coupon_code}</p>
-                    <p className="text-xs text-muted-foreground">{coupon.usage_count} uses</p>
+                    <p className="font-medium text-sm font-body text-royal-black">{coupon.coupon_code}</p>
+                    <p className="text-xs text-muted-foreground font-body">{coupon.usage_count} uses</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-sm">{formatCurrency(coupon.total_discount_given)}</p>
-                    <Badge variant={coupon.is_active ? "default" : "secondary"} className="text-xs">
+                    <p className="font-bold text-sm font-body text-royal-black">{formatCurrency(coupon.total_discount_given)}</p>
+                    <Badge variant={coupon.is_active ? "default" : "secondary"} className="text-xs font-body">
                       {coupon.is_active ? "Active" : "Inactive"}
                     </Badge>
                   </div>
@@ -583,22 +583,22 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 font-heading text-royal-black">
+              <BarChart3 className="h-5 w-5 text-royal-gold" />
               Website Analytics
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-sm text-muted-foreground mb-4 font-body">
                   View detailed website traffic, user behavior, and conversion data
                 </p>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
+                <Button
+                  variant="outline"
+                  className="w-full font-body"
                   onClick={() => window.open('https://analytics.google.com', '_blank')}
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
@@ -606,7 +606,7 @@ export default function Analytics() {
                 </Button>
               </div>
               <div className="pt-2 border-t">
-                <p className="text-xs text-muted-foreground text-center">
+                <p className="text-xs text-muted-foreground text-center font-body">
                   Analyze traffic sources, page views, bounce rates, and user journeys
                 </p>
               </div>

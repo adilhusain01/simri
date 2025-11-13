@@ -85,7 +85,7 @@ const CategoryImageUpload: React.FC<{
 
   return (
     <div className="space-y-2">
-      <Label>Category Image</Label>
+      <Label className="font-body font-medium text-royal-black">Category Image</Label>
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
         {(imageUrl || selectedFile) ? (
           <div className="relative">
@@ -104,24 +104,27 @@ const CategoryImageUpload: React.FC<{
               <X className="h-4 w-4" />
             </Button>
             {selectedFile && (
-              <div className="absolute bottom-2 left-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">
+              <div className="absolute bottom-2 left-2 bg-royal-gold text-white px-2 py-1 rounded text-xs font-body">
                 New image selected
               </div>
             )}
           </div>
         ) : (
           <div className="text-center">
-            <Upload className="mx-auto h-12 w-12 text-gray-400" />
+            <div className="h-16 w-16 rounded-full bg-royal-gold/10 flex items-center justify-center mx-auto mb-4">
+              <Upload className="h-8 w-8 text-royal-gold" />
+            </div>
             <div className="mt-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
+                className="font-body"
               >
                 Select Image
               </Button>
             </div>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-muted-foreground font-body mt-1">
               JPG, PNG, GIF, WEBP up to 10MB
             </p>
           </div>
@@ -158,7 +161,7 @@ const CategoryForm = React.memo<CategoryFormProps>(({
   <form onSubmit={handleSubmit} className="space-y-4">
     <div className="grid grid-cols-2 gap-4">
       <div className="space-y-2">
-        <Label htmlFor="category-name">Category Name *</Label>
+        <Label htmlFor="category-name" className="font-body font-medium text-royal-black">Category Name *</Label>
         <Input
           id="category-name"
           value={formData.name}
@@ -175,7 +178,7 @@ const CategoryForm = React.memo<CategoryFormProps>(({
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="category-slug">Slug *</Label>
+        <Label htmlFor="category-slug" className="font-body font-medium text-royal-black">Slug *</Label>
         <Input
           id="category-slug"
           value={formData.slug}
@@ -187,7 +190,7 @@ const CategoryForm = React.memo<CategoryFormProps>(({
     </div>
 
     <div className="space-y-2">
-      <Label htmlFor="category-description">Description</Label>
+      <Label htmlFor="category-description" className="font-body font-medium text-royal-black">Description</Label>
       <Textarea
         id="category-description"
         value={formData.description}
@@ -208,7 +211,7 @@ const CategoryForm = React.memo<CategoryFormProps>(({
     />
 
     <div className="space-y-2">
-      <Label htmlFor="category-parent">Parent Category</Label>
+      <Label htmlFor="category-parent" className="font-body font-medium text-royal-black">Parent Category</Label>
       <Select
         value={formData.parent_id || "none"}
         onValueChange={(value) => setFormData(prev => ({ ...prev, parent_id: value === "none" ? "" : value }))}
@@ -234,12 +237,12 @@ const CategoryForm = React.memo<CategoryFormProps>(({
           checked={formData.is_active}
           onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
         />
-        <Label htmlFor="category-active">Active</Label>
+        <Label htmlFor="category-active" className="font-body font-medium text-royal-black">Active</Label>
       </div>
       {editingCategory && !formData.is_active && (() => {
         const subcatCount = getActiveSubcategoriesCount(editingCategory.id);
         return subcatCount > 0 ? (
-          <p className="text-sm text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
+          <p className="text-sm text-admin-yellow bg-royal-gold/5 p-2 rounded border border-royal-gold/20 font-body">
             ⚠️ Deactivating this category will also deactivate {subcatCount} active subcategor{subcatCount === 1 ? 'y' : 'ies'}.
           </p>
         ) : null;
@@ -503,24 +506,28 @@ export default function Categories() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardContent className="p-6">
             <div className="flex items-center space-x-2">
-              <Tag className="h-5 w-5 text-green-600" />
+              <div className="h-10 w-10 rounded-full bg-royal-gold/10 flex items-center justify-center">
+                <Tag className="h-5 w-5 text-royal-gold" />
+              </div>
               <div>
-                <p className="text-2xl font-bold">{rootCategories.length}</p>
-                <p className="text-sm text-muted-foreground">Root Categories</p>
+                <p className="text-2xl font-bold font-heading text-royal-black">{rootCategories.length}</p>
+                <p className="text-sm text-muted-foreground font-body">Root Categories</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="card-elegant hover-lift">
           <CardContent className="p-6">
             <div className="flex items-center space-x-2">
-              <Tag className="h-5 w-5 text-royal-black" />
+              <div className="h-10 w-10 rounded-full bg-royal-gold/10 flex items-center justify-center">
+                <Tag className="h-5 w-5 text-royal-gold" />
+              </div>
               <div>
-                <p className="text-2xl font-bold">{categories.filter(cat => cat.is_active).length}</p>
-                <p className="text-sm text-muted-foreground">Active Categories</p>
+                <p className="text-2xl font-bold font-heading text-royal-black">{categories.filter(cat => cat.is_active).length}</p>
+                <p className="text-sm text-muted-foreground font-body">Active Categories</p>
               </div>
             </div>
           </CardContent>
@@ -528,16 +535,18 @@ export default function Categories() {
       </div>
 
       {/* Categories List */}
-      <Card>
+      <Card className="card-elegant">
         <CardHeader>
-          <CardTitle>Category Management</CardTitle>
+          <CardTitle className="font-heading text-royal-black">Category Management</CardTitle>
         </CardHeader>
         <CardContent>
           {categories.length === 0 ? (
             <div className="text-center py-8">
-              <FolderTree className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-muted-foreground mb-2">No categories found</h3>
-              <p className="text-sm text-muted-foreground mb-4">
+              <div className="h-16 w-16 rounded-full bg-royal-gold/10 flex items-center justify-center mx-auto mb-4">
+                <FolderTree className="h-8 w-8 text-royal-gold" />
+              </div>
+              <h3 className="text-lg font-heading font-medium text-royal-black mb-2">No categories found</h3>
+              <p className="text-sm text-muted-foreground font-body mb-4">
                 Get started by creating your first category
               </p>
               <Dialog 
@@ -555,9 +564,9 @@ export default function Categories() {
                     Add Category
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl bg-ivory-white">
                   <DialogHeader>
-                    <DialogTitle>Create New Category</DialogTitle>
+                    <DialogTitle className="font-heading text-royal-black">Create New Category</DialogTitle>
                   </DialogHeader>
                   <CategoryForm
                     formData={formData}
@@ -587,10 +596,10 @@ export default function Categories() {
                         <div className="flex items-center space-x-3">
                           <FolderTree className="h-5 w-5 text-blue-600" />
                           <div>
-                            <h3 className="font-medium">{category.name}</h3>
-                            <p className="text-sm text-muted-foreground">/{category.slug}</p>
+                            <h3 className="font-medium font-body text-royal-black">{category.name}</h3>
+                            <p className="text-sm text-muted-foreground font-body">/{category.slug}</p>
                             {category.description && (
-                              <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
+                              <p className="text-sm text-muted-foreground mt-1 font-body">{category.description}</p>
                             )}
                           </div>
                         </div>
@@ -611,26 +620,26 @@ export default function Categories() {
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent>
+                            <AlertDialogContent className="bg-ivory-white">
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Category</AlertDialogTitle>
-                                <AlertDialogDescription>
+                                <AlertDialogTitle className="font-heading text-royal-black">Delete Category</AlertDialogTitle>
+                                <AlertDialogDescription className="font-body">
                                   Are you sure you want to delete "{category.name}"? This action cannot be undone.
                                   {subcategories.length > 0 && (
-                                    <span className="block mt-2 text-red-600">
+                                    <span className="block mt-2 text-admin-red font-body">
                                       Warning: This category has {subcategories.length} subcategories that will also be deleted.
                                     </span>
                                   )}
-                                  <span className="block mt-2 text-yellow-600">
+                                  <span className="block mt-2 text-admin-yellow font-body">
                                     Note: Any products in this category will become "Uncategorized" and remain accessible.
                                   </span>
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogCancel className="font-body">Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleDelete(category.id)}
-                                  className="bg-red-600 hover:bg-red-700"
+                                  className="bg-admin-red hover:bg-admin-red/90 font-body"
                                 >
                                   Delete
                                 </AlertDialogAction>
@@ -644,7 +653,7 @@ export default function Categories() {
                     {/* Subcategories */}
                     {subcategories.length > 0 && (
                       <div className="p-4">
-                        <h4 className="text-sm font-medium text-muted-foreground mb-3">
+                        <h4 className="text-sm font-medium text-muted-foreground mb-3 font-body">
                           Subcategories ({subcategories.length})
                         </h4>
                         <div className="space-y-2">
@@ -653,10 +662,10 @@ export default function Categories() {
                               <div className="flex items-center space-x-3">
                                 <Tag className="h-4 w-4 text-gray-500" />
                                 <div>
-                                  <h5 className="font-medium text-sm">{subcat.name}</h5>
-                                  <p className="text-xs text-muted-foreground">/{subcat.slug}</p>
+                                  <h5 className="font-body font-medium text-sm text-royal-black">{subcat.name}</h5>
+                                  <p className="text-xs text-muted-foreground font-body">/{subcat.slug}</p>
                                   {subcat.description && (
-                                    <p className="text-xs text-muted-foreground mt-1">{subcat.description}</p>
+                                    <p className="text-xs text-muted-foreground font-body mt-1">{subcat.description}</p>
                                   )}
                                 </div>
                               </div>
@@ -677,21 +686,21 @@ export default function Categories() {
                                       <Trash2 className="h-3 w-3" />
                                     </Button>
                                   </AlertDialogTrigger>
-                                  <AlertDialogContent>
+                                  <AlertDialogContent className="bg-ivory-white">
                                     <AlertDialogHeader>
-                                      <AlertDialogTitle>Delete Subcategory</AlertDialogTitle>
-                                      <AlertDialogDescription>
+                                      <AlertDialogTitle className="font-heading text-royal-black">Delete Subcategory</AlertDialogTitle>
+                                      <AlertDialogDescription className="font-body">
                                         Are you sure you want to delete "{subcat.name}"? This action cannot be undone.
-                                        <span className="block mt-2 text-yellow-600">
+                                        <span className="block mt-2 text-admin-yellow font-body">
                                           Note: Any products in this category will become "Uncategorized" and remain accessible.
                                         </span>
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogCancel className="font-body">Cancel</AlertDialogCancel>
                                       <AlertDialogAction
                                         onClick={() => handleDelete(subcat.id)}
-                                        className="bg-red-600 hover:bg-red-700"
+                                        className="bg-admin-red hover:bg-admin-red/90 font-body"
                                       >
                                         Delete
                                       </AlertDialogAction>
@@ -723,9 +732,9 @@ export default function Categories() {
           }
         }}
       >
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-ivory-white">
           <DialogHeader>
-            <DialogTitle>Edit Category</DialogTitle>
+            <DialogTitle className="font-heading text-royal-black">Edit Category</DialogTitle>
           </DialogHeader>
           <CategoryForm
             formData={formData}

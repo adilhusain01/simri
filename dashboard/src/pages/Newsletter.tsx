@@ -172,11 +172,11 @@ const Newsletter: React.FC = () => {
                 Export
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleExport('csv')}>
+            <DropdownMenuContent className="bg-white border-gray-200 shadow-elegant">
+              <DropdownMenuItem onClick={() => handleExport('csv')} className="font-body hover:bg-royal-gold/10 focus:bg-royal-gold/10">
                 Export as CSV
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('json')}>
+              <DropdownMenuItem onClick={() => handleExport('json')} className="font-body hover:bg-royal-gold/10 focus:bg-royal-gold/10">
                 Export as JSON
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -283,10 +283,10 @@ const Newsletter: React.FC = () => {
 
       {/* Subscribers Management */}
       <motion.div {...fadeInUp}>
-        <Card>
+        <Card className="card-elegant">
           <CardHeader>
-            <CardTitle>Subscribers</CardTitle>
-            <CardDescription>Manage and view all newsletter subscribers</CardDescription>
+            <CardTitle className="font-heading text-royal-black">Subscribers</CardTitle>
+            <CardDescription className="font-body">Manage and view all newsletter subscribers</CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters and Search */}
@@ -298,18 +298,18 @@ const Newsletter: React.FC = () => {
                     placeholder="Search subscribers by email or name..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 border-gray-300 bg-white font-body focus:border-royal-gold focus:ring-royal-gold/20"
                   />
                 </div>
               </div>
               <Select value={statusFilter} onValueChange={(value: 'all' | 'active' | 'inactive') => setStatusFilter(value)}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by status" />
+                <SelectTrigger className="w-48 border-gray-300 bg-white font-body focus:border-royal-gold focus:ring-royal-gold/20">
+                  <SelectValue placeholder="Filter by status" className="font-body" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Subscribers</SelectItem>
-                  <SelectItem value="active">Active Only</SelectItem>
-                  <SelectItem value="inactive">Inactive Only</SelectItem>
+                <SelectContent className="bg-white border-gray-200 shadow-elegant">
+                  <SelectItem value="all" className="font-body hover:bg-royal-gold/10 focus:bg-royal-gold/10">All Subscribers</SelectItem>
+                  <SelectItem value="active" className="font-body hover:bg-royal-gold/10 focus:bg-royal-gold/10">Active Only</SelectItem>
+                  <SelectItem value="inactive" className="font-body hover:bg-royal-gold/10 focus:bg-royal-gold/10">Inactive Only</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -319,9 +319,11 @@ const Newsletter: React.FC = () => {
               <LoadingSpinner />
             ) : filteredSubscribers.length === 0 ? (
               <div className="text-center py-8">
-                <Mail className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-600 mb-2">No subscribers found</h3>
-                <p className="text-gray-500">
+                <div className="h-16 w-16 rounded-full bg-royal-gold/10 flex items-center justify-center mx-auto mb-4">
+                  <Mail className="h-8 w-8 text-royal-gold" />
+                </div>
+                <h3 className="font-semibold text-royal-black mb-2 font-body">No subscribers found</h3>
+                <p className="text-gray-500 font-body">
                   {searchQuery ? 'Try adjusting your search terms' : 'No newsletter subscribers yet'}
                 </p>
               </div>
@@ -330,18 +332,18 @@ const Newsletter: React.FC = () => {
                 {filteredSubscribers.map((subscriber) => (
                   <div
                     key={subscriber.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-royal-gold/5 transition-colors"
                   >
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 bg-gradient-to-br from-royal-gold to-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
                         {subscriber.name?.charAt(0).toUpperCase() || subscriber.email.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-medium">{subscriber.email}</p>
+                        <p className="font-medium font-body text-royal-black">{subscriber.email}</p>
                         {subscriber.name && (
-                          <p className="text-sm text-muted-foreground">{subscriber.name}</p>
+                          <p className="text-sm text-muted-foreground font-body">{subscriber.name}</p>
                         )}
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-muted-foreground font-body">
                           Subscribed {new Date(subscriber.created_at).toLocaleDateString()}
                         </p>
                       </div>
@@ -356,11 +358,11 @@ const Newsletter: React.FC = () => {
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuItem onClick={() => handleViewDetails(subscriber)}>
+                        <DropdownMenuContent className="bg-white border-gray-200 shadow-elegant">
+                          <DropdownMenuItem onClick={() => handleViewDetails(subscriber)} className="font-body hover:bg-royal-gold/10 focus:bg-royal-gold/10">
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleExportIndividual(subscriber)}>
+                          <DropdownMenuItem onClick={() => handleExportIndividual(subscriber)} className="font-body hover:bg-royal-gold/10 focus:bg-royal-gold/10">
                             Export Data
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -391,14 +393,15 @@ const Newsletter: React.FC = () => {
 
       {/* Subscriber Details Modal */}
       {showDetailsModal && selectedSubscriber && (
-        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-royal-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-ivory-white rounded-lg p-6 w-full max-w-md card-elegant">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Subscriber Details</h3>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <h3 className="text-lg font-semibold font-heading text-royal-black">Subscriber Details</h3>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setShowDetailsModal(false)}
+                className="text-gray-500 hover:text-royal-black"
               >
                 ×
               </Button>
@@ -406,19 +409,19 @@ const Newsletter: React.FC = () => {
             
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-600">Email</label>
-                <p className="text-sm text-gray-900">{selectedSubscriber.email}</p>
+                <label className="text-sm font-medium text-gray-600 font-body">Email</label>
+                <p className="text-sm text-royal-black font-body">{selectedSubscriber.email}</p>
               </div>
               
               {selectedSubscriber.name && (
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Name</label>
-                  <p className="text-sm text-gray-900">{selectedSubscriber.name}</p>
+                  <label className="text-sm font-medium text-gray-600 font-body">Name</label>
+                  <p className="text-sm text-royal-black font-body">{selectedSubscriber.name}</p>
                 </div>
               )}
               
               <div>
-                <label className="text-sm font-medium text-gray-600">Status</label>
+                <label className="text-sm font-medium text-gray-600 font-body">Status</label>
                 <div className="mt-1">
                   <Badge variant={selectedSubscriber.is_active ? 'default' : 'secondary'}>
                     {selectedSubscriber.is_active ? 'Active' : 'Inactive'}
@@ -427,8 +430,8 @@ const Newsletter: React.FC = () => {
               </div>
               
               <div>
-                <label className="text-sm font-medium text-gray-600">Subscribed Date</label>
-                <p className="text-sm text-gray-900">
+                <label className="text-sm font-medium text-gray-600 font-body">Subscribed Date</label>
+                <p className="text-sm text-royal-black font-body">
                   {new Date(selectedSubscriber.created_at).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',

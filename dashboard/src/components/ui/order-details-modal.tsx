@@ -155,17 +155,18 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             <CardContent className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2 font-body text-royal-black">New Status</label>
+                  <label className="block text-xs font-medium mb-2 font-body text-royal-black">New Status</label>
                   <Select value={newStatus} onValueChange={setNewStatus}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
+                    <SelectTrigger className="border-gray-300 bg-white font-body focus:border-royal-gold focus:ring-royal-gold/20">
+                      <SelectValue placeholder="Select status" className="font-body" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white border-gray-200 shadow-elegant">
                       {ORDER_STATUSES.map((status) => (
-                        <SelectItem 
-                          key={status.value} 
+                        <SelectItem
+                          key={status.value}
                           value={status.value}
                           disabled={status.value === order.status}
+                          className="font-body hover:bg-royal-gold/10 focus:bg-royal-gold/10 data-[disabled]:opacity-50 data-[disabled]:pointer-events-none"
                         >
                           {status.label}
                         </SelectItem>
@@ -174,7 +175,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2 font-body text-royal-black">Notes (Optional)</label>
+                  <label className="block text-xs font-medium mb-2 font-body text-royal-black">Notes (Optional)</label>
                   <Textarea
                     value={statusNotes}
                     onChange={(e) => setStatusNotes(e.target.value)}
