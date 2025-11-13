@@ -1,15 +1,16 @@
 import { Link, useLocation } from '@tanstack/react-router';
-import { 
-  LayoutDashboard, 
-  Package, 
-  ShoppingCart, 
-  Users, 
-  Tags, 
-  Ticket, 
-  Mail, 
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Users,
+  Tags,
+  Ticket,
+  Mail,
   BarChart3,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Truck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -63,6 +64,11 @@ const sidebarItems: SidebarItem[] = [
     label: 'Analytics',
     href: '/dashboard/analytics',
     icon: BarChart3,
+  },
+  {
+    label: 'Shiprocket',
+    href: '/dashboard/shiprocket',
+    icon: Truck,
   },
 ];
 

@@ -6,6 +6,8 @@ import { OrderModel } from '../models/Order';
 import { UserModel } from '../models/User';
 import { requireAdmin } from '../middleware/auth';
 import { validateProduct } from '../middleware/validation';
+import { shiprocketService } from '../services/shiprocketService';
+import { OrderItemModel } from '../models/Order';
 import pool from '../config/database';
 
 const router = express.Router();
@@ -2011,6 +2013,391 @@ router.get('/analytics/export', async (req, res) => {
   } catch (error) {
     console.error('Export analytics error:', error);
     res.status(500).json({ success: false, message: 'Error exporting analytics data' });
+  }
+});
+
+// ========================
+// SHIPROCKET MANAGEMENT
+// ========================
+
+// Create Shiprocket order manually for failed auto-creation
+router.post('/shiprocket/create-order/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    // Get order details
+    const order = await OrderModel.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Check if order already has Shiprocket order ID
+    if (order.shiprocket_order_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Order already has Shiprocket order ID',
+        data: { shiprocket_order_id: order.shiprocket_order_id }
+      });
+    }
+
+    // Get order items
+    const orderItems = await OrderItemModel.findByOrderId(orderId);
+    if (orderItems.length === 0) {
+      return res.status(400).json({ success: false, message: 'Order has no items' });
+    }
+
+    // Parse addresses
+    const shippingAddress = typeof order.shipping_address === 'string'
+      ? JSON.parse(order.shipping_address)
+      : order.shipping_address;
+
+    const billingAddress = typeof order.billing_address === 'string'
+      ? JSON.parse(order.billing_address)
+      : order.billing_address || shippingAddress;
+
+    // Prepare Shiprocket order data
+    const shiprocketOrderData = {
+      order_id: order.order_number,
+      order_date: new Date().toISOString().split('T')[0],
+      pickup_location: process.env.SHIPROCKET_PICKUP_LOCATION || 'Primary',
+      channel_id: process.env.SHIPROCKET_CHANNEL_ID || '',
+      comment: `Manual order creation - Order ${order.order_number}`,
+
+      // Billing address (required)
+      billing_customer_name: billingAddress.first_name,
+      billing_last_name: billingAddress.last_name,
+      billing_address: billingAddress.address_line_1,
+      billing_address_2: billingAddress.address_line_2 || '',
+      billing_city: billingAddress.city,
+      billing_pincode: billingAddress.postal_code,
+      billing_state: billingAddress.state,
+      billing_country: billingAddress.country,
+      billing_email: billingAddress.email || 'noreply@simri.com',
+      billing_phone: billingAddress.phone || '9999999999',
+
+      // Shipping address
+      shipping_is_billing: true,
+      shipping_customer_name: shippingAddress.first_name,
+      shipping_last_name: shippingAddress.last_name,
+      shipping_address: shippingAddress.address_line_1,
+      shipping_address_2: shippingAddress.address_line_2 || '',
+      shipping_city: shippingAddress.city,
+      shipping_pincode: shippingAddress.postal_code,
+      shipping_state: shippingAddress.state,
+      shipping_country: shippingAddress.country,
+      shipping_email: shippingAddress.email || 'noreply@simri.com',
+      shipping_phone: shippingAddress.phone || '9999999999',
+
+      // Order items
+      order_items: orderItems.map(item => ({
+        name: item.product_name,
+        sku: item.product_sku || 'NOSKU',
+        units: item.quantity,
+        selling_price: parseFloat(item.unit_price.toString()),
+        discount: 0,
+        tax: 0,
+        hsn: 0
+      })),
+
+      payment_method: 'Prepaid',
+      shipping_charges: parseFloat(order.shipping_amount.toString()) || 0,
+      giftwrap_charges: 0,
+      transaction_charges: 0,
+      total_discount: parseFloat(order.discount_amount.toString()) || 0,
+      sub_total: parseFloat((order.total_amount - order.tax_amount - order.shipping_amount).toString()),
+      length: 10,
+      breadth: 10,
+      height: 10,
+      weight: 0.5
+    };
+
+    // Create Shiprocket order
+    const shiprocketResponse = await shiprocketService.createOrder(shiprocketOrderData);
+
+    if (shiprocketResponse.order_id) {
+      // Update order with Shiprocket details
+      await OrderModel.updateShiprocketInfo(
+        orderId,
+        shiprocketResponse.order_id.toString(),
+        shiprocketResponse.shipment_id?.toString(),
+        shiprocketResponse.awb_code,
+        shiprocketResponse.courier_name
+      );
+
+      // Update shipping status to processing
+      await OrderModel.updateShippingStatus(orderId, 'processing');
+
+      res.json({
+        success: true,
+        message: 'Shiprocket order created successfully',
+        data: {
+          shiprocket_order_id: shiprocketResponse.order_id,
+          shiprocket_shipment_id: shiprocketResponse.shipment_id,
+          awb_code: shiprocketResponse.awb_code,
+          courier_name: shiprocketResponse.courier_name
+        }
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to create Shiprocket order',
+        error: shiprocketResponse
+      });
+    }
+  } catch (error) {
+    console.error('Create Shiprocket order error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating Shiprocket order',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Generate AWB for order
+router.post('/shiprocket/generate-awb/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { courier_id } = req.body;
+
+    if (!courier_id) {
+      return res.status(400).json({ success: false, message: 'courier_id is required' });
+    }
+
+    // Get order details
+    const order = await OrderModel.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    if (!order.shiprocket_shipment_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Order does not have Shiprocket shipment ID'
+      });
+    }
+
+    if (order.awb_number) {
+      return res.status(400).json({
+        success: false,
+        message: 'Order already has AWB number',
+        data: { awb_number: order.awb_number }
+      });
+    }
+
+    // Generate AWB
+    const awbResponse = await shiprocketService.generateAWB(
+      order.shiprocket_shipment_id,
+      parseInt(courier_id)
+    );
+
+    if (awbResponse.awb_code) {
+      // Update order with AWB details
+      await OrderModel.updateShiprocketInfo(
+        orderId,
+        order.shiprocket_order_id || '',
+        order.shiprocket_shipment_id || '',
+        awbResponse.awb_code,
+        awbResponse.courier_name
+      );
+
+      res.json({
+        success: true,
+        message: 'AWB generated successfully',
+        data: {
+          awb_code: awbResponse.awb_code,
+          courier_name: awbResponse.courier_name
+        }
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to generate AWB',
+        error: awbResponse
+      });
+    }
+  } catch (error) {
+    console.error('Generate AWB error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating AWB',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Schedule pickup
+router.post('/shiprocket/schedule-pickup', async (req, res) => {
+  try {
+    const { shipment_ids, pickup_date } = req.body;
+
+    if (!shipment_ids || !Array.isArray(shipment_ids) || shipment_ids.length === 0) {
+      return res.status(400).json({ success: false, message: 'shipment_ids array is required' });
+    }
+
+    const pickupResponse = await shiprocketService.schedulePickup(shipment_ids, pickup_date);
+
+    res.json({
+      success: true,
+      message: 'Pickup scheduled successfully',
+      data: pickupResponse
+    });
+  } catch (error) {
+    console.error('Schedule pickup error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error scheduling pickup',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Generate manifest
+router.post('/shiprocket/generate-manifest', async (req, res) => {
+  try {
+    const { shipment_ids } = req.body;
+
+    if (!shipment_ids || !Array.isArray(shipment_ids) || shipment_ids.length === 0) {
+      return res.status(400).json({ success: false, message: 'shipment_ids array is required' });
+    }
+
+    const manifestResponse = await shiprocketService.generateManifest(shipment_ids);
+
+    res.json({
+      success: true,
+      message: 'Manifest generated successfully',
+      data: manifestResponse
+    });
+  } catch (error) {
+    console.error('Generate manifest error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating manifest',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Generate and print labels
+router.post('/shiprocket/generate-labels', async (req, res) => {
+  try {
+    const { shipment_ids } = req.body;
+
+    if (!shipment_ids || !Array.isArray(shipment_ids) || shipment_ids.length === 0) {
+      return res.status(400).json({ success: false, message: 'shipment_ids array is required' });
+    }
+
+    const labelResponse = await shiprocketService.generateLabel(shipment_ids);
+
+    res.json({
+      success: true,
+      message: 'Labels generated successfully',
+      data: labelResponse
+    });
+  } catch (error) {
+    console.error('Generate labels error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating labels',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Generate and print invoices
+router.post('/shiprocket/generate-invoices', async (req, res) => {
+  try {
+    const { order_ids } = req.body;
+
+    if (!order_ids || !Array.isArray(order_ids) || order_ids.length === 0) {
+      return res.status(400).json({ success: false, message: 'order_ids array is required' });
+    }
+
+    const invoiceResponse = await shiprocketService.generateInvoice(order_ids);
+
+    res.json({
+      success: true,
+      message: 'Invoices generated successfully',
+      data: invoiceResponse
+    });
+  } catch (error) {
+    console.error('Generate invoices error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating invoices',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Get available couriers
+router.get('/shiprocket/couriers', async (_req, res) => {
+  try {
+    const couriers = await shiprocketService.getAllCouriers();
+
+    res.json({
+      success: true,
+      data: couriers
+    });
+  } catch (error) {
+    console.error('Get couriers error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching couriers',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Check serviceability
+router.post('/shiprocket/serviceability', async (req, res) => {
+  try {
+    const { pickup_postcode, delivery_postcode, weight, cod = false } = req.body;
+
+    if (!pickup_postcode || !delivery_postcode || !weight) {
+      return res.status(400).json({
+        success: false,
+        message: 'pickup_postcode, delivery_postcode, and weight are required'
+      });
+    }
+
+    const serviceability = await shiprocketService.getServiceability(
+      pickup_postcode,
+      delivery_postcode,
+      parseFloat(weight),
+      cod
+    );
+
+    res.json({
+      success: true,
+      data: serviceability
+    });
+  } catch (error) {
+    console.error('Check serviceability error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error checking serviceability',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Get pickup locations
+router.get('/shiprocket/pickup-locations', async (_req, res) => {
+  try {
+    const locations = await shiprocketService.getPickupLocations();
+
+    res.json({
+      success: true,
+      data: locations
+    });
+  } catch (error) {
+    console.error('Get pickup locations error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching pickup locations',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 

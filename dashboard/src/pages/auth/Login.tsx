@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { useAuthStore } from '@/stores/authStore';
 
 const loginSchema = z.object({
@@ -49,17 +49,13 @@ export default function Login() {
 
         <Card className="card-elegant hover-lift bg-ivory-white">
           <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center">
               <img
                 src="/src/assets/simri_black.png"
                 alt="Simri"
                 className="h-12 w-auto object-contain"
               />
             </div>
-            <CardTitle className="text-xl font-heading text-royal-black">Admin Login</CardTitle>
-            <CardDescription className="font-body">
-              Enter your credentials to access the dashboard
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

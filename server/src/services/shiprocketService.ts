@@ -154,8 +154,15 @@ class ShiprocketService {
   }
 
   async generateLabel(shipmentIds: string[]) {
-    return this.makeRequest('/orders/print', 'POST', {
-      ids: shipmentIds
+    return this.makeRequest('/courier/generate/label', 'POST', {
+      shipment_id: shipmentIds
+    });
+  }
+
+  async schedulePickup(shipmentIds: string[], pickupDate?: string) {
+    return this.makeRequest('/courier/generate/pickup', 'POST', {
+      shipment_id: shipmentIds,
+      pickup_date: pickupDate
     });
   }
 

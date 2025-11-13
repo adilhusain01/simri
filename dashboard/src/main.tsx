@@ -24,6 +24,7 @@ import Categories from './pages/Categories'
 import Coupons from './pages/Coupons'
 import Newsletter from './pages/Newsletter'
 import Analytics from './pages/Analytics'
+import Shiprocket from './pages/Shiprocket'
 
 import { TanStackQueryProvider } from './integrations/tanstack-query/root-provider'
 import { useAuthStore } from './stores/authStore'
@@ -152,6 +153,12 @@ const analyticsRoute = createRoute({
   component: Analytics,
 })
 
+const shiprocketRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: '/shiprocket',
+  component: Shiprocket,
+})
+
 // Index redirect
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -172,6 +179,7 @@ const routeTree = rootRoute.addChildren([
     couponsRoute,
     newsletterRoute,
     analyticsRoute,
+    shiprocketRoute,
   ]),
 ])
 

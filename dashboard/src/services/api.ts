@@ -223,6 +223,54 @@ export const adminService = {
     const response = await api.get<PaginatedResponse<User[]>>(`/api/admin/users?${params.toString()}`);
     return response.data;
   },
+
+  // Shiprocket management
+  createShiprocketOrder: async (orderId: string): Promise<ApiResponse<any>> => {
+    const response = await api.post<ApiResponse<any>>(`/api/admin/shiprocket/create-order/${orderId}`);
+    return response.data;
+  },
+
+  generateShiprocketAwb: async (orderId: string, courierId: string): Promise<ApiResponse<any>> => {
+    const response = await api.post<ApiResponse<any>>(`/api/admin/shiprocket/generate-awb/${orderId}`, {
+      courier_id: courierId
+    });
+    return response.data;
+  },
+
+  scheduleShiprocketPickup: async (data: { shipment_ids: string[]; pickup_date?: string }): Promise<ApiResponse<any>> => {
+    const response = await api.post<ApiResponse<any>>('/api/admin/shiprocket/schedule-pickup', data);
+    return response.data;
+  },
+
+  generateShiprocketManifest: async (data: { shipment_ids: string[] }): Promise<ApiResponse<any>> => {
+    const response = await api.post<ApiResponse<any>>('/api/admin/shiprocket/generate-manifest', data);
+    return response.data;
+  },
+
+  generateShiprocketLabels: async (data: { shipment_ids: string[] }): Promise<ApiResponse<any>> => {
+    const response = await api.post<ApiResponse<any>>('/api/admin/shiprocket/generate-labels', data);
+    return response.data;
+  },
+
+  generateShiprocketInvoices: async (data: { order_ids: string[] }): Promise<ApiResponse<any>> => {
+    const response = await api.post<ApiResponse<any>>('/api/admin/shiprocket/generate-invoices', data);
+    return response.data;
+  },
+
+  getShiprocketCouriers: async (): Promise<ApiResponse<any>> => {
+    const response = await api.get<ApiResponse<any>>('/api/admin/shiprocket/couriers');
+    return response.data;
+  },
+
+  checkShiprocketServiceability: async (data: { pickup_postcode: string; delivery_postcode: string; weight: number; cod?: boolean }): Promise<ApiResponse<any>> => {
+    const response = await api.post<ApiResponse<any>>('/api/admin/shiprocket/serviceability', data);
+    return response.data;
+  },
+
+  getShiprocketPickupLocations: async (): Promise<ApiResponse<any>> => {
+    const response = await api.get<ApiResponse<any>>('/api/admin/shiprocket/pickup-locations');
+    return response.data;
+  },
 };
 
 // Product service

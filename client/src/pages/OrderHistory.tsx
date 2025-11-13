@@ -660,33 +660,154 @@ const OrderHistory: React.FC = () => {
                                               </div>
                                             )}
                                             
-                                            {/* Timeline */}
-                                            <div className="space-y-2">
-                                              {trackingInfo.shipped_at && (
-                                                <div className="bg-gray-50 p-3 rounded border border-gray-200">
-                                                  <p className="text-sm font-medium text-royal-black">🚚 Shipped</p>
-                                                  <p className="text-xs text-gray-600">{formatDate(trackingInfo.shipped_at)}</p>
+                                            {/* Visual Progress Timeline */}
+                                            <div className="bg-gray-50 p-4 rounded border border-gray-200">
+                                              <p className="text-sm font-medium text-gray-800 mb-4">📦 Order Progress</p>
+                                              <div className="space-y-4">
+                                                {/* Progress Steps */}
+                                                <div className="flex items-center space-x-3">
+                                                  <div className={`w-4 h-4 rounded-full flex-shrink-0 ${
+                                                    ['confirmed', 'processing', 'shipped', 'in_transit', 'delivered'].includes(trackingOrder.status)
+                                                      ? 'bg-green-500' : 'bg-gray-300'
+                                                  }`}></div>
+                                                  <div className="flex-1">
+                                                    <p className="text-sm font-medium">Order Confirmed</p>
+                                                    <p className="text-xs text-gray-500">Your order has been confirmed</p>
+                                                  </div>
+                                                  {['confirmed', 'processing', 'shipped', 'in_transit', 'delivered'].includes(trackingOrder.status) && (
+                                                    <CheckCircle className="h-4 w-4 text-green-500" />
+                                                  )}
                                                 </div>
-                                              )}
-                                              {trackingInfo.delivered_at && (
-                                                <div className="bg-green-50 p-3 rounded border border-green-200">
-                                                  <p className="text-sm font-medium text-green-800">✅ Delivered</p>
-                                                  <p className="text-xs text-green-600">{formatDate(trackingInfo.delivered_at)}</p>
+
+                                                <div className="flex items-center space-x-3">
+                                                  <div className={`w-4 h-4 rounded-full flex-shrink-0 ${
+                                                    ['processing', 'shipped', 'in_transit', 'delivered'].includes(trackingOrder.status)
+                                                      ? 'bg-green-500' : ['confirmed'].includes(trackingOrder.status)
+                                                      ? 'bg-blue-500 animate-pulse' : 'bg-gray-300'
+                                                  }`}></div>
+                                                  <div className="flex-1">
+                                                    <p className="text-sm font-medium">Processing</p>
+                                                    <p className="text-xs text-gray-500">Your order is being prepared</p>
+                                                  </div>
+                                                  {['processing', 'shipped', 'in_transit', 'delivered'].includes(trackingOrder.status) && (
+                                                    <CheckCircle className="h-4 w-4 text-green-500" />
+                                                  )}
+                                                  {trackingOrder.status === 'confirmed' && (
+                                                    <Clock className="h-4 w-4 text-blue-500" />
+                                                  )}
                                                 </div>
-                                              )}
+
+                                                <div className="flex items-center space-x-3">
+                                                  <div className={`w-4 h-4 rounded-full flex-shrink-0 ${
+                                                    ['shipped', 'in_transit', 'delivered'].includes(trackingOrder.status)
+                                                      ? 'bg-green-500' : trackingOrder.status === 'processing'
+                                                      ? 'bg-blue-500 animate-pulse' : 'bg-gray-300'
+                                                  }`}></div>
+                                                  <div className="flex-1">
+                                                    <p className="text-sm font-medium">Shipped</p>
+                                                    <p className="text-xs text-gray-500">Your order is on the way</p>
+                                                    {trackingInfo.shipped_at && (
+                                                      <p className="text-xs text-green-600 mt-1">{formatDate(trackingInfo.shipped_at)}</p>
+                                                    )}
+                                                  </div>
+                                                  {['shipped', 'in_transit', 'delivered'].includes(trackingOrder.status) && (
+                                                    <CheckCircle className="h-4 w-4 text-green-500" />
+                                                  )}
+                                                  {trackingOrder.status === 'processing' && (
+                                                    <Clock className="h-4 w-4 text-blue-500" />
+                                                  )}
+                                                </div>
+
+                                                <div className="flex items-center space-x-3">
+                                                  <div className={`w-4 h-4 rounded-full flex-shrink-0 ${
+                                                    trackingOrder.status === 'delivered'
+                                                      ? 'bg-green-500' : ['shipped', 'in_transit'].includes(trackingOrder.status)
+                                                      ? 'bg-blue-500 animate-pulse' : 'bg-gray-300'
+                                                  }`}></div>
+                                                  <div className="flex-1">
+                                                    <p className="text-sm font-medium">Delivered</p>
+                                                    <p className="text-xs text-gray-500">Your order has been delivered</p>
+                                                    {trackingInfo.delivered_at && (
+                                                      <p className="text-xs text-green-600 mt-1">{formatDate(trackingInfo.delivered_at)}</p>
+                                                    )}
+                                                  </div>
+                                                  {trackingOrder.status === 'delivered' && (
+                                                    <CheckCircle className="h-4 w-4 text-green-500" />
+                                                  )}
+                                                  {['shipped', 'in_transit'].includes(trackingOrder.status) && (
+                                                    <Clock className="h-4 w-4 text-blue-500" />
+                                                  )}
+                                                </div>
+                                              </div>
                                             </div>
                                             
-                                            {/* Live Tracking from Shiprocket */}
+                                            {/* Enhanced Live Tracking from Shiprocket */}
                                             {trackingInfo.tracking_info && (
-                                              <div className="bg-blue-50 p-3 rounded border border-blue-200">
-                                                <p className="text-sm font-medium">Live Status</p>
-                                                <p className="text-xs text-gray-600">
-                                                  {trackingInfo.tracking_info.status || 'In transit'}
-                                                </p>
-                                                {trackingInfo.tracking_info.location && (
-                                                  <p className="text-xs text-gray-500 mt-1">
-                                                    📍 {trackingInfo.tracking_info.location}
+                                              <div className="space-y-3">
+                                                <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                                                  <div className="flex items-center justify-between mb-2">
+                                                    <p className="text-sm font-medium">Current Status</p>
+                                                    {trackingInfo.tracking_info.status_code && (
+                                                      <Badge variant="outline" className="text-xs">
+                                                        {trackingInfo.tracking_info.status_code}
+                                                      </Badge>
+                                                    )}
+                                                  </div>
+                                                  <p className="text-sm text-gray-800 font-medium">
+                                                    {trackingInfo.tracking_info.status || 'In transit'}
                                                   </p>
+                                                  {trackingInfo.tracking_info.location && (
+                                                    <p className="text-xs text-gray-600 mt-1 flex items-center">
+                                                      <MapPin className="h-3 w-3 mr-1" />
+                                                      {trackingInfo.tracking_info.location}
+                                                    </p>
+                                                  )}
+                                                  {trackingInfo.tracking_info.updated_at && (
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                      Last updated: {formatDate(trackingInfo.tracking_info.updated_at)}
+                                                    </p>
+                                                  )}
+                                                </div>
+
+                                                {/* Estimated Delivery */}
+                                                {trackingInfo.tracking_info.estimated_delivery && (
+                                                  <div className="bg-green-50 p-3 rounded border border-green-200">
+                                                    <p className="text-sm font-medium text-green-800">📅 Estimated Delivery</p>
+                                                    <p className="text-sm text-green-700">
+                                                      {formatDate(trackingInfo.tracking_info.estimated_delivery)}
+                                                    </p>
+                                                  </div>
+                                                )}
+
+                                                {/* Tracking Events History */}
+                                                {trackingInfo.tracking_info.events && trackingInfo.tracking_info.events.length > 0 && (
+                                                  <div className="bg-gray-50 p-3 rounded border border-gray-200">
+                                                    <p className="text-sm font-medium text-gray-800 mb-3">📋 Tracking History</p>
+                                                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                                                      {trackingInfo.tracking_info.events.slice(0, 5).map((event: any, index: number) => (
+                                                        <div key={index} className="flex justify-between items-start text-xs">
+                                                          <div className="flex-1">
+                                                            <p className="text-gray-800 font-medium">{event.status || event.activity}</p>
+                                                            {event.location && (
+                                                              <p className="text-gray-600 flex items-center mt-1">
+                                                                <MapPin className="h-2 w-2 mr-1" />
+                                                                {event.location}
+                                                              </p>
+                                                            )}
+                                                          </div>
+                                                          <div className="text-gray-500 ml-2 text-right">
+                                                            <p>{formatDate(event.date || event.updated_at)}</p>
+                                                            {event.time && <p>{event.time}</p>}
+                                                          </div>
+                                                        </div>
+                                                      ))}
+                                                      {trackingInfo.tracking_info.events.length > 5 && (
+                                                        <p className="text-xs text-gray-500 text-center pt-2 border-t">
+                                                          +{trackingInfo.tracking_info.events.length - 5} more events
+                                                        </p>
+                                                      )}
+                                                    </div>
+                                                  </div>
                                                 )}
                                               </div>
                                             )}
