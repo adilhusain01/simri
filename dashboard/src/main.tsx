@@ -24,6 +24,7 @@ import Categories from './pages/Categories'
 import Coupons from './pages/Coupons'
 import Newsletter from './pages/Newsletter'
 import Analytics from './pages/Analytics'
+import Payments from './pages/Payments'
 import Shiprocket from './pages/Shiprocket'
 
 import { TanStackQueryProvider } from './integrations/tanstack-query/root-provider'
@@ -153,6 +154,12 @@ const analyticsRoute = createRoute({
   component: Analytics,
 })
 
+const paymentsRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: '/payments',
+  component: Payments,
+})
+
 const shiprocketRoute = createRoute({
   getParentRoute: () => layoutRoute,
   path: '/shiprocket',
@@ -179,6 +186,7 @@ const routeTree = rootRoute.addChildren([
     couponsRoute,
     newsletterRoute,
     analyticsRoute,
+    paymentsRoute,
     shiprocketRoute,
   ]),
 ])

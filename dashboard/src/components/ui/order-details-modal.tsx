@@ -69,6 +69,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   isOpen,
   onClose,
   onStatusUpdate,
+  onRefund
 }) => {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState(order?.status || '');
@@ -509,9 +510,22 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="font-body">
-            Close
-          </Button>
+          <div className="flex justify-between w-full">
+            <div>
+              {order && order.payment_status === 'paid' && order.refund_status !== 'completed' && onRefund && (
+                <Button
+                  variant="outline"
+                  onClick={() => onRefund(order.id, order.total_amount)}
+                  className="font-body text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  Process Refund
+                </Button>
+              )}
+            </div>
+            <Button variant="outline" onClick={onClose} className="font-body">
+              Close
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

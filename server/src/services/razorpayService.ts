@@ -15,27 +15,44 @@ export class RazorpayService {
    */
   async createRefund(paymentId: string, amount?: number, notes?: Record<string, string>) {
     try {
-      const refundData: any = {
-        notes: notes || {}
-      };
+      const refundData: any = {};
 
       // If amount is specified, add it to refund data
       if (amount) {
         refundData.amount = amount;
       }
 
+      // If notes are provided, add them to refund data
+      if (notes && Object.keys(notes).length > 0) {
+        refundData.notes = notes;
+      }
+
+      // console.log('Creating refund with data:', {
+      //   paymentId,
+      //   refundData: JSON.stringify(refundData)
+      // });
+
       const refund = await razorpay.payments.refund(paymentId, refundData);
-      
-      console.log('Refund created successfully:', {
-        refundId: refund.id,
-        paymentId: refund.payment_id,
-        amount: refund.amount,
-        status: refund.status
-      });
+
+      // console.log('Refund created successfully:', {
+      //   refundId: refund.id,
+      //   paymentId: refund.payment_id,
+      //   amount: refund.amount,
+      //   status: refund.status
+      // });
 
       return refund;
     } catch (error) {
       console.error('Razorpay refund error:', error);
+      // console.error('Error details:', {
+      //   paymentId,
+      //   refundData: {
+      //     amount,
+      //     notes
+      //   },
+      //   errorType: typeof error,
+      //   errorMessage: error instanceof Error ? error.message : 'Unknown error'
+      // });
       throw new Error(`Failed to create refund: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }

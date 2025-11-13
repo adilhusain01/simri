@@ -10,6 +10,7 @@ import {
   BarChart3,
   ChevronLeft,
   ChevronRight,
+  CreditCard,
   Truck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -64,6 +65,11 @@ const sidebarItems: SidebarItem[] = [
     label: 'Analytics',
     href: '/dashboard/analytics',
     icon: BarChart3,
+  },
+  {
+    label: 'Payments',
+    href: '/dashboard/payments',
+    icon: CreditCard,
   },
   {
     label: 'Shiprocket',

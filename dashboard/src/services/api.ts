@@ -271,6 +271,42 @@ export const adminService = {
     const response = await api.get<ApiResponse<any>>('/api/admin/shiprocket/pickup-locations');
     return response.data;
   },
+
+  // Payment Management
+  processRefund: async (orderId: string, data: { amount?: number; reason?: string; refund_type?: string }) => {
+    const response = await api.post(`/api/admin/payments/refund/${orderId}`, data);
+    return response.data;
+  },
+
+  getTransactionDetails: async (paymentId: string) => {
+    const response = await api.get(`/api/admin/payments/transaction/${paymentId}`);
+    return response.data;
+  },
+
+  getPaymentTransactions: async (filters: {
+    page?: number;
+    limit?: number;
+    payment_status?: string;
+    refund_status?: string;
+    start_date?: string;
+    end_date?: string;
+    search?: string;
+  } = {}) => {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') {
+        params.append(key, value.toString());
+      }
+    });
+
+    const response = await api.get(`/api/admin/payments/transactions?${params.toString()}`);
+    return response.data;
+  },
+
+  getPaymentAnalytics: async (period: string = '7d') => {
+    const response = await api.get(`/api/admin/payments/analytics?period=${period}`);
+    return response.data;
+  },
 };
 
 // Product service
@@ -556,19 +592,19 @@ export const uploadService = {
     const maxSize = 10 * 1024 * 1024; // 10MB
     const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
     const fileExtension = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
-    
+
     if (!allowedTypes.includes(fileType)) {
       throw new Error(`File type ${fileType} is not supported. Please use: JPG, PNG, GIF, WEBP`);
     }
-    
+
     if (fileSize > maxSize) {
       throw new Error(`File size ${(fileSize / 1024 / 1024).toFixed(2)}MB exceeds maximum size 10MB`);
     }
-    
+
     if (!allowedExtensions.includes(fileExtension)) {
       throw new Error('File extension not supported. Allowed: JPG, JPEG, PNG, GIF, WEBP');
     }
-    
+
     return true;
   },
 };

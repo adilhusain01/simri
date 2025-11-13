@@ -208,6 +208,26 @@ export default function Orders() {
     setIsOrderDetailsOpen(false);
   };
 
+  const handleOrderRefund = async (orderId: string, amount: number) => {
+    try {
+      const reason = prompt('Enter refund reason (optional):');
+      if (reason === null) return; // User cancelled
+
+      await adminService.processRefund(orderId, {
+        amount,
+        reason: reason || 'Manual refund from admin panel',
+        refund_type: 'manual'
+      });
+
+      toast.success('Refund processed successfully');
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      setIsOrderDetailsOpen(false);
+    } catch (error: any) {
+      console.error('Refund error:', error);
+      toast.error(error.response?.data?.message || 'Failed to process refund');
+    }
+  };
+
   const handleBulkAction = (action: string) => {
     if (selectedOrders.length === 0) {
       toast.error('Please select orders first');
@@ -659,6 +679,7 @@ export default function Orders() {
             setSelectedOrder(null);
           }}
           onStatusUpdate={handleOrderDetailsStatusUpdate}
+          onRefund={handleOrderRefund}
         />
       )}
     </div>
