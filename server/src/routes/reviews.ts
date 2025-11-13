@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { ReviewModel } from '../models/Review';
 import { requireAuth, requireAdmin } from '../middleware/auth';
 import { body, param } from 'express-validator';
@@ -6,6 +6,37 @@ import { handleValidation } from '../middleware/validation';
 import { User } from '../types';
 import pool from '../config/database';
 import { uploadService } from '../services/uploadService';
+
+// Basic content sanitization function
+const sanitizeContent = (content: string): string => {
+  if (!content) return content;
+
+  // Remove potentially dangerous HTML/script tags
+  return content
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<[^>]*>/g, '') // Remove all HTML tags
+    .replace(/javascript:/gi, '') // Remove javascript: URLs
+    .replace(/on\w+="[^"]*"/gi, '') // Remove event handlers
+    .trim();
+};
+
+// Basic spam detection
+const detectSpam = (title?: string, comment?: string): boolean => {
+  if (!title && !comment) return false;
+
+  const content = `${title || ''} ${comment || ''}`.toLowerCase();
+
+  // Common spam patterns
+  const spamPatterns = [
+    /(\b(?:buy|purchase|order|shop)\s+now\b)/i,
+    /(\b(?:cheap|discount|sale|offer)\s+\d+%?\s+off\b)/i,
+    /http[s]?:\/\/[^\s]+/i, // URLs (might be promotional)
+    /(\b(?:click|visit|check)\s+(?:here|link|website)\b)/i,
+    /(.)\1{10,}/, // Repeated characters (like !!!!! or ?????)
+  ];
+
+  return spamPatterns.some(pattern => pattern.test(content));
+};
 
 const router = express.Router();
 
@@ -90,18 +121,32 @@ router.get('/can-review/:productId', requireAuth, async (req, res) => {
 });
 
 // Create a new review
-router.post('/', requireAuth, validateReview, async (req, res) => {
+router.post('/', requireAuth, validateReview, async (req: Request, res: Response) => {
   try {
     const user = req.user as User;
     const { product_id, rating, title, comment, images } = req.body;
 
+    // Rate limiting: Check if user has submitted too many reviews recently (max 5 per hour)
+    const recentReviews = await pool.query(`
+      SELECT COUNT(*) as count
+      FROM reviews
+      WHERE user_id = $1 AND created_at >= NOW() - INTERVAL '1 hour'
+    `, [user.id]);
+
+    if (parseInt(recentReviews.rows[0].count) >= 5) {
+      return res.status(429).json({
+        success: false,
+        message: 'Too many reviews submitted recently. Please wait before submitting another review.'
+      });
+    }
+
     // Check if user can review this product
     const reviewCheck = await ReviewModel.checkUserCanReview(user.id, product_id);
-    
+
     if (!reviewCheck.canReview) {
-      return res.status(400).json({ 
-        success: false, 
-        message: reviewCheck.reason 
+      return res.status(400).json({
+        success: false,
+        message: reviewCheck.reason
       });
     }
 
@@ -122,15 +167,20 @@ router.post('/', requireAuth, validateReview, async (req, res) => {
       }
     }
 
+    // Check for potential spam
+    const isSpam = detectSpam(title, comment);
+    const shouldApprove = !isSpam; // Auto-approve unless it looks like spam
+
     const review = await ReviewModel.create({
       user_id: user.id,
       product_id,
       order_id,
       rating,
-      title,
-      comment,
+      title: title ? sanitizeContent(title) : title,
+      comment: comment ? sanitizeContent(comment) : comment,
       images,
-      is_verified_purchase: reviewCheck.isVerifiedPurchase
+      is_verified_purchase: reviewCheck.isVerifiedPurchase,
+      is_approved: shouldApprove
     });
 
     // Add user information to the review for frontend display
@@ -140,10 +190,14 @@ router.post('/', requireAuth, validateReview, async (req, res) => {
       user_avatar: user.avatar_url
     };
 
-    res.status(201).json({ 
-      success: true, 
+    const message = shouldApprove
+      ? 'Review submitted successfully!'
+      : 'Review submitted for moderation due to content guidelines. It will be published after review.';
+
+    res.status(201).json({
+      success: true,
       data: reviewWithUser,
-      message: 'Review created successfully' 
+      message
     });
   } catch (error) {
     console.error('Create review error:', error);
@@ -152,7 +206,7 @@ router.post('/', requireAuth, validateReview, async (req, res) => {
 });
 
 // Update a review
-router.put('/:id', requireAuth, validateReviewUpdate, async (req, res) => {
+router.put('/:id', requireAuth, validateReviewUpdate, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const user = req.user as User;
@@ -215,19 +269,39 @@ router.delete('/:id', requireAuth, async (req, res) => {
 });
 
 // Mark review as helpful
-router.post('/:id/helpful', async (req, res) => {
+router.post('/:id/helpful', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
+    const user = req.user as User;
+
+    // Check if user has already marked this review as helpful (prevent spam)
+    const existingVote = await pool.query(`
+      SELECT id FROM review_helpful_votes
+      WHERE review_id = $1 AND user_id = $2
+    `, [id, user.id]);
+
+    if (existingVote.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'You have already marked this review as helpful'
+      });
+    }
+
+    // Record the vote
+    await pool.query(`
+      INSERT INTO review_helpful_votes (review_id, user_id)
+      VALUES ($1, $2)
+    `, [id, user.id]);
 
     const review = await ReviewModel.incrementHelpfulCount(id);
     if (!review) {
       return res.status(404).json({ success: false, message: 'Review not found' });
     }
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       data: { helpful_count: review.helpful_count },
-      message: 'Review marked as helpful' 
+      message: 'Review marked as helpful'
     });
   } catch (error) {
     console.error('Mark helpful error:', error);
@@ -235,19 +309,66 @@ router.post('/:id/helpful', async (req, res) => {
   }
 });
 
-// Admin routes for review moderation
+// Report a review
+router.post('/:id/report', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = req.user as User;
+    const { reason, description } = req.body;
+
+    if (!reason) {
+      return res.status(400).json({
+        success: false,
+        message: 'Report reason is required'
+      });
+    }
+
+    // Check if user has already reported this review
+    const existingReport = await pool.query(`
+      SELECT id FROM review_reports
+      WHERE review_id = $1 AND reporter_id = $2
+    `, [id, user.id]);
+
+    if (existingReport.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'You have already reported this review'
+      });
+    }
+
+    // Check if review exists
+    const review = await ReviewModel.findById(id);
+    if (!review) {
+      return res.status(404).json({ success: false, message: 'Review not found' });
+    }
+
+    // Insert report
+    await pool.query(`
+      INSERT INTO review_reports (review_id, reporter_id, reason, description)
+      VALUES ($1, $2, $3, $4)
+    `, [id, user.id, reason, description]);
+
+    res.json({
+      success: true,
+      message: 'Review reported successfully. Our team will review it.'
+    });
+  } catch (error) {
+    console.error('Report review error:', error);
+    res.status(500).json({ success: false, message: 'Error reporting review' });
+  }
+});// Admin routes for review moderation
 router.get('/admin/pending', requireAdmin, async (req, res) => {
   try {
     const { limit = 20, offset = 0 } = req.query;
 
     const result = await pool.query(`
       SELECT r.*, u.name as user_name, u.email as user_email,
-      p.name as product_name 
-      FROM reviews r 
-      JOIN users u ON r.user_id = u.id 
-      JOIN products p ON r.product_id = p.id 
+      p.name as product_name
+      FROM reviews r
+      JOIN users u ON r.user_id = u.id
+      JOIN products p ON r.product_id = p.id
       WHERE r.is_approved = false
-      ORDER BY r.created_at DESC 
+      ORDER BY r.created_at DESC
       LIMIT $1 OFFSET $2
     `, [parseInt(limit as string), parseInt(offset as string)]);
 
@@ -255,6 +376,120 @@ router.get('/admin/pending', requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Get pending reviews error:', error);
     res.status(500).json({ success: false, message: 'Error fetching pending reviews' });
+  }
+});
+
+// Get reported reviews
+router.get('/admin/reports', requireAdmin, async (req, res) => {
+  try {
+    const { limit = 20, offset = 0, status = 'pending' } = req.query;
+
+    const result = await pool.query(`
+      SELECT rr.*, r.title as review_title, r.comment as review_comment,
+      r.rating, r.created_at as review_created_at,
+      u.name as reviewer_name, u.email as reviewer_email,
+      p.name as product_name,
+      reporter.name as reporter_name
+      FROM review_reports rr
+      JOIN reviews r ON rr.review_id = r.id
+      JOIN users u ON r.user_id = u.id
+      JOIN products p ON r.product_id = p.id
+      JOIN users reporter ON rr.reporter_id = reporter.id
+      WHERE rr.status = $1
+      ORDER BY rr.created_at DESC
+      LIMIT $2 OFFSET $3
+    `, [status, parseInt(limit as string), parseInt(offset as string)]);
+
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error('Get review reports error:', error);
+    res.status(500).json({ success: false, message: 'Error fetching review reports' });
+  }
+});
+
+// Update report status
+router.put('/admin/reports/:id/status', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['pending', 'reviewed', 'resolved', 'dismissed'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status. Must be: pending, reviewed, resolved, or dismissed'
+      });
+    }
+
+    const result = await pool.query(`
+      UPDATE review_reports
+      SET status = $1, updated_at = NOW()
+      WHERE id = $2
+      RETURNING *
+    `, [status, id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Report not found' });
+    }
+
+    res.json({
+      success: true,
+      data: result.rows[0],
+      message: `Report status updated to ${status}`
+    });
+  } catch (error) {
+    console.error('Update report status error:', error);
+    res.status(500).json({ success: false, message: 'Error updating report status' });
+  }
+});
+
+// Get review statistics for admin dashboard
+router.get('/admin/stats', requireAdmin, async (req, res) => {
+  try {
+    const stats = await pool.query(`
+      SELECT
+        COUNT(*) as total_reviews,
+        COUNT(CASE WHEN is_approved = true THEN 1 END) as approved_reviews,
+        COUNT(CASE WHEN is_approved = false THEN 1 END) as pending_reviews,
+        COUNT(CASE WHEN is_verified_purchase = true THEN 1 END) as verified_reviews,
+        AVG(rating) as average_rating,
+        COUNT(DISTINCT user_id) as unique_reviewers
+      FROM reviews
+    `);
+
+    const reportStats = await pool.query(`
+      SELECT
+        COUNT(*) as total_reports,
+        COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_reports,
+        COUNT(CASE WHEN status = 'resolved' THEN 1 END) as resolved_reports
+      FROM review_reports
+    `);
+
+    const recentActivity = await pool.query(`
+      SELECT
+        'review' as type,
+        r.created_at as created_at,
+        r.title,
+        u.name as user_name,
+        p.name as product_name,
+        r.is_approved
+      FROM reviews r
+      JOIN users u ON r.user_id = u.id
+      JOIN products p ON r.product_id = p.id
+      ORDER BY r.created_at DESC
+      LIMIT 10
+    `);
+
+    res.json({
+      success: true,
+      data: {
+        reviewStats: stats.rows[0],
+        reportStats: reportStats.rows[0],
+        recentActivity: recentActivity.rows
+      }
+    });
+  } catch (error) {
+    console.error('Get review stats error:', error);
+    res.status(500).json({ success: false, message: 'Error fetching review statistics' });
   }
 });
 
@@ -269,14 +504,86 @@ router.put('/admin/:id/approve', requireAdmin, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Review not found' });
     }
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       data: review,
-      message: `Review ${approved ? 'approved' : 'rejected'} successfully` 
+      message: `Review ${approved ? 'approved' : 'rejected'} successfully`
     });
   } catch (error) {
     console.error('Approve review error:', error);
     res.status(500).json({ success: false, message: 'Error updating review approval status' });
+  }
+});
+
+// Bulk approve/reject reviews
+router.post('/admin/bulk-approve', requireAdmin, async (req, res) => {
+  try {
+    const { reviewIds, approved } = req.body;
+
+    if (!Array.isArray(reviewIds) || reviewIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'reviewIds must be a non-empty array'
+      });
+    }
+
+    // Update all reviews in the array
+    const result = await pool.query(`
+      UPDATE reviews
+      SET is_approved = $1, updated_at = NOW()
+      WHERE id = ANY($2)
+      RETURNING id
+    `, [approved, reviewIds]);
+
+    // Update product review summaries for affected products
+    const productIds = await pool.query(`
+      SELECT DISTINCT product_id FROM reviews WHERE id = ANY($1)
+    `, [reviewIds]);
+
+    for (const row of productIds.rows) {
+      await ReviewModel.updateProductReviewSummary(row.product_id);
+    }
+
+    res.json({
+      success: true,
+      data: {
+        updatedCount: result.rows.length,
+        approved
+      },
+      message: `${result.rows.length} reviews ${approved ? 'approved' : 'rejected'} successfully`
+    });
+  } catch (error) {
+    console.error('Bulk approve reviews error:', error);
+    res.status(500).json({ success: false, message: 'Error updating review approval status' });
+  }
+});
+
+// Delete review (admin only - can delete any review)
+router.delete('/admin/:id', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if review exists
+    const existingReview = await ReviewModel.findById(id);
+    if (!existingReview) {
+      return res.status(404).json({ success: false, message: 'Review not found' });
+    }
+
+    // Clean up Cloudinary images if they exist
+    if (existingReview.images && Array.isArray(existingReview.images)) {
+      console.log('🗑️ Admin deleting review images:', existingReview.images);
+      await uploadService.deleteReviewImages(existingReview.images);
+    }
+
+    const deleted = await ReviewModel.delete(id);
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: 'Review not found' });
+    }
+
+    res.json({ success: true, message: 'Review deleted successfully' });
+  } catch (error) {
+    console.error('Admin delete review error:', error);
+    res.status(500).json({ success: false, message: 'Error deleting review' });
   }
 });
 

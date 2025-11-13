@@ -19,4 +19,5 @@ export declare class ReviewModel {
         isVerifiedPurchase: boolean;
     }>;
     static incrementHelpfulCount(id: string): Promise<Review | null>;
+    static updateProductReviewSummary(productId: string): Promise<void>;
 }

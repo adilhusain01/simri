@@ -234,6 +234,28 @@ CREATE TABLE reviews (
     UNIQUE(user_id, product_id, order_id)
 );
 
+-- Table to track helpful votes to prevent duplicate voting
+CREATE TABLE review_helpful_votes (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    review_id UUID REFERENCES reviews(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(review_id, user_id)
+);
+
+-- Table to track review reports for moderation
+CREATE TABLE review_reports (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    review_id UUID REFERENCES reviews(id) ON DELETE CASCADE,
+    reporter_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    reason VARCHAR(100) NOT NULL,
+    description TEXT,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(review_id, reporter_id)
+);
+
 -- Create newsletter subscribers table
 CREATE TABLE newsletter_subscribers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

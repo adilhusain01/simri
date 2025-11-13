@@ -35,7 +35,7 @@ router.post('/product-images', auth_1.requireAdmin, productImageUpload.array('im
         console.error('Product image upload error:', error);
         res.status(500).json({
             success: false,
-            message: error.message || 'Error uploading product images'
+            message: (error instanceof Error ? error.message : 'Unknown error') || 'Error uploading product images'
         });
     }
 });
@@ -64,7 +64,7 @@ router.post('/avatar', auth_1.requireAuth, avatarUpload.single('avatar'), async 
         console.error('Avatar upload error:', error);
         res.status(500).json({
             success: false,
-            message: error.message || 'Error uploading avatar'
+            message: (error instanceof Error ? error.message : 'Unknown error') || 'Error uploading avatar'
         });
     }
 });
@@ -91,7 +91,7 @@ router.post('/review-images', auth_1.requireAuth, reviewImageUpload.array('image
         console.error('Review image upload error:', error);
         res.status(500).json({
             success: false,
-            message: error.message || 'Error uploading review images'
+            message: (error instanceof Error ? error.message : 'Unknown error') || 'Error uploading review images'
         });
     }
 });
@@ -218,11 +218,13 @@ router.post('/category-image', auth_1.requireAdmin, categoryImageUpload.single('
                 message: 'No image uploaded'
             });
         }
-        // Upload single image to Cloudinary with standard size
+        // Upload single image to Cloudinary with WebP conversion
         const cloudinaryResult = await uploadService_1.uploadService.uploadToCloudinary(req.file.path, {
-            folder: 'categories',
+            folder: 'simri/categories',
+            format: 'webp',
             transformation: [
-                { width: 400, height: 300, crop: 'fill', quality: 'auto', format: 'auto' }
+                { width: 400, height: 300, crop: 'fill' },
+                { quality: 'auto:good' }
             ]
         });
         // Clean up temp file (sync operation like other upload methods)
@@ -254,7 +256,7 @@ router.post('/category-image', auth_1.requireAdmin, categoryImageUpload.single('
         }
         res.status(500).json({
             success: false,
-            message: error.message || 'Error uploading category image'
+            message: (error instanceof Error ? error.message : 'Unknown error') || 'Error uploading category image'
         });
     }
 });

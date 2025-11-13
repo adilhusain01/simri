@@ -10,6 +10,7 @@ const morgan_1 = __importDefault(require("morgan"));
 const express_session_1 = __importDefault(require("express-session"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const connect_redis_1 = require("connect-redis");
 const redis_1 = __importDefault(require("./config/redis"));
 require("./config/passport");
@@ -39,11 +40,15 @@ const scheduledJobsService_1 = require("./services/scheduledJobsService");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 8000;
+// Trust proxy for deployment behind reverse proxy (AWS ALB, CloudFront, etc.)
+app.set('trust proxy', 1);
 // Security middleware
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({
     origin: [
         process.env.CLIENT_URL || 'http://localhost:3000',
+        'https://simri-beta.adilhusain.xyz', // Production frontend
+        'https://simri-dashboard.adilhusain.xyz', // Production dashboard
         'http://localhost:3001', // Dashboard
         'http://localhost:3002', // Dashboard fallback
     ],
@@ -69,9 +74,12 @@ app.use((0, express_session_1.default)({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
+    name: 'simri.sid', // Custom session name
     cookie: {
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     }
 }));
 // Passport middleware
@@ -97,7 +105,7 @@ app.use('/api/newsletter', newsletter_1.default);
 app.use('/api/recommendations', recommendations_1.default);
 app.use('/api/cart-abandonment', cartAbandonment_1.default);
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 // Error handling middleware

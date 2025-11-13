@@ -29,7 +29,7 @@ class EmailService {
     this.transporter = nodemailer.createTransport(config);
   }
 
-  private async sendEmail(to: string, subject: string, html: string, text?: string) {
+  public async sendEmail(to: string, subject: string, html: string, text?: string) {
     try {
       const mailOptions = {
         from: `"${process.env.COMPANY_NAME || 'Simri'}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
@@ -44,7 +44,7 @@ class EmailService {
       return { success: true, messageId: result.messageId };
     } catch (error) {
       console.error('Email send error:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 

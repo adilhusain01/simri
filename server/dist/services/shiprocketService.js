@@ -79,6 +79,20 @@ class ShiprocketService {
             cod: cod ? 1 : 0
         });
     }
+    async checkPincodeServiceability(delivery_pincode) {
+        try {
+            // Use a default pickup pincode (can be configured)
+            const pickup_pincode = process.env.DEFAULT_PICKUP_PINCODE || '400001'; // Mumbai as default
+            const weight = 0.5; // Default weight for serviceability check
+            const response = await this.getServiceability(pickup_pincode, delivery_pincode, weight, false);
+            // Shiprocket returns available couriers if serviceable
+            return response && response.data && response.data.available_courier_companies && response.data.available_courier_companies.length > 0;
+        }
+        catch (error) {
+            console.error('Pincode serviceability check failed:', error);
+            return false;
+        }
+    }
     async generateManifest(shipmentIds) {
         return this.makeRequest('/manifests/generate', 'POST', {
             shipment_id: shipmentIds
@@ -95,8 +109,14 @@ class ShiprocketService {
         });
     }
     async generateLabel(shipmentIds) {
-        return this.makeRequest('/orders/print', 'POST', {
-            ids: shipmentIds
+        return this.makeRequest('/courier/generate/label', 'POST', {
+            shipment_id: shipmentIds
+        });
+    }
+    async schedulePickup(shipmentIds, pickupDate) {
+        return this.makeRequest('/courier/generate/pickup', 'POST', {
+            shipment_id: shipmentIds,
+            pickup_date: pickupDate
         });
     }
     async cancelShipment(awbs) {

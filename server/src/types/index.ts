@@ -22,6 +22,13 @@ export interface Category {
   updated_at: Date;
 }
 
+export interface ImageObject {
+  original: string;
+  thumb: string;
+  medium: string;
+  large: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -33,7 +40,7 @@ export interface Product {
   discount_price?: number;
   stock_quantity: number;
   category_id?: string;
-  images?: string[];
+  images?: (string | ImageObject)[];
   is_featured: boolean;
   is_active: boolean;
   weight?: number;

@@ -4,8 +4,10 @@ interface ProductRecommendation {
   id: string;
   name: string;
   price: number;
+  discount_price?: number;
   images: string;
   category_id: string;
+  category_name?: string;
   average_rating: number;
   total_reviews: number;
   score: number;
@@ -33,32 +35,35 @@ class RecommendationService {
           WHERE id = $1 AND is_active = true
         ),
         similar_products AS (
-          SELECT 
+          SELECT
             p.id,
             p.name,
             p.price,
+            p.discount_price,
             p.images,
             p.category_id,
+            c.name as category_name,
             COALESCE(pr.average_rating, 0) as average_rating,
             COALESCE(pr.total_reviews, 0) as total_reviews,
             -- Scoring algorithm
-            CASE 
+            CASE
               WHEN p.category_id = cp.category_id THEN 10
               ELSE 0
             END +
-            CASE 
+            CASE
               WHEN p.tags && cp.tags THEN 5 * array_length(array(SELECT unnest(p.tags) INTERSECT SELECT unnest(cp.tags)), 1)
               ELSE 0
             END +
-            CASE 
+            CASE
               WHEN ABS(p.price - cp.price) <= cp.price * 0.3 THEN 3
               ELSE 0
             END +
             COALESCE(pr.average_rating, 0) as score
           FROM products p
           CROSS JOIN current_product cp
+          LEFT JOIN categories c ON p.category_id = c.id
           LEFT JOIN product_reviews_summary pr ON p.id = pr.product_id
-          WHERE p.id != $1 
+          WHERE p.id != $1
             AND p.is_active = true
             AND p.stock_quantity > 0
         )
@@ -94,17 +99,20 @@ class RecommendationService {
           GROUP BY oi2.product_id
         ),
         recommended_products AS (
-          SELECT 
+          SELECT
             p.id,
             p.name,
             p.price,
+            p.discount_price,
             p.images,
             p.category_id,
+            c.name as category_name,
             COALESCE(pr.average_rating, 0) as average_rating,
             COALESCE(pr.total_reviews, 0) as total_reviews,
             pp.frequency * 2 + COALESCE(pr.average_rating, 0) as score
           FROM product_pairs pp
           JOIN products p ON pp.product_id = p.id
+          LEFT JOIN categories c ON p.category_id = c.id
           LEFT JOIN product_reviews_summary pr ON p.id = pr.product_id
           WHERE p.is_active = true AND p.stock_quantity > 0
         )
@@ -151,18 +159,20 @@ class RecommendationService {
           ) interactions
         ),
         recommended_products AS (
-          SELECT 
+          SELECT
             p.id,
             p.name,
             p.price,
+            p.discount_price,
             p.images,
             p.category_id,
+            c.name as category_name,
             COALESCE(pr.average_rating, 0) as average_rating,
             COALESCE(pr.total_reviews, 0) as total_reviews,
             -- Scoring based on user preferences
             COALESCE(up.category_frequency * 3, 0) +
-            CASE 
-              WHEN p.price BETWEEN COALESCE(up.avg_price_range * 0.7, 0) 
+            CASE
+              WHEN p.price BETWEEN COALESCE(up.avg_price_range * 0.7, 0)
                                AND COALESCE(up.avg_price_range * 1.3, 999999) THEN 2
               ELSE 0
             END +
@@ -170,9 +180,10 @@ class RecommendationService {
             CASE WHEN ui.product_id IS NOT NULL THEN 5 ELSE 0 END as score
           FROM products p
           LEFT JOIN user_preferences up ON p.category_id = up.category_id
+          LEFT JOIN categories c ON p.category_id = c.id
           LEFT JOIN product_reviews_summary pr ON p.id = pr.product_id
           LEFT JOIN user_interactions ui ON p.id = ui.product_id
-          WHERE p.is_active = true 
+          WHERE p.is_active = true
             AND p.stock_quantity > 0
             AND p.id NOT IN (
               -- Exclude already purchased products
@@ -202,12 +213,14 @@ class RecommendationService {
     try {
       const result = await pool.query(`
         WITH trending_products AS (
-          SELECT 
+          SELECT
             p.id,
             p.name,
             p.price,
+            p.discount_price,
             p.images,
             p.category_id,
+            c.name as category_name,
             COALESCE(pr.average_rating, 0) as average_rating,
             COALESCE(pr.total_reviews, 0) as total_reviews,
             -- Trending score based on recent sales and reviews
@@ -215,6 +228,7 @@ class RecommendationService {
             COALESCE(pr.total_reviews, 0) * 0.5 +
             COALESCE(pr.average_rating, 0) * 2 as score
           FROM products p
+          LEFT JOIN categories c ON p.category_id = c.id
           LEFT JOIN product_reviews_summary pr ON p.id = pr.product_id
           LEFT JOIN (
             SELECT 

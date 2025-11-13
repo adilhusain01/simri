@@ -46,6 +46,7 @@ import {
 } from '../components/ui/table';
 import { adminService } from '../services/api';
 import { toast } from 'sonner';
+import Pagination from '../components/ui/pagination';
 
 // Types
 interface ShiprocketOrder {
@@ -84,6 +85,14 @@ const Shiprocket: React.FC = () => {
     weight: ''
   });
 
+  // Pagination
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    total_pages: 1,
+    total_count: 0,
+    limit: 20
+  });
+
   // Operations state
   const [creating, setCreating] = useState(false);
   const [generatingAwb, setGeneratingAwb] = useState(false);
@@ -106,7 +115,7 @@ const Shiprocket: React.FC = () => {
   useEffect(() => {
     loadOrders();
     loadCouriers();
-  }, []);
+  }, [pagination.current_page]);
 
   // Filter orders
   useEffect(() => {
@@ -139,11 +148,13 @@ const Shiprocket: React.FC = () => {
     try {
       setLoading(true);
       const response = await adminService.getOrders({
-        limit: 100,
+        offset: (pagination.current_page - 1) * pagination.limit,
+        limit: pagination.limit,
         payment_status: 'paid' // Only show paid orders
       });
       // Defensive coding: ensure we always have an array
       setOrders(Array.isArray(response.data) ? response.data as ShiprocketOrder[] : []);
+      setPagination(response.pagination || pagination);
     } catch (error) {
       console.error('Failed to load orders:', error);
       toast.error('Failed to load orders');
@@ -435,6 +446,19 @@ const Shiprocket: React.FC = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    setPagination(prev => ({ ...prev, current_page: page }));
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setPagination(prev => ({
+      ...prev,
+      limit: newItemsPerPage,
+      current_page: 1 // Reset to first page when changing items per page
+    }));
   };
 
   const getShippingStatusBadge = (status: string) => {
@@ -975,6 +999,20 @@ const Shiprocket: React.FC = () => {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {pagination.total_count > 0 && (
+            <div className="border-t pt-4">
+              <Pagination
+                currentPage={pagination.current_page}
+                totalPages={pagination.total_pages}
+                totalItems={pagination.total_count}
+                itemsPerPage={pagination.limit}
+                onPageChange={handlePageChange}
+                onItemsPerPageChange={handleItemsPerPageChange}
+              />
             </div>
           )}
         </CardContent>

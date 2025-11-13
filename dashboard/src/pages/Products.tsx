@@ -223,6 +223,21 @@ export default function Products() {
       setSelectedProduct(null);
     },
     onError: (error: any) => {
+      // Handle lifecycle protection - suggest deactivation instead
+      if (error.response?.data?.suggestion === 'deactivate') {
+        toast.error('Cannot delete product that has been ordered. Deactivating instead...');
+        // Automatically deactivate the product instead
+        if (selectedProduct) {
+          updateMutation.mutate({
+            id: selectedProduct.id,
+            data: { is_active: false }
+          });
+        }
+        setShowDeleteModal(false);
+        setSelectedProduct(null);
+        return;
+      }
+
       toast.error(error.message || 'Failed to delete product');
     },
   });
@@ -938,7 +953,9 @@ export default function Products() {
           <DialogHeader>
             <DialogTitle className="font-heading text-royal-black">Delete Product</DialogTitle>
             <DialogDescription className="font-body">
-              Are you sure you want to delete "{selectedProduct?.name}"? This action cannot be undone and will also delete all related reviews and data.
+              Are you sure you want to delete "{selectedProduct?.name}"? This action cannot be undone.
+              <br /><br />
+              <strong>Note:</strong> If this product has been ordered, it will be deactivated instead to preserve order integrity.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

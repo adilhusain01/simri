@@ -100,10 +100,25 @@ export class OrderModel {
           // Order was cancelled - restore inventory
           console.log(`Order ${id} cancelled, restoring inventory`);
           await inventoryService.handleOrderCancellation(id);
-          
+
+          // Remove coupon usage if order had a coupon applied
+          if (result.rows[0].coupon_id) {
+            await client.query(`
+              DELETE FROM coupon_usage
+              WHERE coupon_id = $1 AND user_id = $2 AND order_id = $3
+            `, [result.rows[0].coupon_id, result.rows[0].user_id, id]);
+
+            // Decrement coupon used_count
+            await client.query(`
+              UPDATE coupons
+              SET used_count = GREATEST(used_count - 1, 0), updated_at = NOW()
+              WHERE id = $1
+            `, [result.rows[0].coupon_id]);
+          }
+
           // Update shipping status to cancelled
           await client.query(`
-            UPDATE orders 
+            UPDATE orders
             SET shipping_status = 'cancelled', cancelled_at = NOW()
             WHERE id = $1
           `, [id]);
@@ -121,8 +136,11 @@ export class OrderModel {
             }
           }
           
-          // Process automatic refund if payment was completed
-          if (currentOrderData.payment_status === 'paid' && currentOrderData.razorpay_payment_id) {
+          // Process automatic refund if payment was completed and not already refunded
+          if (currentOrderData.payment_status === 'paid' &&
+              currentOrderData.razorpay_payment_id &&
+              currentOrderData.refund_status !== 'completed' &&
+              currentOrderData.refund_status !== 'processed') {
             try {
               console.log(`Processing refund for payment: ${currentOrderData.razorpay_payment_id}`);
               const refundResult = await razorpayService.processOrderCancellationRefund(
@@ -165,7 +183,7 @@ export class OrderModel {
           try {
             // Get user information for email
             const userResult = await client.query(
-              'SELECT email, first_name, last_name FROM users WHERE id = $1',
+              'SELECT email, name FROM users WHERE id = $1',
               [currentOrderData.user_id]
             );
             
@@ -304,6 +322,21 @@ export class OrderModel {
       console.log(`Order ${id} cancelled, restoring inventory`);
       await inventoryService.handleOrderCancellation(id);
 
+      // Remove coupon usage if order had a coupon applied
+      if (currentOrder.coupon_id) {
+        await client.query(`
+          DELETE FROM coupon_usage
+          WHERE coupon_id = $1 AND user_id = $2 AND order_id = $3
+        `, [currentOrder.coupon_id, currentOrder.user_id, id]);
+
+        // Decrement coupon used_count
+        await client.query(`
+          UPDATE coupons
+          SET used_count = GREATEST(used_count - 1, 0), updated_at = NOW()
+          WHERE id = $1
+        `, [currentOrder.coupon_id]);
+      }
+
       // Cancel with Shiprocket if order was shipped
       if (currentOrder.shiprocket_order_id) {
         try {
@@ -360,7 +393,7 @@ export class OrderModel {
       try {
         // Get user information for email
         const userResult = await client.query(
-          'SELECT email, first_name, last_name FROM users WHERE id = $1',
+          'SELECT email, name FROM users WHERE id = $1',
           [currentOrder.user_id]
         );
         

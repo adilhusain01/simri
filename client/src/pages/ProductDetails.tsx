@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from '@tanstack/react-router';
+import { useNavigate, useParams, Link } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import {
   Star,
@@ -14,6 +14,8 @@ import {
   RotateCcw,
   ThumbsUp,
   MessageCircle,
+  CheckCircle,
+  Flag,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -24,7 +26,7 @@ import { Textarea } from '../components/ui/textarea';
 import { ReviewImageUpload } from '../components/ui/file-upload';
 import { ImageModal } from '../components/ui/image-modal';
 // Removed tabs import - using vertical sequence layout instead
-import { productService, reviewService, recommendationService } from '../services/api';
+import { productService, reviewService, recommendationService, shiprocketService } from '../services/api';
 import { useCartStore } from '../stores/cartStore';
 import { useWishlistStore } from '../stores/wishlistStore';
 import { useAuthStore } from '../stores/authStore';
@@ -70,6 +72,11 @@ const ProductDetails: React.FC = () => {
   const [modalInitialIndex, setModalInitialIndex] = useState(0);
   const [modalTitle, setModalTitle] = useState('');
   const [userHasReviewed, setUserHasReviewed] = useState(false);
+
+  // Pincode checker state
+  const [pincode, setPincode] = useState('');
+  const [pincodeValidation, setPincodeValidation] = useState<{ serviceable: boolean; message?: string } | null>(null);
+  const [checkingPincode, setCheckingPincode] = useState(false);
 
   // Function to open image modal
   const openImageModal = (images: string[], initialIndex: number, title: string) => {
@@ -129,6 +136,17 @@ const ProductDetails: React.FC = () => {
           const { user } = useAuthStore.getState();
           const hasReviewed = reviewsList.some(review => review.user_id === user?.id);
           setUserHasReviewed(hasReviewed);
+
+          // If not found in first page, check all user's reviews for this product
+          if (!hasReviewed && user?.id) {
+            try {
+              const userReviews = await reviewService.getUserReviews();
+              const hasReviewedThisProduct = userReviews.some(review => review.product_id === product.id);
+              setUserHasReviewed(hasReviewedThisProduct);
+            } catch (error) {
+              console.warn('Failed to check user review history:', error);
+            }
+          }
         }
       } catch (error) {
         console.error('Failed to load reviews:', error);
@@ -209,6 +227,22 @@ const ProductDetails: React.FC = () => {
     }
   };
 
+  const handleCheckPincode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pincode.trim()) return;
+
+    try {
+      setCheckingPincode(true);
+      const result = await shiprocketService.checkPincodeServiceability(pincode.trim());
+      setPincodeValidation(result);
+    } catch (error: any) {
+      console.error('Failed to check pincode:', error?.message || error || 'Unknown error');
+      setPincodeValidation({ serviceable: false, message: 'Unable to verify delivery availability. Please try again.' });
+    } finally {
+      setCheckingPincode(false);
+    }
+  };
+
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!product || !isAuthenticated) return;
@@ -262,15 +296,43 @@ const ProductDetails: React.FC = () => {
         comment: reviewForm.comment,
         images: uploadedImagePaths,
       });
-      
-      setReviews(prev => [review, ...prev]);
+
+      // Add to local state only if approved
+      if (review.is_approved) {
+        setReviews(prev => [review, ...prev]);
+      }
       setShowReviewForm(false);
       setReviewForm({ rating: 5, title: '', comment: '', images: [] });
       setReviewImageFiles([]); // Clear selected files
       setUserHasReviewed(true); // User has now reviewed this product
-      toast.success('Review added successfully!');
+
+      const message = review.is_approved
+        ? 'Review added successfully!'
+        : 'Review submitted for moderation. It will be published after review.';
+      toast.success(message);
     } catch (error) {
       console.error('Failed to submit review:', error);
+
+      // Clean up uploaded images if review creation failed
+      if (uploadedImagePaths.length > 0) {
+        console.log('🧹 Cleaning up orphaned images:', uploadedImagePaths);
+        try {
+          await Promise.all(uploadedImagePaths.map(async (imagePath) => {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/upload/file`, {
+              method: 'DELETE',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ filePath: imagePath }),
+            });
+            if (!response.ok) {
+              console.warn('Failed to delete orphaned image:', imagePath);
+            }
+          }));
+        } catch (cleanupError) {
+          console.error('Failed to cleanup orphaned images:', cleanupError);
+        }
+      }
+
       toast.error('Failed to submit review');
     } finally {
       setReviewSubmitting(false);
@@ -557,6 +619,47 @@ const ProductDetails: React.FC = () => {
                   <span>Quality assured</span>
                 </div>
               </div>
+
+              {/* Delivery Checker */}
+              <div className="pt-4 lg:pt-6 border-t">
+                <h3 className="text-base lg:text-lg font-semibold text-royal-black mb-3">Check Delivery Availability</h3>
+                <form onSubmit={handleCheckPincode} className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Enter pincode"
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value)}
+                    className="flex-1"
+                    maxLength={6}
+                    pattern="[0-9]{6}"
+                    title="Please enter a valid 6-digit pincode"
+                  />
+                  <Button
+                    type="submit"
+                    disabled={checkingPincode || !pincode.trim()}
+                    className="px-4 py-2"
+                  >
+                    {checkingPincode ? <LoadingSpinner size="sm" /> : 'Check'}
+                  </Button>
+                </form>
+                {pincodeValidation && (
+                  <div className={`mt-2 text-sm flex items-center gap-2 ${
+                    pincodeValidation.serviceable ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {pincodeValidation.serviceable ? (
+                      <>
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Delivery available to this pincode</span>
+                      </>
+                    ) : (
+                      <>
+                        <Package className="h-4 w-4" />
+                        <span>{pincodeValidation.message || 'Delivery not available to this pincode'}</span>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
             </motion.div>
           </div>
 
@@ -607,62 +710,111 @@ const ProductDetails: React.FC = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
                 {relatedProducts.map((relatedProduct) => (
                   <Card key={relatedProduct.id} className="card-elegant group hover-lift overflow-hidden p-0 h-full flex flex-col">
-                    <div className="aspect-[3/4] overflow-hidden">
-                      <img
-                        src={relatedProduct.images?.[0]
-                          ? getImageUrl(relatedProduct.images[0], 'medium')
-                          : relatedProduct.imageUrl || '/placeholder-product.jpg'
-                        }
-                        alt={relatedProduct.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          e.currentTarget.src = '/placeholder-product.jpg';
-                        }}
-                      />
-                    </div>
-                    <CardContent className="p-3 lg:p-4 flex-1 flex flex-col">
-                      <Badge variant="secondary" className="text-xs mb-2 self-start">
-                        {relatedProduct.category}
-                      </Badge>
-                      <h3 className="font-heading text-xs sm:text-sm font-semibold text-royal-black mb-2 line-clamp-2 flex-1">
-                        {relatedProduct.name}
-                      </h3>
-                      <div className="flex items-center gap-1 mb-2">
-                        <div className="flex gap-0.5">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-3 w-3 ${
-                                star <= (relatedProduct.averageRating || 0)
-                                  ? 'fill-yellow-400 text-yellow-400'
-                                  : 'text-gray-300'
-                              }`}
-                            />
-                          ))}
+                    <div className="relative">
+                      <Link to="/products/$productId" params={{ productId: relatedProduct.id }} className="block">
+                        <div className="aspect-[3/4]">
+                          <img
+                            src={relatedProduct.images?.[0]
+                              ? getImageUrl(relatedProduct.images[0], 'medium')
+                              : relatedProduct.imageUrl || '/placeholder-product.jpg'
+                            }
+                            alt={relatedProduct.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder-product.jpg';
+                            }}
+                          />
                         </div>
-                        <span className="text-xs text-gray-600">
-                          ({relatedProduct.totalReviews || 0})
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between mt-auto">
-                        <span className="font-bold text-royal-black text-xs sm:text-sm">
-                          ₹{parseFloat(relatedProduct.price?.toString() || '0').toLocaleString()}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => navigate({
-                            to: `/products/${relatedProduct.id}`
-                          })}
-                          className="text-xs px-2 py-1 h-7"
-                        >
-                          View
-                        </Button>
-                      </div>
-                    </CardContent>
+                      </Link>
+                      {relatedProduct.discount_price && (
+                        <Badge className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white text-xs px-1 sm:px-2 py-0.5">
+                          {Math.round((1 - parseFloat(relatedProduct.discount_price.toString()) / parseFloat(relatedProduct.price.toString())) * 100)}% OFF
+                        </Badge>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-white/80 hover:bg-white p-1.5 sm:p-2"
+                        onClick={async () => {
+                          try {
+                            await addToWishlist(relatedProduct.id);
+                            toast.success(`${relatedProduct.name} added to wishlist!`);
+                          } catch (error) {
+                            console.error('Failed to add to wishlist:', error);
+                            toast.error('Failed to add to wishlist');
+                          }
+                        }}
+                        disabled={wishlistLoading}
+                      >
+                        <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
+                      </Button>
+                    </div>
+
+                    <Link to="/products/$productId" params={{ productId: relatedProduct.id }} className="flex flex-col flex-grow">
+                      <CardContent className="p-2 sm:p-3 lg:p-4 flex flex-col flex-grow">
+                        <Badge variant="secondary" className="text-xs mb-2 w-fit">
+                          {relatedProduct.category_name || relatedProduct.category}
+                        </Badge>
+                        <h3 className="font-heading text-xs sm:text-sm lg:text-base font-semibold text-royal-black mb-2 line-clamp-2 flex-grow hover:text-royal-gold transition-colors">
+                          {relatedProduct.name}
+                        </h3>
+
+                        {(relatedProduct.averageRating || relatedProduct.totalReviews) && (
+                          <div className="flex items-center gap-1 mb-2">
+                            <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
+                            <span className="text-xs sm:text-sm text-gray-600">
+                              {relatedProduct.averageRating || 'N/A'} ({relatedProduct.totalReviews || 0})
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 sm:mb-3 space-y-2 sm:space-y-0">
+                          {relatedProduct.discount_price ? (
+                            <div className="flex items-center gap-1 sm:gap-2">
+                              <span className="text-sm sm:text-base lg:text-lg font-bold text-royal-black">
+                                ₹{parseFloat(relatedProduct.discount_price.toString()).toLocaleString()}
+                              </span>
+                              <span className="text-xs sm:text-sm text-gray-500 line-through">
+                                ₹{parseFloat(relatedProduct.price.toString()).toLocaleString()}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-sm sm:text-base lg:text-lg font-bold text-royal-black">
+                              ₹{parseFloat(relatedProduct.price.toString()).toLocaleString()}
+                            </span>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Link>
+
+                    <div className="p-2 sm:p-3 lg:p-4 pt-0">
+                      <Button
+                        className="w-full btn-primary text-xs sm:text-sm"
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            await addToCart(relatedProduct.id, 1);
+                            toast.success(`${relatedProduct.name} added to cart!`);
+                          } catch (error) {
+                            console.error('Failed to add to cart:', error);
+                            toast.error('Failed to add to cart');
+                          }
+                        }}
+                        disabled={cartLoading || (relatedProduct.stockQuantity || relatedProduct.stock_quantity) === 0}
+                      >
+                        {(relatedProduct.stockQuantity || relatedProduct.stock_quantity) === 0 ? (
+                          <span className="text-xs sm:text-sm">Out of Stock</span>
+                        ) : (
+                          <>
+                            <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                            <span className="text-xs sm:text-sm">Add to Cart</span>
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </Card>
                 ))}
               </div>
@@ -838,16 +990,54 @@ const ProductDetails: React.FC = () => {
                             </div>
                           )}
 
-                          {/* Helpful Button */}
+                          {/* Helpful and Report Buttons */}
                           <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
                               className="text-gray-600 hover:text-gray-800 text-xs lg:text-sm px-2 lg:px-3"
+                              onClick={async () => {
+                                try {
+                                  await reviewService.markReviewHelpful(review.id);
+                                  // Update local state
+                                  setReviews(prev => prev.map(r =>
+                                    r.id === review.id
+                                      ? { ...r, helpful_count: (r.helpful_count || 0) + 1 }
+                                      : r
+                                  ));
+                                  toast.success('Marked as helpful!');
+                                } catch (error) {
+                                  console.error('Failed to mark helpful:', error);
+                                  toast.error('Failed to mark as helpful');
+                                }
+                              }}
                             >
                               <ThumbsUp className="h-3 w-3 mr-1" />
                               Helpful ({review.helpful_count || 0})
                             </Button>
+
+                            {isAuthenticated && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-gray-600 hover:text-red-600 text-xs lg:text-sm px-2 lg:px-3"
+                                onClick={async () => {
+                                  const reason = prompt('Why are you reporting this review? (spam, inappropriate, fake, etc.)');
+                                  if (reason) {
+                                    try {
+                                      await reviewService.reportReview(review.id, reason);
+                                      toast.success('Review reported successfully');
+                                    } catch (error) {
+                                      console.error('Failed to report review:', error);
+                                      toast.error('Failed to report review');
+                                    }
+                                  }
+                                }}
+                              >
+                                <Flag className="h-3 w-3 mr-1" />
+                                Report
+                              </Button>
+                            )}
                           </div>
                         </CardContent>
                       </Card>

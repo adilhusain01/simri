@@ -209,6 +209,7 @@ export interface Recommendation {
   id: string;
   name: string;
   price: number;
+  discount_price?: number;
   images: string[];
   category_name?: string;
   averageRating?: number;

@@ -472,7 +472,7 @@ const OrderHistory: React.FC = () => {
                                 </h4>
                                 <div className="flex flex-wrap gap-1 sm:gap-2">
                                   {order.items.slice(0, 3).map((item) => (
-                                    <div key={item.id} className="flex items-center gap-1 sm:gap-2 text-xs bg-gray-50 px-1.5 sm:px-2 py-1 rounded">
+                                    <Link key={item.id} to="/products/$productId" params={{ productId: item.productId }} className="flex items-center gap-1 sm:gap-2 text-xs bg-gray-50 hover:bg-gray-100 px-1.5 sm:px-2 py-1 rounded transition-colors cursor-pointer">
                                       <img
                                         src={item.product.images?.[0]
                                           ? getImageUrl(item.product.images[0], 'thumb')
@@ -484,13 +484,13 @@ const OrderHistory: React.FC = () => {
                                           e.currentTarget.src = '/placeholder-product.jpg';
                                         }}
                                       />
-                                      <span className="truncate max-w-16 sm:max-w-24 text-xs">
+                                      <span className="truncate max-w-16 sm:max-w-24 text-xs hover:text-royal-gold transition-colors">
                                         {item.product.name}
                                       </span>
                                       <span className="text-gray-500 text-xs flex-shrink-0">
                                         ×{item.quantity}
                                       </span>
-                                    </div>
+                                    </Link>
                                   ))}
                                   {order.items.length > 3 && (
                                     <span className="text-xs text-gray-500 px-1.5 sm:px-2 py-1">
@@ -556,16 +556,20 @@ const OrderHistory: React.FC = () => {
                                         <div className="space-y-2">
                                           {selectedOrder.items.map((item) => (
                                             <div key={item.id} className="flex items-center gap-2 sm:gap-3 p-2 border rounded">
-                                              <img
-                                                src={item.product.imageUrl}
-                                                alt={item.product.name}
-                                                className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded flex-shrink-0"
-                                                onError={(e) => {
-                                                  e.currentTarget.src = '/placeholder-product.jpg';
-                                                }}
-                                              />
+                                              <Link to="/products/$productId" params={{ productId: item.productId }}>
+                                                <img
+                                                  src={item.product.imageUrl}
+                                                  alt={item.product.name}
+                                                  className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                                                  onError={(e) => {
+                                                    e.currentTarget.src = '/placeholder-product.jpg';
+                                                  }}
+                                                />
+                                              </Link>
                                               <div className="flex-1 min-w-0">
-                                                <p className="font-medium text-xs sm:text-sm line-clamp-2">{item.product.name}</p>
+                                                <Link to="/products/$productId" params={{ productId: item.productId }}>
+                                                  <p className="font-medium text-xs sm:text-sm line-clamp-2 hover:text-royal-gold transition-colors cursor-pointer">{item.product.name}</p>
+                                                </Link>
                                                 <p className="text-xs text-gray-600">
                                                   Qty: {item.quantity} × ₹{item.priceAtTime}
                                                 </p>

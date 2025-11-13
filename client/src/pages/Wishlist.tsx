@@ -337,18 +337,20 @@ const WishlistItemCard: React.FC<{
           className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-royal-gold border-white bg-white/80 rounded focus:ring-royal-gold shadow-sm"
         />
       </div>
-      
+
       <div className="relative">
-        <div className="aspect-[3/4] overflow-hidden">
-          <img
-            src={product.images?.[0] ? getImageUrl(product.images[0], 'medium') : '/placeholder-product.jpg'}
-            alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              e.currentTarget.src = '/placeholder-product.jpg';
-            }}
-          />
-        </div>
+        <Link to="/products/$productId" params={{ productId: product.id }} className="block">
+          <div className="aspect-[3/4] overflow-hidden">
+            <img
+              src={product.images?.[0] ? getImageUrl(product.images[0], 'medium') : '/placeholder-product.jpg'}
+              alt={product.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder-product.jpg';
+              }}
+            />
+          </div>
+        </Link>
         {product.discount_price && (
           <Badge className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white text-xs px-1 sm:px-2 py-0.5">
             {Math.round((1 - parseFloat(product.discount_price) / parseFloat(product.price)) * 100)}% OFF
@@ -363,16 +365,15 @@ const WishlistItemCard: React.FC<{
           <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
         </Button>
       </div>
-      
-      <CardContent className="p-2 sm:p-3 lg:p-4 flex flex-col flex-grow">
-        <Badge variant="secondary" className="text-xs mb-2 w-fit">
-          {product.category_name}
-        </Badge>
-        <h3 className="font-heading text-xs sm:text-sm lg:text-base font-semibold text-royal-black mb-2 line-clamp-2 flex-grow">
-          <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-royal-gold transition-colors">
+
+      <Link to="/products/$productId" params={{ productId: product.id }} className="flex flex-col flex-grow">
+        <CardContent className="p-2 sm:p-3 lg:p-4 flex flex-col flex-grow">
+          <Badge variant="secondary" className="text-xs mb-2 w-fit">
+            {product.category_name}
+          </Badge>
+          <h3 className="font-heading text-xs sm:text-sm lg:text-base font-semibold text-royal-black mb-2 line-clamp-2 flex-grow hover:text-royal-gold transition-colors">
             {product.name}
-          </Link>
-        </h3>
+          </h3>
         
         {(product.averageRating || product.totalReviews) && (
           <div className="flex items-center gap-1 mb-2">
@@ -400,7 +401,11 @@ const WishlistItemCard: React.FC<{
           )}
         </div>
 
-        <div className="space-y-1 sm:space-y-2 mt-auto">
+        </CardContent>
+      </Link>
+
+      <div className="p-2 sm:p-3 lg:p-4 pt-0">
+        <div className="space-y-1 sm:space-y-2">
           <Button
             className="w-full btn-primary text-xs sm:text-sm"
             size="sm"
@@ -428,7 +433,7 @@ const WishlistItemCard: React.FC<{
             <span className="sm:hidden">Add</span>
           </Button>
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 };

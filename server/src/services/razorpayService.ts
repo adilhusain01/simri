@@ -113,9 +113,16 @@ export class RazorpayService {
     try {
       // First get payment details to check status and amount
       const payment = await this.getPayment(paymentId);
-      
+
       if (payment.status !== 'captured') {
         throw new Error(`Cannot refund payment with status: ${payment.status}`);
+      }
+
+      // Check if payment has already been fully refunded
+      const existingRefunds = await this.getRefundsForPayment(paymentId);
+      const totalRefunded = existingRefunds.items.reduce((sum, refund) => sum + Number(refund.amount), 0);
+      if (totalRefunded >= Number(payment.amount)) {
+        throw new Error(`Cannot refund payment with status: refunded`);
       }
 
       // Create full refund with order cancellation notes

@@ -19,25 +19,40 @@ class RazorpayService {
      */
     async createRefund(paymentId, amount, notes) {
         try {
-            const refundData = {
-                notes: notes || {}
-            };
+            const refundData = {};
             // If amount is specified, add it to refund data
             if (amount) {
                 refundData.amount = amount;
             }
+            // If notes are provided, add them to refund data
+            if (notes && Object.keys(notes).length > 0) {
+                refundData.notes = notes;
+            }
+            // console.log('Creating refund with data:', {
+            //   paymentId,
+            //   refundData: JSON.stringify(refundData)
+            // });
             const refund = await razorpay.payments.refund(paymentId, refundData);
-            console.log('Refund created successfully:', {
-                refundId: refund.id,
-                paymentId: refund.payment_id,
-                amount: refund.amount,
-                status: refund.status
-            });
+            // console.log('Refund created successfully:', {
+            //   refundId: refund.id,
+            //   paymentId: refund.payment_id,
+            //   amount: refund.amount,
+            //   status: refund.status
+            // });
             return refund;
         }
         catch (error) {
             console.error('Razorpay refund error:', error);
-            throw new Error(`Failed to create refund: ${error.message}`);
+            // console.error('Error details:', {
+            //   paymentId,
+            //   refundData: {
+            //     amount,
+            //     notes
+            //   },
+            //   errorType: typeof error,
+            //   errorMessage: error instanceof Error ? error.message : 'Unknown error'
+            // });
+            throw new Error(`Failed to create refund: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
     /**
@@ -52,7 +67,7 @@ class RazorpayService {
         }
         catch (error) {
             console.error('Failed to fetch refund:', error);
-            throw new Error(`Failed to fetch refund: ${error.message}`);
+            throw new Error(`Failed to fetch refund: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
     /**
@@ -67,7 +82,7 @@ class RazorpayService {
         }
         catch (error) {
             console.error('Failed to fetch refunds for payment:', error);
-            throw new Error(`Failed to fetch refunds: ${error.message}`);
+            throw new Error(`Failed to fetch refunds: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
     /**
@@ -82,7 +97,7 @@ class RazorpayService {
         }
         catch (error) {
             console.error('Failed to fetch payment:', error);
-            throw new Error(`Failed to fetch payment: ${error.message}`);
+            throw new Error(`Failed to fetch payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
     /**
@@ -98,6 +113,12 @@ class RazorpayService {
             const payment = await this.getPayment(paymentId);
             if (payment.status !== 'captured') {
                 throw new Error(`Cannot refund payment with status: ${payment.status}`);
+            }
+            // Check if payment has already been fully refunded
+            const existingRefunds = await this.getRefundsForPayment(paymentId);
+            const totalRefunded = existingRefunds.items.reduce((sum, refund) => sum + Number(refund.amount), 0);
+            if (totalRefunded >= Number(payment.amount)) {
+                throw new Error(`Cannot refund payment with status: refunded`);
             }
             // Create full refund with order cancellation notes
             const refund = await this.createRefund(paymentId, undefined, {
@@ -118,7 +139,7 @@ class RazorpayService {
             console.error('Order cancellation refund failed:', error);
             return {
                 success: false,
-                error: error.message,
+                error: error instanceof Error ? error.message : 'Unknown error',
                 message: 'Failed to process refund'
             };
         }

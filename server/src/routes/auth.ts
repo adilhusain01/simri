@@ -26,7 +26,7 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/auth/login' }),
   (req, res) => {
     // Get the original redirect URL from session or query state
-    const redirectTo = req.session.oauthState || req.query.state || '/';
+    const redirectTo = req.session.oauthState || (typeof req.query.state === 'string' ? req.query.state : '/') || '/';
 
     // Clean up the session state
     delete req.session.oauthState;

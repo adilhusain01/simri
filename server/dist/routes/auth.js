@@ -10,10 +10,23 @@ const validation_1 = require("../middleware/validation");
 const authService_1 = require("../services/authService");
 const router = express_1.default.Router();
 // Google OAuth routes
-router.get('/google', passport_1.default.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', (req, res, next) => {
+    // Capture the state parameter from the query string
+    const state = req.query.state || '/';
+    // Store the state in the session to retrieve after OAuth callback
+    req.session.oauthState = state;
+    passport_1.default.authenticate('google', {
+        scope: ['profile', 'email'],
+        state: state // Pass state to Google OAuth
+    })(req, res, next);
+});
 router.get('/google/callback', passport_1.default.authenticate('google', { failureRedirect: '/auth/login' }), (req, res) => {
-    // Successful authentication, redirect to client home page
-    res.redirect(`${process.env.CLIENT_URL}/`);
+    // Get the original redirect URL from session or query state
+    const redirectTo = req.session.oauthState || (typeof req.query.state === 'string' ? req.query.state : '/') || '/';
+    // Clean up the session state
+    delete req.session.oauthState;
+    // Redirect to the original intended page
+    res.redirect(`${process.env.CLIENT_URL}/auth/callback?success=true&redirect=${encodeURIComponent(redirectTo)}`);
 });
 // Email/Password Registration
 router.post('/register', [

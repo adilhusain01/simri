@@ -9,7 +9,9 @@ const database_1 = __importDefault(require("./database"));
 passport_1.default.use(new passport_google_oauth20_1.Strategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/api/auth/google/callback"
+    callbackURL: process.env.NODE_ENV === "production"
+        ? "http://simri.adilhusain.xyz/api/auth/google/callback"
+        : "http://localhost:8000/api/auth/google/callback",
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         // Check if user exists with Google ID
@@ -63,6 +65,10 @@ passport_1.default.serializeUser((user, done) => {
 passport_1.default.deserializeUser(async (id, done) => {
     try {
         const user = await database_1.default.query('SELECT * FROM users WHERE id = $1', [id]);
+        if (user.rows.length === 0) {
+            // User not found in database - return null instead of error
+            return done(null, null);
+        }
         done(null, user.rows[0]);
     }
     catch (error) {

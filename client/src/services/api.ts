@@ -377,6 +377,17 @@ export const reviewService = {
   deleteReview: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/api/reviews/${id}`);
   },
+
+  // Mark review as helpful
+  markReviewHelpful: async (id: string): Promise<{ helpful_count: number }> => {
+    const response = await api.post<ApiResponse<{ helpful_count: number }>>(`/api/reviews/${id}/helpful`);
+    return response.data.data;
+  },
+
+  // Report a review
+  reportReview: async (id: string, reason: string, description?: string): Promise<void> => {
+    const response = await api.post<ApiResponse<null>>(`/api/reviews/${id}/report`, { reason, description });
+  },
 };
 
 export const recommendationService = {
@@ -622,6 +633,14 @@ export const inventoryService = {
     return response.data.data.available;
   },
 
+};
+
+export const shiprocketService = {
+  // Check if pincode is serviceable for delivery
+  checkPincodeServiceability: async (pincode: string): Promise<{ serviceable: boolean; message?: string }> => {
+    const response = await api.get<ApiResponse<{ serviceable: boolean; message?: string }>>(`/api/admin/shiprocket/check-pincode/${pincode}`);
+    return response.data.data;
+  },
 };
 
 // Export the main API instance

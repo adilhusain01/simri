@@ -43,17 +43,19 @@ const ProductCard: React.FC<{
 }> = ({ product, onAddToCart, onAddToWishlist, cartLoading, wishlistLoading }) => {
   return (
     <Card className="card-elegant group hover-lift overflow-hidden p-0 h-full flex flex-col">
-      <div className="relative overflow-hidden">
-        <div className="aspect-[3/4]">
-          <img
-            src={product.images?.[0] ? getImageUrl(product.images[0], 'medium') : '/placeholder-product.jpg'}
-            alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              e.currentTarget.src = '/placeholder-product.jpg';
-            }}
-          />
-        </div>
+      <div className="relative">
+        <Link to="/products/$productId" params={{ productId: product.id }} className="block">
+          <div className="aspect-[3/4]">
+            <img
+              src={product.images?.[0] ? getImageUrl(product.images[0], 'medium') : '/placeholder-product.jpg'}
+              alt={product.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder-product.jpg';
+              }}
+            />
+          </div>
+        </Link>
         {product.discount_price && (
           <Badge className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white text-xs px-1 sm:px-2 py-0.5">
             {Math.round((1 - parseFloat(product.discount_price) / parseFloat(product.price)) * 100)}% OFF
@@ -70,15 +72,14 @@ const ProductCard: React.FC<{
         </Button>
       </div>
 
-      <CardContent className="p-2 sm:p-3 lg:p-4 flex flex-col flex-grow">
-        <Badge variant="secondary" className="text-xs mb-2 w-fit">
-          {product.category_name}
-        </Badge>
-        <h3 className="font-heading text-xs sm:text-sm lg:text-base font-semibold text-royal-black mb-2 line-clamp-2 flex-grow">
-          <Link to="/products/$productId" params={{ productId: product.id }} className="hover:text-royal-gold transition-colors">
+      <Link to="/products/$productId" params={{ productId: product.id }} className="flex flex-col flex-grow">
+        <CardContent className="p-2 sm:p-3 lg:p-4 flex flex-col flex-grow">
+          <Badge variant="secondary" className="text-xs mb-2 w-fit">
+            {product.category_name}
+          </Badge>
+          <h3 className="font-heading text-xs sm:text-sm lg:text-base font-semibold text-royal-black mb-2 line-clamp-2 flex-grow hover:text-royal-gold transition-colors">
             {product.name}
-          </Link>
-        </h3>
+          </h3>
 
         {(product.averageRating || product.totalReviews) && (
           <div className="flex items-center gap-1 mb-2">
@@ -106,8 +107,12 @@ const ProductCard: React.FC<{
           )}
         </div>
 
+        </CardContent>
+      </Link>
+
+      <div className="p-2 sm:p-3 lg:p-4 pt-0">
         <Button
-          className="w-full btn-primary text-xs sm:text-sm mt-auto"
+          className="w-full btn-primary text-xs sm:text-sm"
           size="sm"
           onClick={() => onAddToCart(product)}
           disabled={cartLoading || product.stock_quantity === 0}
@@ -121,7 +126,7 @@ const ProductCard: React.FC<{
             </>
           )}
         </Button>
-      </CardContent>
+      </div>
     </Card>
   );
 };

@@ -35,7 +35,7 @@ router.post('/product-images', requireAdmin, productImageUpload.array('images', 
     console.error('Product image upload error:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Error uploading product images'
+      message: (error instanceof Error ? error.message : 'Unknown error') || 'Error uploading product images'
     });
   }
 });
@@ -67,7 +67,7 @@ router.post('/avatar', requireAuth, avatarUpload.single('avatar'), async (req, r
     console.error('Avatar upload error:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Error uploading avatar'
+      message: (error instanceof Error ? error.message : 'Unknown error') || 'Error uploading avatar'
     });
   }
 });
@@ -96,7 +96,7 @@ router.post('/review-images', requireAuth, reviewImageUpload.array('images', 5),
     console.error('Review image upload error:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Error uploading review images'
+      message: (error instanceof Error ? error.message : 'Unknown error') || 'Error uploading review images'
     });
   }
 });
@@ -278,7 +278,7 @@ router.post('/category-image', requireAdmin, categoryImageUpload.single('image')
 
     res.status(500).json({
       success: false,
-      message: error.message || 'Error uploading category image'
+      message: (error instanceof Error ? error.message : 'Unknown error') || 'Error uploading category image'
     });
   }
 });

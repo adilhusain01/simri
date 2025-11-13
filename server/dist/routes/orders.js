@@ -12,6 +12,7 @@ const cartAbandonmentService_1 = require("../services/cartAbandonmentService");
 const recommendationService_1 = require("../services/recommendationService");
 const shiprocketService_1 = require("../services/shiprocketService");
 const razorpay_1 = __importDefault(require("razorpay"));
+const database_1 = __importDefault(require("../config/database"));
 const router = express_1.default.Router();
 const razorpay = new razorpay_1.default({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -463,6 +464,19 @@ router.post('/:orderId/cancel', async (req, res) => {
                     console.error('Failed to restore stock for product:', item.product_id, stockError);
                 }
             }
+        }
+        // Remove coupon usage if order had a coupon applied
+        if (order.coupon_id) {
+            await database_1.default.query(`
+        DELETE FROM coupon_usage
+        WHERE coupon_id = $1 AND user_id = $2 AND order_id = $3
+      `, [order.coupon_id, user.id, orderId]);
+            // Decrement coupon used_count
+            await database_1.default.query(`
+        UPDATE coupons
+        SET used_count = GREATEST(used_count - 1, 0), updated_at = NOW()
+        WHERE id = $1
+      `, [order.coupon_id]);
         }
         // Update order with cancellation details
         const cancelledOrder = await Order_1.OrderModel.updateCancellation(orderId, cancellation_reason, refundAmount > 0 ? refundAmount : undefined, refundStatus);

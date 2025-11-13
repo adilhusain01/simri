@@ -55,10 +55,12 @@ declare class ShiprocketService {
     getShipmentDetails(shipmentId: string): Promise<any>;
     generateAWB(shipmentId: string, courierId: number): Promise<any>;
     getServiceability(pickup_postcode: string, delivery_postcode: string, weight: number, cod?: boolean): Promise<any>;
+    checkPincodeServiceability(delivery_pincode: string): Promise<boolean>;
     generateManifest(shipmentIds: string[]): Promise<any>;
     generateInvoice(orderIds: string[]): Promise<any>;
     cancelOrder(orderId: string): Promise<any>;
     generateLabel(shipmentIds: string[]): Promise<any>;
+    schedulePickup(shipmentIds: string[], pickupDate?: string): Promise<any>;
     cancelShipment(awbs: string[]): Promise<any>;
     createReturn(returnData: {
         order_id: string;

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import * as XLSX from 'xlsx';
 import puppeteer from 'puppeteer';
 import { ProductModel } from '../models/Product';
@@ -8,6 +8,7 @@ import { requireAdmin } from '../middleware/auth';
 import { validateProduct } from '../middleware/validation';
 import { shiprocketService } from '../services/shiprocketService';
 import { razorpayService } from '../services/razorpayService';
+import { inventoryService } from '../services/inventoryService';
 import { OrderItemModel } from '../models/Order';
 import pool from '../config/database';
 
@@ -21,7 +22,7 @@ router.use(requireAdmin);
 // ========================
 
 // Create new product
-router.post('/products', validateProduct, async (req, res) => {
+router.post('/products', validateProduct, async (req: Request, res: Response) => {
   try {
     const productData = req.body;
     const product = await ProductModel.create(productData);
@@ -54,15 +55,25 @@ router.put('/products/:id', async (req, res) => {
 router.delete('/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const deleted = await ProductModel.delete(id);
     if (!deleted) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
-    
+
     res.json({ success: true, message: 'Product deleted successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Delete product error:', error);
+
+    // Handle lifecycle protection error
+    if (error.message && error.message.includes('Cannot delete product that has been ordered')) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+        suggestion: 'deactivate'
+      });
+    }
+
     res.status(500).json({ success: false, message: 'Error deleting product' });
   }
 });
@@ -615,7 +626,7 @@ router.patch('/orders/bulk-update', async (req, res) => {
           errors.push({ orderId, error: 'Order not found or update failed' });
         }
       } catch (error) {
-        errors.push({ orderId, error: error.message });
+        errors.push({ orderId, error: error instanceof Error ? error.message : 'Unknown error' });
       }
     }
     
@@ -764,10 +775,12 @@ router.get('/analytics', async (req, res) => {
       return date.toISOString();
     };
     
-    const actualStartDate = formatDate(startDate || start_date);
-    const actualEndDate = formatDate(endDate || end_date);
-    const actualComparisonStartDate = formatDate(comparisonStartDate);
-    const actualComparisonEndDate = formatDate(comparisonEndDate);
+    const startDateValue = startDate || start_date;
+    const endDateValue = endDate || end_date;
+    const actualStartDate = formatDate(typeof startDateValue === 'string' ? startDateValue : '');
+    const actualEndDate = formatDate(typeof endDateValue === 'string' ? endDateValue : '');
+    const actualComparisonStartDate = formatDate(typeof comparisonStartDate === 'string' ? comparisonStartDate : '');
+    const actualComparisonEndDate = formatDate(typeof comparisonEndDate === 'string' ? comparisonEndDate : '');
     const shouldCompare = includeComparison === 'true' || compare_period === 'true';
     
     console.log('Formatted dates:', { actualStartDate, actualEndDate, actualComparisonStartDate, actualComparisonEndDate, shouldCompare });
@@ -1553,7 +1566,7 @@ router.get('/analytics/legacy', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching legacy analytics',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1650,7 +1663,7 @@ router.get('/analytics/export', async (req, res) => {
 
     if (format === 'csv') {
       // Generate well-formatted CSV with proper headers and formatting
-      const formatCurrency = (amount: number) => `₹${parseFloat(amount || 0).toFixed(2)}`;
+      const formatCurrency = (amount: number) => `₹${(amount || 0).toFixed(2)}`;
       const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('en-IN');
       
       let csv = '';
@@ -2202,6 +2215,9 @@ router.post('/shiprocket/generate-awb/:orderId', async (req, res) => {
         awbResponse.courier_name
       );
 
+      // Update shipping status to shipped when AWB is generated
+      await OrderModel.updateShippingStatus(orderId, 'shipped', awbResponse.awb_code);
+
       res.json({
         success: true,
         message: 'AWB generated successfully',
@@ -2383,6 +2399,37 @@ router.post('/shiprocket/serviceability', async (req, res) => {
   }
 });
 
+// Check pincode serviceability for delivery
+router.get('/shiprocket/check-pincode/:pincode', async (req, res) => {
+  try {
+    const { pincode } = req.params;
+
+    if (!pincode || !/^\d{6}$/.test(pincode)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid 6-digit pincode is required'
+      });
+    }
+
+    const isServiceable = await shiprocketService.checkPincodeServiceability(pincode);
+
+    res.json({
+      success: true,
+      data: {
+        serviceable: isServiceable,
+        message: isServiceable ? undefined : 'Delivery not available to this pincode'
+      }
+    });
+  } catch (error) {
+    console.error('Check pincode serviceability error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error checking pincode serviceability',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Get pickup locations
 router.get('/shiprocket/pickup-locations', async (_req, res) => {
   try {
@@ -2493,11 +2540,57 @@ router.post('/payments/refund/:orderId', async (req, res) => {
 
     // Update order with refund information
     const refundAmountInRupees = (refundResult.amount || 0) / 100;
-    await pool.query(`
-      UPDATE orders
-      SET refund_status = 'completed', refund_amount = $1, razorpay_refund_id = $2, cancelled_at = NOW(), updated_at = NOW()
-      WHERE id = $3
-    `, [refundAmountInRupees, refundResult.id, orderId]);
+    const isFullRefund = !amount || Math.round(amount * 100) === Number(payment.amount);
+
+    if (isFullRefund) {
+      // Full refund - cancel the order completely
+      await pool.query(`
+        UPDATE orders
+        SET status = 'cancelled', refund_status = 'processed', refund_amount = $1, razorpay_refund_id = $2,
+            shipping_status = 'cancelled', cancelled_at = NOW(), cancellation_reason = $4, updated_at = NOW()
+        WHERE id = $3
+      `, [refundAmountInRupees, refundResult.id, orderId, reason || 'Manual full refund from admin panel']);
+
+      // Remove coupon usage for cancelled orders
+      if (order.coupon_id) {
+        await pool.query(`
+          DELETE FROM coupon_usage
+          WHERE coupon_id = $1 AND user_id = $2 AND order_id = $3
+        `, [order.coupon_id, order.user_id, orderId]);
+
+        // Decrement coupon used_count
+        await pool.query(`
+          UPDATE coupons
+          SET used_count = GREATEST(used_count - 1, 0), updated_at = NOW()
+          WHERE id = $1
+        `, [order.coupon_id]);
+      }
+
+      // Restore inventory for cancelled order
+      console.log(`Order ${orderId} fully refunded, restoring inventory`);
+      await inventoryService.handleOrderCancellation(orderId);
+
+      // Cancel with Shiprocket if order was shipped
+      if (order.shiprocket_order_id) {
+        try {
+          console.log(`Cancelling Shiprocket order: ${order.shiprocket_order_id}`);
+          await shiprocketService.cancelOrder(order.shiprocket_order_id);
+          console.log(`Shiprocket order cancelled successfully`);
+        } catch (shiprocketError) {
+          console.error('Shiprocket cancellation failed:', shiprocketError);
+          // Don't fail the refund - log and continue
+        }
+      }
+    } else {
+      // Partial refund - just update refund info, keep order active
+      await pool.query(`
+        UPDATE orders
+        SET refund_status = 'processed', refund_amount = $1, razorpay_refund_id = $2, updated_at = NOW()
+        WHERE id = $3
+      `, [refundAmountInRupees, refundResult.id, orderId]);
+
+      console.log(`Order ${orderId} partially refunded: ₹${refundAmountInRupees}`);
+    }
 
     res.json({
       success: true,
@@ -2646,11 +2739,15 @@ router.get('/payments/transactions', async (req, res) => {
 
     // Transform data to match frontend interface
     const transformedTransactions = transactionsResult.rows.map(transaction => {
-      const nameParts = (transaction.user_name || '').split(' ');
+      // Split name into first and last name for frontend compatibility
+      const nameParts = (transaction.user_name || '').trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
       return {
         ...transaction,
-        first_name: nameParts[0] || '',
-        last_name: nameParts.slice(1).join(' ') || '',
+        first_name: firstName,
+        last_name: lastName,
         refunded_at: transaction.cancelled_at // Map cancelled_at to refunded_at for frontend
       };
     });

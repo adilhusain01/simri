@@ -149,7 +149,7 @@ router.get('/homepage', async (req: any, res: any) => {
     ]);
 
     // If user is authenticated, also get personalized recommendations
-    let personalized = [];
+    let personalized: any[] = [];
     if (req.user?.id) {
       personalized = await recommendationService.getPersonalizedRecommendations(req.user.id, limit);
     }

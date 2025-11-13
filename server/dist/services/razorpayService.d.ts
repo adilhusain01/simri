@@ -45,7 +45,7 @@ export declare class RazorpayService {
         error?: undefined;
     } | {
         success: boolean;
-        error: any;
+        error: string;
         message: string;
         refundId?: undefined;
         amount?: undefined;

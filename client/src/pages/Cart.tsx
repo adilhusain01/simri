@@ -234,27 +234,31 @@ const Cart: React.FC = () => {
                         <div className="flex gap-3 lg:gap-4">
                           {/* Product Image */}
                           <div className="flex-shrink-0 w-16 sm:w-20 lg:w-24">
-                            <div className="aspect-[3/4] overflow-hidden rounded-md">
-                              <img
-                              src={(item.images && item.images.length > 0)
-                                ? getImageUrl(item.images[0], 'thumb')
-                                : '/placeholder-product.jpg'}
-                              alt={item.name || 'Product'}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  e.currentTarget.src = '/placeholder-product.jpg';
-                                }}
-                              />
-                            </div>
+                            <Link to="/products/$productId" params={{ productId: item.product_id }}>
+                              <div className="aspect-[3/4] overflow-hidden rounded-md cursor-pointer">
+                                <img
+                                src={(item.images && item.images.length > 0)
+                                  ? getImageUrl(item.images[0], 'thumb')
+                                  : '/placeholder-product.jpg'}
+                                alt={item.name || 'Product'}
+                                  className="w-full h-full object-cover hover:opacity-80 transition-opacity"
+                                  onError={(e) => {
+                                    e.currentTarget.src = '/placeholder-product.jpg';
+                                  }}
+                                />
+                              </div>
+                            </Link>
                           </div>
 
                           {/* Product Details */}
                           <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start mb-2">
                               <div className="flex-1 min-w-0 mr-2">
-                                <h3 className="font-heading text-sm lg:text-base font-semibold text-royal-black line-clamp-2">
-                                  {item.name || 'Unknown Product'}
-                                </h3>
+                                <Link to="/products/$productId" params={{ productId: item.product_id }}>
+                                  <h3 className="font-heading text-sm lg:text-base font-semibold text-royal-black line-clamp-2 hover:text-royal-gold transition-colors cursor-pointer">
+                                    {item.name || 'Unknown Product'}
+                                  </h3>
+                                </Link>
                               </div>
                               <Button
                                 variant="ghost"

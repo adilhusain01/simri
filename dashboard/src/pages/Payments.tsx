@@ -45,6 +45,7 @@ import {
 } from '../components/ui/table';
 import { adminService } from '../services/api';
 import { toast } from 'sonner';
+import Pagination from '../components/ui/pagination';
 
 // Types
 interface PaymentTransaction {
@@ -246,6 +247,19 @@ const Payments: React.FC = () => {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.4 }
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    setPagination(prev => ({ ...prev, current_page: page }));
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setPagination(prev => ({
+      ...prev,
+      limit: newItemsPerPage,
+      current_page: 1 // Reset to first page when changing items per page
+    }));
   };
 
   return (
@@ -500,6 +514,20 @@ const Payments: React.FC = () => {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {pagination.total_count > 0 && (
+            <div className="border-t pt-4">
+              <Pagination
+                currentPage={pagination.current_page}
+                totalPages={pagination.total_pages}
+                totalItems={pagination.total_count}
+                itemsPerPage={pagination.limit}
+                onPageChange={handlePageChange}
+                onItemsPerPageChange={handleItemsPerPageChange}
+              />
             </div>
           )}
         </CardContent>

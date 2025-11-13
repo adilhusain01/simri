@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { inventoryService } from '../services/inventoryService';
 import { requireAdmin } from '../middleware/auth';
 import { body, param } from 'express-validator';
@@ -38,7 +38,7 @@ router.get('/available/:productId', async (req, res) => {
 });
 
 // Admin: Update inventory
-router.put('/admin/:productId', requireAdmin, validateInventoryUpdate, async (req, res) => {
+router.put('/admin/:productId', requireAdmin, validateInventoryUpdate, async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
     const { quantity, changeType, notes } = req.body;

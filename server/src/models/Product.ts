@@ -1,5 +1,5 @@
 import pool from '../config/database';
-import { Product } from '../types';
+import { Product, ImageObject } from '../types';
 import { inventoryService } from '../services/inventoryService';
 import { uploadService } from '../services/uploadService';
 
@@ -231,9 +231,9 @@ export class ProductModel {
           const newImages = Array.isArray(productData.images) ? productData.images : [];
           
           // Find images that were removed (exist in current but not in new)
-          const removedImages = currentImages.filter(currentImg => {
+          const removedImages = currentImages.filter((currentImg: string | ImageObject) => {
             const currentUrl = typeof currentImg === 'object' ? currentImg.medium || currentImg.original : currentImg;
-            return !newImages.some(newImg => {
+            return !newImages.some((newImg: string | ImageObject) => {
               const newUrl = typeof newImg === 'object' ? newImg.medium || newImg.original : newImg;
               return currentUrl === newUrl;
             });
@@ -276,10 +276,19 @@ export class ProductModel {
 
   static async delete(id: string): Promise<boolean> {
     const client = await pool.connect();
-    
+
     try {
       await client.query('BEGIN');
-      
+
+      // CRITICAL LIFECYCLE CHECK: Prevent deletion of products that have been ordered
+      const orderCheck = await client.query(`
+        SELECT COUNT(*) as order_count FROM order_items WHERE product_id = $1
+      `, [id]);
+
+      if (parseInt(orderCheck.rows[0].order_count) > 0) {
+        throw new Error(`Cannot delete product that has been ordered ${orderCheck.rows[0].order_count} times. Deactivate the product instead to preserve order integrity.`);
+      }
+
       // Get the product to access its images before deleting
       const productResult = await client.query('SELECT images FROM products WHERE id = $1', [id]);
       if (productResult.rows.length > 0 && productResult.rows[0].images) {
@@ -292,28 +301,29 @@ export class ProductModel {
           // Continue with deletion even if image cleanup fails
         }
       }
-      
+
       // Delete related reviews first
       await client.query('DELETE FROM reviews WHERE product_id = $1', [id]);
-      
+
       // Delete from cart items
       await client.query('DELETE FROM cart_items WHERE product_id = $1', [id]);
-      
-      // Delete from order items
-      await client.query('DELETE FROM order_items WHERE product_id = $1', [id]);
-      
-      // Delete from wishlist items
-      await client.query('DELETE FROM wishlists WHERE product_id = $1', [id]);
-      
-      // Delete from purchase patterns (customers also bought)
-      await client.query('DELETE FROM product_purchase_patterns WHERE product_id = $1 OR co_purchased_with = $1', [id]);
-      
-      // Delete from reviews summary
-      await client.query('DELETE FROM product_reviews_summary WHERE product_id = $1', [id]);
-      
+
+      // NOTE: We already checked that there are no order_items above, so this is safe
+      // But let's double-check and only delete if confirmed safe
+      const doubleCheck = await client.query(`
+        SELECT COUNT(*) as order_count FROM order_items WHERE product_id = $1
+      `, [id]);
+
+      if (parseInt(doubleCheck.rows[0].order_count) === 0) {
+        // Safe to delete from related tables since no orders exist
+        await client.query('DELETE FROM wishlists WHERE product_id = $1', [id]);
+        await client.query('DELETE FROM product_purchase_patterns WHERE product_id = $1 OR co_purchased_with = $1', [id]);
+        await client.query('DELETE FROM product_reviews_summary WHERE product_id = $1', [id]);
+      }
+
       // Finally delete the product
       const result = await client.query('DELETE FROM products WHERE id = $1', [id]);
-      
+
       await client.query('COMMIT');
       return result.rowCount! > 0;
     } catch (error) {

@@ -137,11 +137,7 @@ class CartAbandonmentService {
             // Create discount code for the reminder
             const discountCode = await this.createReminderDiscount(abandonedCart.user_id, abandonedCart.reminder_count);
             const emailContent = this.generateReminderEmail(abandonedCart, reminderType, discountCode);
-            await emailService_1.emailService.sendEmail({
-                to: abandonedCart.user_email,
-                subject: emailContent.subject,
-                html: emailContent.html
-            });
+            await emailService_1.emailService.sendEmail(abandonedCart.user_email, emailContent.subject, emailContent.html);
             // Update reminder count
             await database_1.default.query(`
         UPDATE cart_abandonment_tracking 

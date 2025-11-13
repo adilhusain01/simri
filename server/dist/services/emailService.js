@@ -34,7 +34,7 @@ class EmailService {
         }
         catch (error) {
             console.error('Email send error:', error);
-            return { success: false, error: error.message };
+            return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
         }
     }
     htmlToText(html) {

@@ -25,7 +25,7 @@ import {
 } from '../components/ui/dialog';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
-import { orderService, paymentService, userService, couponService } from '../services/api';
+import { orderService, paymentService, userService, couponService, shiprocketService } from '../services/api';
 import type { Address, CreateOrderRequest } from '../types';
 import { toast } from 'sonner';
 
@@ -57,6 +57,8 @@ const Checkout: React.FC = () => {
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [step, setStep] = useState(1); // 1: Address, 2: Payment, 3: Review
+  const [pincodeValidation, setPincodeValidation] = useState<{ serviceable: boolean; message?: string } | null>(null);
+  const [validatingPincode, setValidatingPincode] = useState(false);
 
   // Coupon state
   const [couponCode, setCouponCode] = useState('');
@@ -117,6 +119,35 @@ const Checkout: React.FC = () => {
       loadAddresses();
     }
   }, [isAuthenticated]);
+
+  // Validate pincode when shipping address changes
+  useEffect(() => {
+    const validatePincode = async () => {
+      if (!selectedShippingAddress) {
+        setPincodeValidation(null);
+        return;
+      }
+
+      const shippingAddress = addresses.find(addr => addr.id === selectedShippingAddress);
+      if (!shippingAddress?.postal_code) {
+        setPincodeValidation(null);
+        return;
+      }
+
+      try {
+        setValidatingPincode(true);
+        const result = await shiprocketService.checkPincodeServiceability(shippingAddress.postal_code);
+        setPincodeValidation(result);
+      } catch (error: any) {
+        console.error('Failed to validate pincode:', error?.message || error || 'Unknown error');
+        setPincodeValidation({ serviceable: false, message: 'Unable to verify delivery availability' });
+      } finally {
+        setValidatingPincode(false);
+      }
+    };
+
+    validatePincode();
+  }, [selectedShippingAddress, addresses]);
 
   // Calculations
   const subtotal = cart?.subtotal || 0;
@@ -205,10 +236,10 @@ const Checkout: React.FC = () => {
 
     try {
       setLoading(true);
-      
+
       const shippingAddress = addresses.find(addr => addr.id === selectedShippingAddress);
-      const billingAddress = useSameAddress 
-        ? shippingAddress 
+      const billingAddress = useSameAddress
+        ? shippingAddress
         : addresses.find(addr => addr.id === selectedBillingAddress);
 
       if (!shippingAddress || (!useSameAddress && !billingAddress)) {
@@ -484,6 +515,34 @@ const Checkout: React.FC = () => {
                             ))}
                           </div>
 
+                          {/* Pincode Validation Status */}
+                          {selectedShippingAddress && (
+                            <div className="mt-4 p-3 lg:p-4 border rounded-lg bg-gray-50">
+                              <div className="flex items-center gap-2">
+                                {validatingPincode ? (
+                                  <>
+                                    <LoadingSpinner size="sm" />
+                                    <span className="text-sm text-gray-600">Checking delivery availability...</span>
+                                  </>
+                                ) : pincodeValidation ? (
+                                  pincodeValidation.serviceable ? (
+                                    <>
+                                      <CheckCircle className="h-4 w-4 text-green-600" />
+                                      <span className="text-sm text-green-700">Delivery available for this address</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <MapPin className="h-4 w-4 text-red-600" />
+                                      <span className="text-sm text-red-700">
+                                        {pincodeValidation.message || 'Delivery not available for this pincode'}
+                                      </span>
+                                    </>
+                                  )
+                                ) : null}
+                              </div>
+                            </div>
+                          )}
+
                           <Button
                             variant="outline"
                             onClick={() => setShowAddressDialog(true)}
@@ -716,7 +775,7 @@ const Checkout: React.FC = () => {
                         <div className="flex flex-col gap-2">
                           <Button
                             onClick={() => setStep(2)}
-                            disabled={!selectedShippingAddress}
+                            disabled={!selectedShippingAddress || !pincodeValidation?.serviceable}
                             className="btn-primary w-full text-sm lg:text-base"
                           >
                             Continue to Payment

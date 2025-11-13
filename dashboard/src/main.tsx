@@ -26,6 +26,7 @@ import Newsletter from './pages/Newsletter'
 import Analytics from './pages/Analytics'
 import Payments from './pages/Payments'
 import Shiprocket from './pages/Shiprocket'
+import Reviews from './pages/Reviews'
 
 import { TanStackQueryProvider } from './integrations/tanstack-query/root-provider'
 import { useAuthStore } from './stores/authStore'
@@ -166,6 +167,12 @@ const shiprocketRoute = createRoute({
   component: Shiprocket,
 })
 
+const reviewsRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: '/reviews',
+  component: Reviews,
+})
+
 // Index redirect
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -188,6 +195,7 @@ const routeTree = rootRoute.addChildren([
     analyticsRoute,
     paymentsRoute,
     shiprocketRoute,
+    reviewsRoute,
   ]),
 ])
 

@@ -11,7 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   CreditCard,
-  Truck
+  Truck,
+  MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -75,6 +76,11 @@ const sidebarItems: SidebarItem[] = [
     label: 'Shiprocket',
     href: '/dashboard/shiprocket',
     icon: Truck,
+  },
+  {
+    label: 'Reviews',
+    href: '/dashboard/reviews',
+    icon: MessageSquare,
   },
 ];
 

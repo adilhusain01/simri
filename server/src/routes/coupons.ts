@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { couponService } from '../services/couponService';
 import { requireAuth, requireAdmin } from '../middleware/auth';
 import { body, param, query } from 'express-validator';
@@ -44,7 +44,7 @@ const validateCouponUpdate = [
 // Public routes
 
 // Validate coupon code and get discount
-router.post('/validate', validateCouponCode, async (req, res) => {
+router.post('/validate', validateCouponCode, async (req: Request, res: Response) => {
   try {
     const { code, orderAmount } = req.body;
     const userId = req.user ? (req.user as any).id : undefined;
@@ -258,7 +258,7 @@ router.get('/admin/all', requireAdmin, async (req, res) => {
 });
 
 // Create new coupon (admin only)
-router.post('/admin/create', requireAdmin, validateCouponCreate, async (req, res) => {
+router.post('/admin/create', requireAdmin, validateCouponCreate, async (req: Request, res: Response) => {
   try {
     const adminId = (req.user as any).id;
     const result = await couponService.createCoupon(req.body, adminId);
@@ -285,7 +285,7 @@ router.post('/admin/create', requireAdmin, validateCouponCreate, async (req, res
 });
 
 // Update coupon (admin only)
-router.put('/admin/:id', requireAdmin, validateCouponUpdate, async (req, res) => {
+router.put('/admin/:id', requireAdmin, validateCouponUpdate, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const result = await couponService.updateCoupon(id, req.body);
@@ -315,7 +315,7 @@ router.put('/admin/:id', requireAdmin, validateCouponUpdate, async (req, res) =>
 router.delete('/admin/:id', requireAdmin, [
   param('id').isUUID().withMessage('Invalid coupon ID'),
   handleValidation
-], async (req, res) => {
+], async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { hard } = req.query; // ?hard=true for permanent deletion
@@ -349,7 +349,7 @@ router.delete('/admin/:id', requireAdmin, [
 router.get('/admin/:id/stats', requireAdmin, [
   param('id').isUUID().withMessage('Invalid coupon ID'),
   handleValidation
-], async (req, res) => {
+], async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const stats = await couponService.getCouponStats(id);

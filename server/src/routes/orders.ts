@@ -8,6 +8,7 @@ import { cartAbandonmentService } from '../services/cartAbandonmentService';
 import { recommendationService } from '../services/recommendationService';
 import { shiprocketService } from '../services/shiprocketService';
 import Razorpay from 'razorpay';
+import pool from '../config/database';
 
 const router = express.Router();
 
@@ -529,6 +530,21 @@ router.post('/:orderId/cancel', async (req, res) => {
           console.error('Failed to restore stock for product:', item.product_id, stockError);
         }
       }
+    }
+
+    // Remove coupon usage if order had a coupon applied
+    if (order.coupon_id) {
+      await pool.query(`
+        DELETE FROM coupon_usage
+        WHERE coupon_id = $1 AND user_id = $2 AND order_id = $3
+      `, [order.coupon_id, user.id, orderId]);
+
+      // Decrement coupon used_count
+      await pool.query(`
+        UPDATE coupons
+        SET used_count = GREATEST(used_count - 1, 0), updated_at = NOW()
+        WHERE id = $1
+      `, [order.coupon_id]);
     }
 
     // Update order with cancellation details

@@ -168,11 +168,7 @@ class CartAbandonmentService {
 
       const emailContent = this.generateReminderEmail(abandonedCart, reminderType, discountCode);
 
-      await emailService.sendEmail({
-        to: abandonedCart.user_email,
-        subject: emailContent.subject,
-        html: emailContent.html
-      });
+      await emailService.sendEmail(abandonedCart.user_email, emailContent.subject, emailContent.html);
 
       // Update reminder count
       await pool.query(`

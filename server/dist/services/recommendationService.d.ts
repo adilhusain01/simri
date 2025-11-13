@@ -2,8 +2,10 @@ interface ProductRecommendation {
     id: string;
     name: string;
     price: number;
+    discount_price?: number;
     images: string;
     category_id: string;
+    category_name?: string;
     average_rating: number;
     total_reviews: number;
     score: number;

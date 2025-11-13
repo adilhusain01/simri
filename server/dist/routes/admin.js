@@ -43,6 +43,10 @@ const Product_1 = require("../models/Product");
 const Order_1 = require("../models/Order");
 const auth_1 = require("../middleware/auth");
 const validation_1 = require("../middleware/validation");
+const shiprocketService_1 = require("../services/shiprocketService");
+const razorpayService_1 = require("../services/razorpayService");
+const inventoryService_1 = require("../services/inventoryService");
+const Order_2 = require("../models/Order");
 const database_1 = __importDefault(require("../config/database"));
 const router = express_1.default.Router();
 // All admin routes require admin authentication
@@ -90,6 +94,14 @@ router.delete('/products/:id', async (req, res) => {
     }
     catch (error) {
         console.error('Delete product error:', error);
+        // Handle lifecycle protection error
+        if (error.message && error.message.includes('Cannot delete product that has been ordered')) {
+            return res.status(400).json({
+                success: false,
+                message: error.message,
+                suggestion: 'deactivate'
+            });
+        }
         res.status(500).json({ success: false, message: 'Error deleting product' });
     }
 });
@@ -562,7 +574,7 @@ router.patch('/orders/bulk-update', async (req, res) => {
                 }
             }
             catch (error) {
-                errors.push({ orderId, error: error.message });
+                errors.push({ orderId, error: error instanceof Error ? error.message : 'Unknown error' });
             }
         }
         res.json({
@@ -682,10 +694,12 @@ router.get('/analytics', async (req, res) => {
                 return null;
             return date.toISOString();
         };
-        const actualStartDate = formatDate(startDate || start_date);
-        const actualEndDate = formatDate(endDate || end_date);
-        const actualComparisonStartDate = formatDate(comparisonStartDate);
-        const actualComparisonEndDate = formatDate(comparisonEndDate);
+        const startDateValue = startDate || start_date;
+        const endDateValue = endDate || end_date;
+        const actualStartDate = formatDate(typeof startDateValue === 'string' ? startDateValue : '');
+        const actualEndDate = formatDate(typeof endDateValue === 'string' ? endDateValue : '');
+        const actualComparisonStartDate = formatDate(typeof comparisonStartDate === 'string' ? comparisonStartDate : '');
+        const actualComparisonEndDate = formatDate(typeof comparisonEndDate === 'string' ? comparisonEndDate : '');
         const shouldCompare = includeComparison === 'true' || compare_period === 'true';
         console.log('Formatted dates:', { actualStartDate, actualEndDate, actualComparisonStartDate, actualComparisonEndDate, shouldCompare });
         // If dates are invalid, fall back to period-based queries
@@ -1342,6 +1356,46 @@ router.get('/users', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error fetching users' });
     }
 });
+// Legacy analytics endpoint (for compatibility with older dashboard)
+router.get('/analytics/legacy', async (req, res) => {
+    try {
+        console.log('Legacy analytics request params:', req.query);
+        const { period = '30' } = req.query;
+        // Use the same logic as the main analytics endpoint with simplified response
+        const periodDays = parseInt(period) || 30;
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - periodDays);
+        // Get basic metrics for legacy dashboard
+        const [totalUsers, totalOrders, totalRevenue, totalProducts] = await Promise.all([
+            database_1.default.query('SELECT COUNT(*) as count FROM users'),
+            database_1.default.query('SELECT COUNT(*) as count FROM orders WHERE created_at >= $1', [startDate]),
+            database_1.default.query('SELECT COALESCE(SUM(total_amount), 0) as total FROM orders WHERE created_at >= $1', [startDate]),
+            database_1.default.query('SELECT COUNT(*) as count FROM products')
+        ]);
+        const legacyResponse = {
+            success: true,
+            data: {
+                users: parseInt(totalUsers.rows[0].count),
+                orders: parseInt(totalOrders.rows[0].count),
+                revenue: parseFloat(totalRevenue.rows[0].total || 0),
+                products: parseInt(totalProducts.rows[0].count),
+                period: periodDays,
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString()
+            }
+        };
+        res.json(legacyResponse);
+    }
+    catch (error) {
+        console.error('Legacy analytics error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching legacy analytics',
+            error: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined
+        });
+    }
+});
 // Export analytics data
 router.get('/analytics/export', async (req, res) => {
     try {
@@ -1420,7 +1474,7 @@ router.get('/analytics/export', async (req, res) => {
         };
         if (format === 'csv') {
             // Generate well-formatted CSV with proper headers and formatting
-            const formatCurrency = (amount) => `₹${parseFloat(amount || 0).toFixed(2)}`;
+            const formatCurrency = (amount) => `₹${(amount || 0).toFixed(2)}`;
             const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('en-IN');
             let csv = '';
             // Export metadata header
@@ -1759,6 +1813,755 @@ router.get('/analytics/export', async (req, res) => {
     catch (error) {
         console.error('Export analytics error:', error);
         res.status(500).json({ success: false, message: 'Error exporting analytics data' });
+    }
+});
+// ========================
+// SHIPROCKET MANAGEMENT
+// ========================
+// Create Shiprocket order manually for failed auto-creation
+router.post('/shiprocket/create-order/:orderId', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        // Get order details
+        const order = await Order_1.OrderModel.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+        // Check if order already has Shiprocket order ID
+        if (order.shiprocket_order_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Order already has Shiprocket order ID',
+                data: { shiprocket_order_id: order.shiprocket_order_id }
+            });
+        }
+        // Get order items
+        const orderItems = await Order_2.OrderItemModel.findByOrderId(orderId);
+        if (orderItems.length === 0) {
+            return res.status(400).json({ success: false, message: 'Order has no items' });
+        }
+        // Parse addresses
+        const shippingAddress = typeof order.shipping_address === 'string'
+            ? JSON.parse(order.shipping_address)
+            : order.shipping_address;
+        const billingAddress = typeof order.billing_address === 'string'
+            ? JSON.parse(order.billing_address)
+            : order.billing_address || shippingAddress;
+        // Prepare Shiprocket order data
+        const shiprocketOrderData = {
+            order_id: order.order_number,
+            order_date: new Date().toISOString().split('T')[0],
+            pickup_location: process.env.SHIPROCKET_PICKUP_LOCATION || 'Primary',
+            channel_id: process.env.SHIPROCKET_CHANNEL_ID || '',
+            comment: `Manual order creation - Order ${order.order_number}`,
+            // Billing address (required)
+            billing_customer_name: billingAddress.first_name,
+            billing_last_name: billingAddress.last_name,
+            billing_address: billingAddress.address_line_1,
+            billing_address_2: billingAddress.address_line_2 || '',
+            billing_city: billingAddress.city,
+            billing_pincode: billingAddress.postal_code,
+            billing_state: billingAddress.state,
+            billing_country: billingAddress.country,
+            billing_email: billingAddress.email || 'noreply@simri.com',
+            billing_phone: billingAddress.phone || '9999999999',
+            // Shipping address
+            shipping_is_billing: true,
+            shipping_customer_name: shippingAddress.first_name,
+            shipping_last_name: shippingAddress.last_name,
+            shipping_address: shippingAddress.address_line_1,
+            shipping_address_2: shippingAddress.address_line_2 || '',
+            shipping_city: shippingAddress.city,
+            shipping_pincode: shippingAddress.postal_code,
+            shipping_state: shippingAddress.state,
+            shipping_country: shippingAddress.country,
+            shipping_email: shippingAddress.email || 'noreply@simri.com',
+            shipping_phone: shippingAddress.phone || '9999999999',
+            // Order items
+            order_items: orderItems.map(item => ({
+                name: item.product_name,
+                sku: item.product_sku || 'NOSKU',
+                units: item.quantity,
+                selling_price: parseFloat(item.unit_price.toString()),
+                discount: 0,
+                tax: 0,
+                hsn: 0
+            })),
+            payment_method: 'Prepaid',
+            shipping_charges: parseFloat(order.shipping_amount.toString()) || 0,
+            giftwrap_charges: 0,
+            transaction_charges: 0,
+            total_discount: parseFloat(order.discount_amount.toString()) || 0,
+            sub_total: parseFloat((order.total_amount - order.tax_amount - order.shipping_amount).toString()),
+            length: 10,
+            breadth: 10,
+            height: 10,
+            weight: 0.5
+        };
+        // Create Shiprocket order
+        const shiprocketResponse = await shiprocketService_1.shiprocketService.createOrder(shiprocketOrderData);
+        if (shiprocketResponse.order_id) {
+            // Update order with Shiprocket details
+            await Order_1.OrderModel.updateShiprocketInfo(orderId, shiprocketResponse.order_id.toString(), shiprocketResponse.shipment_id?.toString(), shiprocketResponse.awb_code, shiprocketResponse.courier_name);
+            // Update shipping status to processing
+            await Order_1.OrderModel.updateShippingStatus(orderId, 'processing');
+            res.json({
+                success: true,
+                message: 'Shiprocket order created successfully',
+                data: {
+                    shiprocket_order_id: shiprocketResponse.order_id,
+                    shiprocket_shipment_id: shiprocketResponse.shipment_id,
+                    awb_code: shiprocketResponse.awb_code,
+                    courier_name: shiprocketResponse.courier_name
+                }
+            });
+        }
+        else {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to create Shiprocket order',
+                error: shiprocketResponse
+            });
+        }
+    }
+    catch (error) {
+        console.error('Create Shiprocket order error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error creating Shiprocket order',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Generate AWB for order
+router.post('/shiprocket/generate-awb/:orderId', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { courier_id } = req.body;
+        if (!courier_id) {
+            return res.status(400).json({ success: false, message: 'courier_id is required' });
+        }
+        // Get order details
+        const order = await Order_1.OrderModel.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+        if (!order.shiprocket_shipment_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Order does not have Shiprocket shipment ID'
+            });
+        }
+        if (order.awb_number) {
+            return res.status(400).json({
+                success: false,
+                message: 'Order already has AWB number',
+                data: { awb_number: order.awb_number }
+            });
+        }
+        // Generate AWB
+        const awbResponse = await shiprocketService_1.shiprocketService.generateAWB(order.shiprocket_shipment_id, parseInt(courier_id));
+        if (awbResponse.awb_code) {
+            // Update order with AWB details
+            await Order_1.OrderModel.updateShiprocketInfo(orderId, order.shiprocket_order_id || '', order.shiprocket_shipment_id || '', awbResponse.awb_code, awbResponse.courier_name);
+            // Update shipping status to shipped when AWB is generated
+            await Order_1.OrderModel.updateShippingStatus(orderId, 'shipped', awbResponse.awb_code);
+            res.json({
+                success: true,
+                message: 'AWB generated successfully',
+                data: {
+                    awb_code: awbResponse.awb_code,
+                    courier_name: awbResponse.courier_name
+                }
+            });
+        }
+        else {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to generate AWB',
+                error: awbResponse
+            });
+        }
+    }
+    catch (error) {
+        console.error('Generate AWB error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error generating AWB',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Schedule pickup
+router.post('/shiprocket/schedule-pickup', async (req, res) => {
+    try {
+        const { shipment_ids, pickup_date } = req.body;
+        if (!shipment_ids || !Array.isArray(shipment_ids) || shipment_ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'shipment_ids array is required' });
+        }
+        const pickupResponse = await shiprocketService_1.shiprocketService.schedulePickup(shipment_ids, pickup_date);
+        res.json({
+            success: true,
+            message: 'Pickup scheduled successfully',
+            data: pickupResponse
+        });
+    }
+    catch (error) {
+        console.error('Schedule pickup error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error scheduling pickup',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Generate manifest
+router.post('/shiprocket/generate-manifest', async (req, res) => {
+    try {
+        const { shipment_ids } = req.body;
+        if (!shipment_ids || !Array.isArray(shipment_ids) || shipment_ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'shipment_ids array is required' });
+        }
+        const manifestResponse = await shiprocketService_1.shiprocketService.generateManifest(shipment_ids);
+        res.json({
+            success: true,
+            message: 'Manifest generated successfully',
+            data: manifestResponse
+        });
+    }
+    catch (error) {
+        console.error('Generate manifest error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error generating manifest',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Generate and print labels
+router.post('/shiprocket/generate-labels', async (req, res) => {
+    try {
+        const { shipment_ids } = req.body;
+        if (!shipment_ids || !Array.isArray(shipment_ids) || shipment_ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'shipment_ids array is required' });
+        }
+        const labelResponse = await shiprocketService_1.shiprocketService.generateLabel(shipment_ids);
+        res.json({
+            success: true,
+            message: 'Labels generated successfully',
+            data: labelResponse
+        });
+    }
+    catch (error) {
+        console.error('Generate labels error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error generating labels',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Generate and print invoices
+router.post('/shiprocket/generate-invoices', async (req, res) => {
+    try {
+        const { order_ids } = req.body;
+        if (!order_ids || !Array.isArray(order_ids) || order_ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'order_ids array is required' });
+        }
+        const invoiceResponse = await shiprocketService_1.shiprocketService.generateInvoice(order_ids);
+        res.json({
+            success: true,
+            message: 'Invoices generated successfully',
+            data: invoiceResponse
+        });
+    }
+    catch (error) {
+        console.error('Generate invoices error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error generating invoices',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Get available couriers
+router.get('/shiprocket/couriers', async (_req, res) => {
+    try {
+        const couriers = await shiprocketService_1.shiprocketService.getAllCouriers();
+        res.json({
+            success: true,
+            data: couriers
+        });
+    }
+    catch (error) {
+        console.error('Get couriers error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching couriers',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Check serviceability
+router.post('/shiprocket/serviceability', async (req, res) => {
+    try {
+        const { pickup_postcode, delivery_postcode, weight, cod = false } = req.body;
+        if (!pickup_postcode || !delivery_postcode || !weight) {
+            return res.status(400).json({
+                success: false,
+                message: 'pickup_postcode, delivery_postcode, and weight are required'
+            });
+        }
+        const serviceability = await shiprocketService_1.shiprocketService.getServiceability(pickup_postcode, delivery_postcode, parseFloat(weight), cod);
+        res.json({
+            success: true,
+            data: serviceability
+        });
+    }
+    catch (error) {
+        console.error('Check serviceability error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error checking serviceability',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Check pincode serviceability for delivery
+router.get('/shiprocket/check-pincode/:pincode', async (req, res) => {
+    try {
+        const { pincode } = req.params;
+        if (!pincode || !/^\d{6}$/.test(pincode)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Valid 6-digit pincode is required'
+            });
+        }
+        const isServiceable = await shiprocketService_1.shiprocketService.checkPincodeServiceability(pincode);
+        res.json({
+            success: true,
+            data: {
+                serviceable: isServiceable,
+                message: isServiceable ? undefined : 'Delivery not available to this pincode'
+            }
+        });
+    }
+    catch (error) {
+        console.error('Check pincode serviceability error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error checking pincode serviceability',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Get pickup locations
+router.get('/shiprocket/pickup-locations', async (_req, res) => {
+    try {
+        const locations = await shiprocketService_1.shiprocketService.getPickupLocations();
+        res.json({
+            success: true,
+            data: locations
+        });
+    }
+    catch (error) {
+        console.error('Get pickup locations error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching pickup locations',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// ==================================================
+// RAZORPAY PAYMENT & REFUND MANAGEMENT ENDPOINTS
+// ==================================================
+// Process manual refund for an order
+router.post('/payments/refund/:orderId', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { amount, reason, refund_type = 'manual' } = req.body;
+        // Get order details
+        const order = await Order_1.OrderModel.findById(orderId);
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order not found'
+            });
+        }
+        // Check if order has a payment to refund
+        if (!order.razorpay_payment_id || order.payment_status !== 'paid') {
+            return res.status(400).json({
+                success: false,
+                message: 'Order has no payment to refund or is not paid'
+            });
+        }
+        // Check if already refunded
+        if (order.refund_status === 'completed') {
+            return res.status(400).json({
+                success: false,
+                message: 'Order already refunded'
+            });
+        }
+        // Fetch payment details from Razorpay to verify status
+        const payment = await razorpayService_1.razorpayService.getPayment(order.razorpay_payment_id);
+        // console.log('Payment details:', {
+        //   paymentId: order.razorpay_payment_id,
+        //   status: payment.status,
+        //   amount: payment.amount,
+        //   currency: payment.currency,
+        //   captured: payment.captured,
+        //   description: payment.description,
+        //   method: payment.method,
+        //   card: payment.card ? { type: payment.card.type, network: payment.card.network } : null,
+        //   bank: payment.bank,
+        //   wallet: payment.wallet,
+        //   vpa: payment.vpa,
+        //   created_at: payment.created_at
+        // });
+        if (payment.status !== 'captured' || !payment.captured) {
+            return res.status(400).json({
+                success: false,
+                message: `Payment is not in a refundable state. Status: ${payment.status}, Captured: ${payment.captured}`
+            });
+        }
+        // Check existing refunds
+        const existingRefunds = await razorpayService_1.razorpayService.getRefundsForPayment(order.razorpay_payment_id);
+        const totalRefunded = existingRefunds.items.reduce((sum, refund) => sum + Number(refund.amount), 0);
+        // console.log('Existing refunds:', {
+        //   count: existingRefunds.items.length,
+        //   totalRefunded,
+        //   paymentAmount: payment.amount
+        // });
+        const refundAmountInPaisa = amount ? Math.round(amount * 100) : Number(payment.amount);
+        if (totalRefunded + refundAmountInPaisa > Number(payment.amount)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Refund amount exceeds the remaining payable amount'
+            });
+        }
+        // Process refund
+        // console.log('Processing refund for:', {
+        //   orderId,
+        //   paymentId: order.razorpay_payment_id,
+        //   requestedAmount: amount,
+        //   convertedAmount: amount ? Math.round(amount * 100) : undefined,
+        //   orderTotal: order.total_amount
+        // });
+        const refundResult = await razorpayService_1.razorpayService.createRefund(order.razorpay_payment_id, amount && Math.round(amount * 100) !== Number(payment.amount) ? Math.round(amount * 100) : undefined, // Convert to paisa, omit if full amount
+        reason ? { reason } : undefined // Include reason as notes if provided
+        );
+        // Update order with refund information
+        const refundAmountInRupees = (refundResult.amount || 0) / 100;
+        const isFullRefund = !amount || Math.round(amount * 100) === Number(payment.amount);
+        if (isFullRefund) {
+            // Full refund - cancel the order completely
+            await database_1.default.query(`
+        UPDATE orders
+        SET status = 'cancelled', refund_status = 'processed', refund_amount = $1, razorpay_refund_id = $2,
+            shipping_status = 'cancelled', cancelled_at = NOW(), cancellation_reason = $4, updated_at = NOW()
+        WHERE id = $3
+      `, [refundAmountInRupees, refundResult.id, orderId, reason || 'Manual full refund from admin panel']);
+            // Remove coupon usage for cancelled orders
+            if (order.coupon_id) {
+                await database_1.default.query(`
+          DELETE FROM coupon_usage
+          WHERE coupon_id = $1 AND user_id = $2 AND order_id = $3
+        `, [order.coupon_id, order.user_id, orderId]);
+                // Decrement coupon used_count
+                await database_1.default.query(`
+          UPDATE coupons
+          SET used_count = GREATEST(used_count - 1, 0), updated_at = NOW()
+          WHERE id = $1
+        `, [order.coupon_id]);
+            }
+            // Restore inventory for cancelled order
+            console.log(`Order ${orderId} fully refunded, restoring inventory`);
+            await inventoryService_1.inventoryService.handleOrderCancellation(orderId);
+            // Cancel with Shiprocket if order was shipped
+            if (order.shiprocket_order_id) {
+                try {
+                    console.log(`Cancelling Shiprocket order: ${order.shiprocket_order_id}`);
+                    await shiprocketService_1.shiprocketService.cancelOrder(order.shiprocket_order_id);
+                    console.log(`Shiprocket order cancelled successfully`);
+                }
+                catch (shiprocketError) {
+                    console.error('Shiprocket cancellation failed:', shiprocketError);
+                    // Don't fail the refund - log and continue
+                }
+            }
+        }
+        else {
+            // Partial refund - just update refund info, keep order active
+            await database_1.default.query(`
+        UPDATE orders
+        SET refund_status = 'processed', refund_amount = $1, razorpay_refund_id = $2, updated_at = NOW()
+        WHERE id = $3
+      `, [refundAmountInRupees, refundResult.id, orderId]);
+            console.log(`Order ${orderId} partially refunded: ₹${refundAmountInRupees}`);
+        }
+        res.json({
+            success: true,
+            message: 'Refund processed successfully',
+            data: {
+                refund_id: refundResult.id,
+                amount: refundAmountInRupees,
+                status: refundResult.status
+            }
+        });
+    }
+    catch (error) {
+        console.error('Manual refund error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error processing refund',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Get payment transaction details
+router.get('/payments/transaction/:paymentId', async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        // Get payment details from Razorpay
+        const payment = await razorpayService_1.razorpayService.getPayment(paymentId);
+        // Get associated order
+        const orderResult = await database_1.default.query('SELECT * FROM orders WHERE razorpay_payment_id = $1', [paymentId]);
+        const order = orderResult.rows[0];
+        // Get refund details if any
+        let refunds = [];
+        try {
+            const refundData = await razorpayService_1.razorpayService.getRefundsForPayment(paymentId);
+            refunds = Array.isArray(refundData) ? refundData : refundData.items || [];
+        }
+        catch (refundError) {
+            console.log('No refunds found for payment:', paymentId);
+        }
+        res.json({
+            success: true,
+            data: {
+                payment,
+                order: order || null,
+                refunds: refunds || []
+            }
+        });
+    }
+    catch (error) {
+        console.error('Get transaction error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching transaction details',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Get all transactions with filtering
+router.get('/payments/transactions', async (req, res) => {
+    try {
+        const { page = 1, limit = 20, payment_status, refund_status, start_date, end_date, search } = req.query;
+        let whereConditions = ['o.razorpay_payment_id IS NOT NULL'];
+        const queryParams = [];
+        let paramCount = 0;
+        if (payment_status && payment_status !== 'all') {
+            whereConditions.push(`o.payment_status = $${++paramCount}`);
+            queryParams.push(payment_status);
+        }
+        if (refund_status && refund_status !== 'all') {
+            whereConditions.push(`o.refund_status = $${++paramCount}`);
+            queryParams.push(refund_status);
+        }
+        if (start_date) {
+            whereConditions.push(`o.created_at >= $${++paramCount}::timestamp`);
+            queryParams.push(start_date);
+        }
+        if (end_date) {
+            whereConditions.push(`o.created_at <= $${++paramCount}::timestamp`);
+            queryParams.push(end_date);
+        }
+        if (search) {
+            whereConditions.push(`(o.order_number ILIKE $${++paramCount} OR o.razorpay_payment_id ILIKE $${++paramCount} OR u.email ILIKE $${++paramCount})`);
+            queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
+            paramCount += 2; // We used 3 parameters but only incremented once
+        }
+        const offset = (Number(page) - 1) * Number(limit);
+        queryParams.push(Number(limit), offset);
+        const query = `
+      SELECT
+        o.id,
+        o.order_number,
+        o.total_amount,
+        o.payment_status,
+        o.refund_status,
+        o.refund_amount,
+        o.razorpay_payment_id,
+        o.razorpay_refund_id,
+        o.razorpay_order_id,
+        o.created_at,
+        o.cancelled_at,
+        u.email as user_email,
+        u.name as user_name
+      FROM orders o
+      JOIN users u ON o.user_id = u.id
+      WHERE ${whereConditions.join(' AND ')}
+      ORDER BY o.created_at DESC
+      LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
+    `;
+        // Get total count
+        const countQuery = `
+      SELECT COUNT(*) as total
+      FROM orders o
+      JOIN users u ON o.user_id = u.id
+      WHERE ${whereConditions.join(' AND ')}
+    `;
+        const [transactionsResult, countResult] = await Promise.all([
+            database_1.default.query(query, queryParams),
+            database_1.default.query(countQuery, queryParams.slice(0, -2)) // Remove limit and offset for count
+        ]);
+        const totalCount = parseInt(countResult.rows[0].total);
+        const totalPages = Math.ceil(totalCount / Number(limit));
+        // Transform data to match frontend interface
+        const transformedTransactions = transactionsResult.rows.map(transaction => {
+            // Split name into first and last name for frontend compatibility
+            const nameParts = (transaction.user_name || '').trim().split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+            return {
+                ...transaction,
+                first_name: firstName,
+                last_name: lastName,
+                refunded_at: transaction.cancelled_at // Map cancelled_at to refunded_at for frontend
+            };
+        });
+        res.json({
+            success: true,
+            data: {
+                transactions: transformedTransactions,
+                pagination: {
+                    current_page: Number(page),
+                    total_pages: totalPages,
+                    total_count: totalCount,
+                    limit: Number(limit)
+                }
+            }
+        });
+    }
+    catch (error) {
+        console.error('Get transactions error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching transactions',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Get payment analytics
+router.get('/payments/analytics', async (req, res) => {
+    try {
+        const { period = '7d' } = req.query;
+        let dateCondition = '';
+        switch (period) {
+            case '24h':
+                dateCondition = "created_at >= NOW() - INTERVAL '24 hours'";
+                break;
+            case '7d':
+                dateCondition = "created_at >= NOW() - INTERVAL '7 days'";
+                break;
+            case '30d':
+                dateCondition = "created_at >= NOW() - INTERVAL '30 days'";
+                break;
+            case '90d':
+                dateCondition = "created_at >= NOW() - INTERVAL '90 days'";
+                break;
+            default:
+                dateCondition = "created_at >= NOW() - INTERVAL '7 days'";
+        }
+        // Payment statistics
+        const paymentStatsQuery = `
+      SELECT
+        COUNT(*) as total_payments,
+        COUNT(CASE WHEN payment_status = 'paid' THEN 1 END) as successful_payments,
+        COUNT(CASE WHEN payment_status = 'failed' THEN 1 END) as failed_payments,
+        COUNT(CASE WHEN payment_status = 'pending' THEN 1 END) as pending_payments,
+        COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END), 0) as total_revenue,
+        COALESCE(SUM(CASE WHEN refund_status = 'processed' THEN refund_amount ELSE 0 END), 0) as total_refunds,
+        COUNT(CASE WHEN refund_status = 'processed' THEN 1 END) as refund_count,
+        ROUND(AVG(CASE WHEN payment_status = 'paid' THEN total_amount ELSE NULL END), 2) as avg_order_value
+      FROM orders
+      WHERE ${dateCondition}
+    `;
+        // Daily payment trends
+        const trendsQuery = `
+      SELECT
+        DATE(created_at) as date,
+        COUNT(*) as payment_count,
+        COUNT(CASE WHEN payment_status = 'paid' THEN 1 END) as successful_count,
+        COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END), 0) as revenue,
+        COALESCE(SUM(CASE WHEN refund_status = 'processed' THEN refund_amount ELSE 0 END), 0) as refunds
+      FROM orders
+      WHERE ${dateCondition}
+      GROUP BY DATE(created_at)
+      ORDER BY DATE(created_at) DESC
+      LIMIT 30
+    `;
+        // Payment method breakdown
+        const methodsQuery = `
+      SELECT
+        payment_method,
+        COUNT(*) as count,
+        COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END), 0) as revenue
+      FROM orders
+      WHERE ${dateCondition} AND payment_method IS NOT NULL
+      GROUP BY payment_method
+    `;
+        const [statsResult, trendsResult, methodsResult] = await Promise.all([
+            database_1.default.query(paymentStatsQuery),
+            database_1.default.query(trendsQuery),
+            database_1.default.query(methodsQuery)
+        ]);
+        const stats = statsResult.rows[0];
+        const successRate = stats.total_payments > 0
+            ? Math.round((stats.successful_payments / stats.total_payments) * 100)
+            : 0;
+        res.json({
+            success: true,
+            data: {
+                overview: {
+                    total_payments: parseInt(stats.total_payments),
+                    successful_payments: parseInt(stats.successful_payments),
+                    failed_payments: parseInt(stats.failed_payments),
+                    pending_payments: parseInt(stats.pending_payments),
+                    success_rate: successRate,
+                    total_revenue: parseFloat(stats.total_revenue),
+                    total_refunds: parseFloat(stats.total_refunds),
+                    refund_count: parseInt(stats.refund_count),
+                    avg_order_value: parseFloat(stats.avg_order_value || 0),
+                    net_revenue: parseFloat(stats.total_revenue) - parseFloat(stats.total_refunds)
+                },
+                daily_trends: trendsResult.rows.map(row => ({
+                    date: row.date,
+                    payment_count: parseInt(row.payment_count),
+                    successful_count: parseInt(row.successful_count),
+                    revenue: parseFloat(row.revenue),
+                    refunds: parseFloat(row.refunds),
+                    success_rate: row.payment_count > 0
+                        ? Math.round((row.successful_count / row.payment_count) * 100)
+                        : 0
+                })),
+                payment_methods: methodsResult.rows.map(row => ({
+                    method: row.payment_method,
+                    count: parseInt(row.count),
+                    revenue: parseFloat(row.revenue)
+                }))
+            }
+        });
+    }
+    catch (error) {
+        console.error('Payment analytics error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching payment analytics',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
     }
 });
 exports.default = router;

@@ -2,7 +2,15 @@ import { Order, User } from '../types';
 declare class EmailService {
     private transporter;
     constructor();
-    private sendEmail;
+    sendEmail(to: string, subject: string, html: string, text?: string): Promise<{
+        success: boolean;
+        messageId: any;
+        error?: undefined;
+    } | {
+        success: boolean;
+        error: string;
+        messageId?: undefined;
+    }>;
     private htmlToText;
     private getEmailHeader;
     private getEmailFooter;
