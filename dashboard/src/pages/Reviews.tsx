@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  Search,
-  Filter,
   MoreHorizontal,
   Eye,
   Check,
@@ -10,13 +8,11 @@ import {
   Flag,
   MessageSquare,
   Star,
-  AlertTriangle,
-  BarChart3
+  AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -43,13 +39,6 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Tabs,
   TabsContent,
@@ -98,33 +87,9 @@ interface ReviewReport {
   reporter_name: string;
 }
 
-interface ReviewStats {
-  reviewStats: {
-    total_reviews: number;
-    approved_reviews: number;
-    pending_reviews: number;
-    verified_reviews: number;
-    average_rating: number;
-    unique_reviewers: number;
-  };
-  reportStats: {
-    total_reports: number;
-    pending_reports: number;
-    resolved_reports: number;
-  };
-  recentActivity: Array<{
-    type: string;
-    created_at: string;
-    title?: string;
-    user_name: string;
-    product_name: string;
-    is_approved: boolean;
-  }>;
-}
+
 
 const Reviews = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [selectedReport, setSelectedReport] = useState<ReviewReport | null>(null);
@@ -137,7 +102,7 @@ const Reviews = () => {
   const itemsPerPage = 20;
 
   // Fetch review statistics
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats } = useQuery({
     queryKey: ['review-stats'],
     queryFn: async () => {
       const response = await fetch('/api/reviews/admin/stats', {
@@ -149,8 +114,8 @@ const Reviews = () => {
   });
 
   // Fetch pending reviews
-  const { data: pendingReviews, isLoading: pendingLoading } = useQuery({
-    queryKey: ['pending-reviews', currentPage, searchTerm, statusFilter],
+  const { data: pendingReviews } = useQuery({
+    queryKey: ['pending-reviews', currentPage],
     queryFn: async () => {
       const params = new URLSearchParams({
         limit: itemsPerPage.toString(),
@@ -166,7 +131,7 @@ const Reviews = () => {
   });
 
   // Fetch review reports
-  const { data: reports, isLoading: reportsLoading } = useQuery({
+  const { data: reports } = useQuery({
     queryKey: ['review-reports', currentPage],
     queryFn: async () => {
       const params = new URLSearchParams({
@@ -485,7 +450,9 @@ const Reviews = () => {
                 <div className="mt-4">
                   <Pagination
                     currentPage={currentPage}
-                    totalPages={Math.ceil((pendingReviews?.data?.length || 0) / itemsPerPage)}
+                    totalPages={Math.ceil((pendingReviews?.total || pendingReviews?.data?.length || 0) / itemsPerPage)}
+                    totalItems={pendingReviews?.total || pendingReviews?.data?.length || 0}
+                    itemsPerPage={itemsPerPage}
                     onPageChange={setCurrentPage}
                   />
                 </div>

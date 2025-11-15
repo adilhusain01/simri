@@ -144,6 +144,7 @@ export interface Review {
   comment: string;
   images?: string[];
   is_verified_purchase: boolean;
+  is_approved: boolean;
   helpful_count?: number;
   created_at: string;
   updated_at: string;
@@ -214,10 +215,12 @@ export interface Recommendation {
   category_name?: string;
   averageRating?: number;
   totalReviews?: number;
+  stock_quantity: number;
   score: number;
   // Legacy fields for backwards compatibility
   imageUrl?: string;
   category?: string;
+  stockQuantity?: number;
 }
 
 export interface SearchFilters {

@@ -154,7 +154,14 @@ const Shiprocket: React.FC = () => {
       });
       // Defensive coding: ensure we always have an array
       setOrders(Array.isArray(response.data) ? response.data as ShiprocketOrder[] : []);
-      setPagination(response.pagination || pagination);
+      if (response.pagination) {
+        setPagination({
+          current_page: response.pagination.page || pagination.current_page,
+          total_pages: response.pagination.totalPages || pagination.total_pages,
+          total_count: response.pagination.total || pagination.total_count,
+          limit: response.pagination.limit || pagination.limit
+        });
+      }
     } catch (error) {
       console.error('Failed to load orders:', error);
       toast.error('Failed to load orders');

@@ -386,7 +386,7 @@ export const reviewService = {
 
   // Report a review
   reportReview: async (id: string, reason: string, description?: string): Promise<void> => {
-    const response = await api.post<ApiResponse<null>>(`/api/reviews/${id}/report`, { reason, description });
+    await api.post<ApiResponse<null>>(`/api/reviews/${id}/report`, { reason, description });
   },
 };
 

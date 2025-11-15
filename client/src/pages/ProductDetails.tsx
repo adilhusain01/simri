@@ -141,7 +141,7 @@ const ProductDetails: React.FC = () => {
           if (!hasReviewed && user?.id) {
             try {
               const userReviews = await reviewService.getUserReviews();
-              const hasReviewedThisProduct = userReviews.some(review => review.product_id === product.id);
+              const hasReviewedThisProduct = userReviews.data.some((review: any) => review.product_id === product.id);
               setUserHasReviewed(hasReviewedThisProduct);
             } catch (error) {
               console.warn('Failed to check user review history:', error);
@@ -247,11 +247,12 @@ const ProductDetails: React.FC = () => {
     e.preventDefault();
     if (!product || !isAuthenticated) return;
 
+    let uploadedImagePaths: string[] = [];
+
     try {
       setReviewSubmitting(true);
-      
+
       // Upload images first if any are selected
-      let uploadedImagePaths: string[] = [];
       if (reviewImageFiles.length > 0) {
         console.log('📸 Uploading images before review submission:', reviewImageFiles.length);
         try {
