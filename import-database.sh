@@ -162,6 +162,34 @@ cleanup_temp_files() {
     print_success "Cleanup completed"
 }
 
+run_migrations() {
+    print_info "Running database migrations..."
+
+    # Copy migration files to container
+    local migrations_dir="/home/ubuntu/simri/server/database/migrations"
+    if [ -d "$migrations_dir" ]; then
+        print_info "Found migrations directory, copying to container..."
+        docker cp "$migrations_dir" "${CONTAINER_NAME}:/tmp/migrations"
+        print_success "Migration files copied to container"
+
+        # Run each migration file
+        for migration_file in "$migrations_dir"/*.sql; do
+            if [ -f "$migration_file" ]; then
+                local filename=$(basename "$migration_file")
+                print_info "Running migration: $filename"
+                docker exec "$CONTAINER_NAME" psql -U "$DB_USER" -d "$DB_NAME" -f "/tmp/migrations/$filename"
+                print_success "Migration $filename completed"
+            fi
+        done
+
+        # Clean up migration files from container
+        docker exec "$CONTAINER_NAME" rm -rf "/tmp/migrations" 2>/dev/null || true
+        print_success "Migration cleanup completed"
+    else
+        print_warning "No migrations directory found, skipping migrations"
+    fi
+}
+
 clear_redis_cache() {
     print_info "Clearing Redis cache and sessions..."
 
@@ -274,20 +302,24 @@ main() {
     print_header "STEP 4: IMPORT DATA"
     import_backup
 
-    # Step 5: Cleanup
-    print_header "STEP 5: CLEANUP"
+    # Step 5: Run Migrations
+    print_header "STEP 5: RUN MIGRATIONS"
+    run_migrations
+
+    # Step 6: Cleanup
+    print_header "STEP 6: CLEANUP"
     cleanup_temp_files
 
-    # Step 6: Clear Redis Cache
-    print_header "STEP 6: CLEAR CACHE & SESSIONS"
+    # Step 7: Clear Redis Cache
+    print_header "STEP 7: CLEAR CACHE & SESSIONS"
     clear_redis_cache
 
-    # Step 7: Verify
-    print_header "STEP 7: VERIFICATION"
+    # Step 8: Verify
+    print_header "STEP 8: VERIFICATION"
     verify_import
 
-    # Step 8: Restart Server
-    print_header "STEP 8: RESTART SERVER"
+    # Step 9: Restart Server
+    print_header "STEP 9: RESTART SERVER"
     restart_server
 
     # Final Summary

@@ -180,6 +180,7 @@ CREATE TABLE orders (
     refund_amount DECIMAL(10,2),
     refund_status VARCHAR(20) DEFAULT 'none',
     razorpay_refund_id VARCHAR(255),
+    refunded_at TIMESTAMP WITH TIME ZONE,
     -- Return fields (for post-shipment cancellations)
     return_requested BOOLEAN DEFAULT false,
     return_id VARCHAR(255),
